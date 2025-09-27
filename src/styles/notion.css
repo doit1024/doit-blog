@@ -1,0 +1,16 @@
+@reference "@/styles/global.css";
+@import 'react-notion-x/src/styles.css';
+
+.notion-page {
+  padding: 0;
+  margin: 0;
+  width: 100%;
+}
+
+.notion {
+  --fg-color: var(--foreground);
+}
+
+.notion {
+  @apply selection:bg-accent/75 selection:text-background;
+}

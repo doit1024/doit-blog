@@ -5,26 +5,29 @@ import { SITE } from "@/config";
 interface StringTitleProp {
   pageTitle: string;
   pageDesc?: string;
+  showBreadcrumb?: boolean;
 }
 
 interface ArrayTitleProp {
   pageTitle: [string, string];
   titleTransition: string;
   pageDesc?: string;
+  showBreadcrumb?: boolean;
 }
 
 export type Props = StringTitleProp | ArrayTitleProp;
 
 const { props } = Astro;
 
+const showBreadcrumb = props.showBreadcrumb ?? true;
 const backUrl = SITE.showBackButton ? Astro.url.pathname : "/";
 ---
 
-<Breadcrumb />
+{showBreadcrumb && <Breadcrumb />}
 <main
   data-backUrl={backUrl}
   id="main-content"
-  class="mx-auto w-full max-w-app px-4 pb-4"
+  class:list={["mx-auto w-full max-w-app px-4 pb-4", !showBreadcrumb && "mt-6"]}
 >
   {
     "titleTransition" in props ? (

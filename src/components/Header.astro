@@ -83,6 +83,11 @@ const isActive = (path: string) => {
               关于
             </a>
           </li>
+          <li class="col-span-2">
+            <a href="/bb" class:list={{ "active-nav": isActive("/bb") }}>
+              哔哔
+            </a>
+          </li>
           {
             SITE.showArchives && (
               <li class="col-span-2">
