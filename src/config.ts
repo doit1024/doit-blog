@@ -1,9 +1,9 @@
 export const SITE = {
   website: "https://blog.doooit.me/", // replace this with your deployed domain
-  author: "Doit",
+  author: "doit",
   profile: "https://blog.doooit.me/about",
-  desc: "Doit杜伊特的个人博客，分享自己生活日常和技术探索，记录所思、所见、所想。",
-  title: "Doit的博客",
+  desc: "doit杜伊特的个人博客，分享自己生活日常和技术探索，记录所思、所见、所想。",
+  title: "doit's blog",
   ogImage: "doit-og.png",
   lightAndDarkMode: true,
   postPerIndex: 4,
