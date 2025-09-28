@@ -1,0 +1,30 @@
+---
+import { NotionRenderer } from "react-notion-x";
+import type { ExtendedRecordMap } from "notion-types";
+import dayjs from "dayjs";
+
+export interface Props {
+  blockData: ExtendedRecordMap;
+}
+
+const { blockData } = Astro.props;
+
+const pageBlock = Object.values(blockData.block).find(
+  block => block.value.type === "page"
+)!;
+const createdTime = pageBlock.value.created_time;
+const tagString = pageBlock.value.properties.rRiX?.[0]?.[0] ?? "";
+const tags = tagString.split(",");
+---
+
+<div class="rounded-lg border border-border p-6">
+  <NotionRenderer recordMap={blockData} fullPage={false} darkMode={false} />
+  <div class="flex items-center justify-between text-sm text-foreground/60">
+    <div class="flex gap-1">
+      {tags.map((tag: string) => <span>#{tag}</span>)}
+    </div>
+    <time datetime="2025-09-27" class="block"
+      >{dayjs(createdTime).format("YYYY-MM-DD HH:mm:ss")}</time
+    >
+  </div>
+</div>
