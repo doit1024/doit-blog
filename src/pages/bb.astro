@@ -6,19 +6,22 @@ import Header from "@/components/Header.astro";
 import Footer from "@/components/Footer.astro";
 import { SITE } from "@/config";
 import { getMicroBlogData } from "@/utils/notion.js";
-import type { ExtendedRecordMap } from 'notion-types';
-import MicroBlog from '@/components/MicroBlog.astro';
-import '@/styles/notion.css';
+import type { ExtendedRecordMap } from "notion-types";
+import MicroBlog from "@/components/MicroBlog.astro";
+import "@/styles/notion.css";
+
+export const prerender = false;
 
 const microBlogData = (await getMicroBlogData()) as ExtendedRecordMap[];
 ---
+
 <Layout title={`微博 | ${SITE.title}`}>
   <Header />
   <Main pageTitle="小声哔哔" pageDesc="短更新和碎碎念" showBreadcrumb={false}>
     <!-- <div>{JSON.stringify(microBlogData[0])}</div> -->
-    <div class="flex flex-col gap-4">{microBlogData.map((item) => ( 
-      <MicroBlog blockData={item} />
-    ))}</div>
+    <div class="flex flex-col gap-4">
+      {microBlogData.map(item => <MicroBlog blockData={item} />)}
+    </div>
   </Main>
   <Footer />
 </Layout>
