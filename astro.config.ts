@@ -1,4 +1,4 @@
-import { defineConfig, envField } from "astro/config";
+import { defineConfig, envField, fontProviders } from "astro/config";
 import tailwindcss from "@tailwindcss/vite";
 import sitemap from "@astrojs/sitemap";
 import remarkToc from "remark-toc";
@@ -21,6 +21,8 @@ import cloudflare from "@astrojs/cloudflare";
 // https://astro.build/config
 export default defineConfig({
   site: SITE.website,
+
+  prefetch: true,
 
   integrations: [
     sitemap({
@@ -78,6 +80,14 @@ export default defineConfig({
 
   experimental: {
     preserveScriptOrder: true,
+    fonts: [
+      {
+        provider: fontProviders.fontsource(),
+        name: "Poppins",
+        cssVariable: "--font-poppins",
+        weights: [400, 500, 600, 700],
+      },
+    ],
   },
 
   adapter: cloudflare(),

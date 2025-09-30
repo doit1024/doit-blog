@@ -21,7 +21,7 @@ html[data-theme="dark"] {
 }
 
 body {
-  font-family: -apple-system, 'Poppins', Arial, Helvetica, sans-serif;
+  font-family: -apple-system, var(--font-poppins), Arial, Helvetica, sans-serif;
 }
 
 @theme inline {
