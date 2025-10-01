@@ -15,6 +15,7 @@ import { slugifyStr } from "@/utils/slugify";
 import IconChevronLeft from "@/assets/icons/IconChevronLeft.svg";
 import IconChevronRight from "@/assets/icons/IconChevronRight.svg";
 import { SITE } from "@/config";
+import BackToTopButton from "@/components/BackToTopButton.astro";
 
 export interface Props {
   post: CollectionEntry<"blog">;
@@ -128,7 +129,7 @@ const nextPost =
       {tags.map(tag => <Tag tag={slugifyStr(tag)} tagName={tag} />)}
     </ul>
 
-    <!-- <BackToTopButton /> -->
+    <BackToTopButton />
 
     <!-- <ShareLinks /> -->
 
