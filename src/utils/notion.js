@@ -1,6 +1,8 @@
 import { NotionAPI } from "notion-client";
 
-const notionClient = new NotionAPI();
+const notionClient = new NotionAPI({
+  apiBaseUrl: 'https://doooit.notion.site/api/v3'
+});
 
 export async function getMicroBlogData() {
   const collectionId = "27063591-2071-804b-a600-000b022cce0b";
