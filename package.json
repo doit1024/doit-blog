@@ -26,6 +26,7 @@
     "@types/react-dom": "^19.1.9",
     "astro": "^5.14.0",
     "dayjs": "^1.11.13",
+    "lightgallery": "^2.9.0",
     "lodash.kebabcase": "^4.1.1",
     "notion-client": "^7.6.0",
     "react": "^19.1.1",
