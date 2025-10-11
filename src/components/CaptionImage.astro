@@ -4,6 +4,7 @@ import {
   type LocalImageProps,
   type RemoteImageProps,
 } from "astro:assets";
+import { getOriginImage } from "@/utils/assets";
 
 export interface Props {
   imageProps: LocalImageProps | RemoteImageProps;
@@ -14,7 +15,10 @@ export interface Props {
 const { imageProps, caption, class: className = "" } = Astro.props;
 ---
 
-<figure class:list={["figure-image", className]}>
+<figure
+  class:list={["figure-image", className]}
+  data-src={getOriginImage(imageProps.src as string)}
+>
   <Image {...imageProps} />
   {caption && <figcaption>▲{caption}</figcaption>}
 </figure>
