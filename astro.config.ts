@@ -33,7 +33,10 @@ export default defineConfig({
   ],
 
   markdown: {
-    remarkPlugins: [remarkToc, [remarkCollapse, { test: "Table of contents" }]],
+    remarkPlugins: [
+      remarkToc,
+      [remarkCollapse, { test: "Table of contents", summary: "打开目录" }],
+    ],
     rehypePlugins: [[rehypeFigureTitle, { className: "figure-image" }]],
     shikiConfig: {
       // For more themes, visit https://shiki.style/themes

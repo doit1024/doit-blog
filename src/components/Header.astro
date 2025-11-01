@@ -24,13 +24,13 @@ const isActive = (path: string) => {
 ---
 
 <header>
-  <a
+  <!-- <a
     id="skip-to-content"
     href="#main-content"
     class="absolute start-16 -top-full z-50 bg-background px-3 py-2 text-accent backdrop-blur-lg transition-all focus:top-4"
   >
     Skip to content
-  </a>
+  </a> -->
   <div
     id="nav-container"
     class="mx-auto flex max-w-app flex-col items-center justify-between sm:flex-row"
@@ -79,13 +79,13 @@ const isActive = (path: string) => {
             </a>
           </li>
           <li class="col-span-2">
-            <a href="/about" class:list={{ "active-nav": isActive("/about") }}>
-              关于
+            <a href="/bb" class:list={{ "active-nav": isActive("/bb") }}>
+              哔哔
             </a>
           </li>
           <li class="col-span-2">
-            <a href="/bb" class:list={{ "active-nav": isActive("/bb") }}>
-              哔哔
+            <a href="/about" class:list={{ "active-nav": isActive("/about") }}>
+              关于
             </a>
           </li>
           {
