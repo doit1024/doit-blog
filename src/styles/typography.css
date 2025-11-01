@@ -5,6 +5,10 @@
   .app-prose {
     @apply prose;
 
+    :where(blockquote p:first-of-type):not(:where([class~="not-prose"],[class~="not-prose"] *))::before {
+      content: none;
+    }
+
     h1,
     h2,
     h3,

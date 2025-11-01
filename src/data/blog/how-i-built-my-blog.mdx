@@ -1,0 +1,166 @@
+---
+author: Doit
+pubDatetime: 2025-11-01T16:15:22Z
+modDatetime: 2025-11-01T16:15:22Z
+title: 造轮子｜个人博客项目复盘
+slug: how-i-built-my-blog
+featured: false
+draft: false
+tags:
+  - 技术
+  - 复盘
+description: 本文对个人博客项目进行了复盘，完整回顾了开发的全过程，包括立项、需求分析、技术选型和部署上线。
+---
+
+import CaptionImage from "@/components/CaptionImage.astro";
+
+## Table of contents
+
+## 前言
+
+经过一个月的艰苦开发，我的博客 1.0 版本终于上线了。本文对个人博客项目进行了复盘，完整回顾了从立项到部署上线的全过程。
+
+## 立项
+
+我想做个人博客的想法由来已久，原因主要有：
+
+1.  通过技术周刊，阅读了很多高质量的博客文章，发现了很多有特色的个人博客，渐渐萌生了搭建自己博客的想法。
+2.  想写点东西，表达一下自己对这个世界的看法，做一些技术上的积累。
+3.  写作是有复利的，边际成本可以忽略不计。
+
+    > 生活中所有的回报，无论是财富、人际关系，还是知识，都来自复利。
+    >
+    > —— 纳瓦尔
+
+4.  在互联网上的输出和足迹很碎片化，希望可以有一个地方将这些碎片整合，拼成一个完整的自己。
+
+## 需求分析
+
+### 内容规划
+
+我的博客将承载以下类型的内容:
+
+- **技术文章** - 不限于前端的技术分享和技术探索
+- **旅行记录** - 国内外旅行的足迹和见闻
+- **周报/月报** - 定期复盘和思考
+- **日常记录** - 分享日常生活和胡思乱想
+
+### 文章形式
+
+根据内容规划分析，文章的表现形式主要有以下几种:
+
+- **纯Markdown** - 传统的纯文本内容，日常记录分享等
+- **图片+文字** - 图片为主，文字为辅的内容，主要是旅行记录和 plog
+- **交互式文章** - 对于技术分享和教程类的文章，会有大量的代码和 demo。现在比较流行的方案是通过 codesandbox 或者 codepen 以 iframe 的形式嵌入到文章中，但是我希望能够直接将 demo 渲染到文章中，实现真正的交互式内容，为读者提供无缝衔接的阅读体验。
+
+<CaptionImage
+  imageProps={{
+    src: "https://d28ebb3.webp.li/2025/10/9fc3239bcd7769522fa134d92dbc8ef0.gif",
+    alt: "https://ishadeed.com/",
+    width: "800",
+    height: "400",
+  }}
+  caption="https://ishadeed.com/"
+/>
+
+<CaptionImage
+  imageProps={{
+    src: "https://d28ebb3.webp.li/2025/10/5731f243bc9d452525d1b262433828ed.gif",
+    alt: "https://www.joshwcomeau.com/",
+    width: "800",
+    height: "600",
+  }}
+  caption="https://www.joshwcomeau.com/"
+/>
+
+### 功能模块
+
+在开始搭建之前，我先梳理了博客要具备的核心模块:
+
+- **文章系统** - 博客的核心，用于发布长文
+- **个人微博** - 记录日常碎片化的想法
+- **项目展示** - 展示个人作品和项目经历
+- **个人介绍** - About页面，让访客了解我
+- **留言/评论** - 与读者互动的桥梁
+- **相册** - 图片故事和旅行记录
+- **媒体库** - 记录自己在看、看过、想看的书影音游
+
+### 技术特性
+
+作为前端工程师，我对博客的技术实现有明确的要求:
+
+- **良好的性能** - 快速加载，体验流畅
+- **定制性强，扩展性高** - 能够自由修改和扩展功能
+- **日间/夜间模式** - 适应不同阅读场景
+- **移动端适配** - 响应式设计，移动优先
+- **主题切换** - 支持多种视觉风格
+- **图片优化** - 自动压缩、尺寸优化和格式转换
+- **SEO优化** - 便于搜索引擎收录
+- **站内搜索** - 检索全站内容，找到想看的文章
+
+## 技术选型
+
+根据前面的需求分析，我最终选用的技术栈是：**Astro + MDX + Typescript + React**。
+
+前端框架使用的是 Astro，适合内容型的静态网站，Nextjs 更适合 React 全栈应用，做博客不太合适有点大材小用了。
+
+> Astro 是一个集多功能于一体的 Web 框架。它内置包含了你构建网站所需的一切。还有数百个不同的集成和 API 钩子可根据你的具体用例和需求定制你的项目。
+>
+> 一些亮点包括：
+>
+> - **群岛**：一种基于组件的针对内容驱动的网站进行优化的 Web 架构。
+> - **UI 无关**：支持 React、Preact、Svelte、Vue、Solid、HTMX、Web 组件等等。
+> - **服务器优先**：将沉重的渲染移出访问者的设备。
+> - **默认无 JS**：让客户端更少的执行 JS ，以提升网站速度。
+> - **内容集合**：为你的 Markdown 内容，提供组织、校验并保证 TypeScript 类型安全。
+> - **可定制**：Partytown、MDX 和数百个集成可供选择。
+
+确定前端框架后，我从 Astro 官网选择了一个比较简约的主题 [astro-paper](https://github.com/satnaing/astro-paper)，并进行了一些个性化的改造：
+
+1. **主题色替换成了骚粉色** - 更有个性和辨识度
+2. **中文本地化** - 将英文界面替换为中文
+3. **字体优化** - 使用无衬线字体，提高阅读效率和舒适度
+4. **交互优化** - 删除顶部进度条(对阅读者有干扰)，统一 PC 端和移动端的返回顶部按钮样式
+5. **评论系统** - 接入了基于 GitHub Discussions 的 [giscus](https://giscus.app/zh-CN) 评论系统
+
+博客文章使用 [MDX](https://mdxjs.com/) 书写，实现在markdown中渲染React组件，生成可交互的文章。
+
+> **MDX in short**
+>
+> - ❤️ **Powerful**: MDX blends markdown and JSX syntax to fit perfectly in JSX-based projects
+> - 💻 **Everything is a component**: Use existing components in your MDX and import other MDX files as components
+> - 🔧 **Customizable**: Decide which component is rendered for each markdown construct (`{h1: MyHeading}`)
+> - 📚 **Markdown-based**: The simplicity and elegance of markdown remains, you use JSX only when you want to
+> - 🔥 **Blazingly blazing fast**: MDX has no runtime, all compilation occurs during the build stage
+
+## 部署上线
+
+### 域名
+
+在阿里云购买了 `.me` 域名，本来想买 `doit.me` ，奈何短域名价格实在太高，最后选择了 `doooit.me`，一年不到 30 块钱，经济实惠。然后将域名转移到 Cloudflare ，方便进行配置和管理。
+
+### 构建部署
+
+选择了 **Cloudflare Pages** 进行构建、部署和托管网站:
+
+- 与 GitHub 无缝集成，推送代码自动部署
+- 全球 CDN 加速，国内外访问速度都很快
+- **免费**且稳定
+
+### 图片处理
+
+采用 **Cloudflare R2 存储 + WebP 代理**的方案进行图片优化:
+
+- R2 提供免费的对象存储
+- WebP服务自动将图片转换为 `webp` 格式，大幅减小图片体积
+- 提升页面加载速度，改善用户体验
+
+因为是纯静态网站，所以整体的部署方案还是比较简单的，部署过程也很顺畅，只花了半天时间就搞定了，唯一的开支是购买域名，其他资源都是免费的。
+
+## 后记
+
+这只是我个人博客的第一个版本，只满足了基础功能。在需求列表中还有很多需求未能实现，后续我会持续迭代，一步一步地去完善博客的功能，如果有必要的话，也会写文章进行记录和分享。
+
+> 生命不息，折腾不止。
+>
+> —— 罗永浩
