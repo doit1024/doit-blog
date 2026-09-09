@@ -1,0 +1,11 @@
+{
+  "name": "doit-blog (Astro)",
+  "install": "pnpm install --frozen-lockfile",
+  "terminals": [
+    {
+      "name": "astro-dev",
+      "command": "pnpm run dev --host 0.0.0.0"
+    }
+  ],
+  "ports": [4321]
+}
