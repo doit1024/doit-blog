@@ -21,7 +21,11 @@ html[data-theme="dark"] {
 }
 
 body {
-  font-family: -apple-system, var(--font-poppins), Arial, Helvetica, sans-serif;
+  /* Fallback inside var() keeps this declaration valid if --font-poppins
+     is briefly unset during a view-transition head swap. */
+  font-family:
+    -apple-system, var(--font-poppins, ui-sans-serif), Arial, Helvetica,
+    sans-serif;
 }
 
 @theme inline {
@@ -44,7 +48,7 @@ body {
     @apply overflow-y-scroll;
   }
   body {
-    @apply flex min-h-svh flex-col bg-background font-mono text-foreground selection:bg-accent/75 selection:text-background;
+    @apply flex min-h-svh flex-col bg-background text-foreground selection:bg-accent/75 selection:text-background;
   }
   a,
   button {

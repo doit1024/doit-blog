@@ -156,6 +156,8 @@ const structuredData = {
 </html>
 
 <script>
+  import type { TransitionBeforeSwapEvent } from "astro:transitions/client";
+
   function navProgress(on: boolean) {
     const bar = document.getElementById("nav-progress");
     document.documentElement.toggleAttribute("aria-busy", on);
@@ -164,8 +166,40 @@ const structuredData = {
     bar.classList.toggle("is-active", on);
   }
 
+  /** Keep @font-face + font preloads in <head> across ClientRouter swaps.
+   *  Otherwise the browser re-evaluates font-display:swap and header
+   *  text flashes from the fallback (thin) to Poppins 600 (thick).
+   *  https://github.com/withastro/astro/issues/15465 */
+  function persistFontHead(head: HTMLHeadElement) {
+    let styleIdx = 0;
+    for (const el of head.querySelectorAll("style")) {
+      if (el.textContent?.includes("@font-face")) {
+        el.setAttribute(
+          "data-astro-transition-persist",
+          `font-style-${styleIdx++}`
+        );
+      }
+    }
+    for (const link of head.querySelectorAll(
+      'link[rel="preload"][as="font"]'
+    )) {
+      const href = link.getAttribute("href") ?? "";
+      link.setAttribute(
+        "data-astro-transition-persist",
+        `font-preload-${href}`
+      );
+    }
+  }
+
   document.addEventListener("astro:before-preparation", () =>
     navProgress(true)
+  );
+  document.addEventListener(
+    "astro:before-swap",
+    (event: TransitionBeforeSwapEvent) => {
+      persistFontHead(document.head);
+      persistFontHead(event.newDocument.head);
+    }
   );
   document.addEventListener("astro:after-swap", () => {
     navProgress(false);
