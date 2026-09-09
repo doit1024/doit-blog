@@ -14,6 +14,12 @@ export const prerender = false;
 
 const microBlogData = (await getMicroBlogData()) as ExtendedRecordMap[];
 const hasPosts = microBlogData.length > 0;
+
+// Edge-cache the HTML so Cloudflare doesn't SSR-hit Notion on every visitor.
+Astro.response.headers.set(
+  "Cache-Control",
+  "public, s-maxage=180, stale-while-revalidate=600"
+);
 ---
 
 <Layout title={`微博 | ${SITE.title}`}>
