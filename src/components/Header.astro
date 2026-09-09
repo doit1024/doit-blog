@@ -88,7 +88,11 @@ const isActive = (path: string) => {
             </a>
           </li>
           <li class="col-span-2">
-            <a href="/bb" class:list={{ "active-nav": isActive("/bb") }}>
+            <a
+              href="/bb"
+              data-astro-prefetch="load"
+              class:list={{ "active-nav": isActive("/bb") }}
+            >
               哔哔
             </a>
           </li>

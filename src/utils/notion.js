@@ -1,14 +1,14 @@
+/* eslint-disable no-console -- build-time fetch logs for Cloudflare Workers Builds */
 import { NotionAPI } from "notion-client";
 
 const collectionId = "27063591-2071-804b-a600-000b022cce0b";
 const collectionViewId = "27063591-2071-804b-88f6-000c9db68426";
 
-/** Cache Notion payloads briefly to avoid hammering public APIs on every /bb hit. */
+/**
+ * In-process cache for `astro dev` (a production `astro build` calls this once).
+ * Cloudflare `caches.default` is intentionally unused: `/bb` is SSG now.
+ */
 const CACHE_TTL_MS = 3 * 60 * 1000;
-/** Bump cache key when recordMap shape/normalization changes. */
-const CACHE_REQUEST = new Request(
-  "https://blog.doooit.me/__cache/microblog-v2"
-);
 
 /**
  * Notion public endpoints sometimes reject custom `*.notion.site` bases
@@ -33,6 +33,11 @@ let memoryCache = {
   expiresAt: 0,
   data: null,
 };
+
+function allowEmptyBuild() {
+  const flag = process.env.BB_ALLOW_EMPTY;
+  return flag === "1" || flag === "true";
+}
 
 function createClient(apiBaseUrl) {
   return apiBaseUrl ? new NotionAPI({ apiBaseUrl }) : new NotionAPI();
@@ -78,38 +83,12 @@ function normalizeRecordMap(recordMap) {
   return out;
 }
 
-async function readSharedCache() {
-  try {
-    if (typeof caches === "undefined" || !caches.default) return null;
-    const hit = await caches.default.match(CACHE_REQUEST);
-    if (!hit) return null;
-    return await hit.json();
-  } catch (err) {
-    console.warn("getMicroBlogData: shared cache read failed", err);
-    return null;
-  }
-}
-
-async function writeSharedCache(data) {
-  if (!data?.length) return;
-  try {
-    if (typeof caches === "undefined" || !caches.default) return;
-    const response = new Response(JSON.stringify(data), {
-      headers: {
-        "Content-Type": "application/json",
-        "Cache-Control": `public, max-age=${Math.floor(CACHE_TTL_MS / 1000)}`,
-      },
-    });
-    await caches.default.put(CACHE_REQUEST, response);
-  } catch (err) {
-    console.warn("getMicroBlogData: shared cache write failed", err);
-  }
-}
-
 function isUsableRecordMap(recordMap) {
   if (!recordMap?.block || !Object.keys(recordMap.block).length) return false;
   return Object.values(recordMap.block).some(
-    block => block?.value?.type === "page" || block?.value?.type === "collection_view_page"
+    block =>
+      block?.value?.type === "page" ||
+      block?.value?.type === "collection_view_page"
   );
 }
 
@@ -160,6 +139,12 @@ async function fetchFreshMicroBlogData() {
         continue;
       }
 
+      console.info(
+        "getMicroBlogData: fetched",
+        pages.length,
+        "pages via",
+        apiBaseUrl ?? "default"
+      );
       return pages;
     } catch (err) {
       lastError = err;
@@ -171,10 +156,25 @@ async function fetchFreshMicroBlogData() {
     }
   }
 
-  console.error("getMicroBlogData exhausted API bases", lastError);
-  return [];
+  if (allowEmptyBuild()) {
+    console.warn(
+      "getMicroBlogData: no usable pages; BB_ALLOW_EMPTY is set, baking an empty /bb"
+    );
+    return [];
+  }
+
+  throw (
+    lastError ??
+    new Error(
+      "getMicroBlogData: no usable Notion pages from any API base. Set BB_ALLOW_EMPTY=1 to bake an empty /bb."
+    )
+  );
 }
 
+/**
+ * Fetch the public Notion collection at **build time** (or once per TTL in `astro dev`).
+ * No Notion integration token is required for this unofficial public API path.
+ */
 export async function getMicroBlogData() {
   const now = Date.now();
 
@@ -182,14 +182,7 @@ export async function getMicroBlogData() {
     return memoryCache.data;
   }
 
-  const shared = await readSharedCache();
-  if (shared?.length) {
-    memoryCache = { data: shared, expiresAt: now + CACHE_TTL_MS };
-    return shared;
-  }
-
   const data = await fetchFreshMicroBlogData();
   memoryCache = { data, expiresAt: now + CACHE_TTL_MS };
-  await writeSharedCache(data);
   return data;
 }

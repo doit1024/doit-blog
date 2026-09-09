@@ -10,23 +10,11 @@ import type { ExtendedRecordMap } from "notion-types";
 import MicroBlog from "@/components/MicroBlog.astro";
 import "@/styles/notion.css";
 
-export const prerender = false;
+// Static SSG: Notion is fetched once at `astro build`, not on each request.
+export const prerender = true;
 
-let microBlogData: ExtendedRecordMap[] = [];
-try {
-  microBlogData = (await getMicroBlogData()) as ExtendedRecordMap[];
-} catch (err) {
-  console.error("bb.astro: getMicroBlogData threw", err);
-  microBlogData = [];
-}
-
+const microBlogData = (await getMicroBlogData()) as ExtendedRecordMap[];
 const hasPosts = Array.isArray(microBlogData) && microBlogData.length > 0;
-
-// Edge-cache the HTML so Cloudflare doesn't SSR-hit Notion on every visitor.
-Astro.response.headers.set(
-  "Cache-Control",
-  "public, s-maxage=180, stale-while-revalidate=600"
-);
 ---
 
 <Layout title={`微博 | ${SITE.title}`}>
