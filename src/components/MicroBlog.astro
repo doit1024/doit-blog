@@ -27,7 +27,6 @@ const canRender = Boolean(blockData?.block && pageBlock);
   {
     canRender ? (
       <NotionRenderer
-        client:only="react"
         recordMap={blockData}
         fullPage={false}
         darkMode={false}
