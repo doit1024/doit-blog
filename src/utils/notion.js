@@ -5,8 +5,9 @@ const collectionViewId = "27063591-2071-804b-88f6-000c9db68426";
 
 /** Cache Notion payloads briefly to avoid hammering public APIs on every /bb hit. */
 const CACHE_TTL_MS = 3 * 60 * 1000;
+/** Bump cache key when recordMap shape/normalization changes. */
 const CACHE_REQUEST = new Request(
-  "https://blog.doooit.me/__cache/microblog-v1"
+  "https://blog.doooit.me/__cache/microblog-v2"
 );
 
 /**
@@ -20,6 +21,14 @@ const API_BASES = [
   "https://doooit.notion.site/api/v3",
 ];
 
+const RECORD_MAP_TABLES = [
+  "block",
+  "collection",
+  "collection_view",
+  "notion_user",
+  "space",
+];
+
 let memoryCache = {
   expiresAt: 0,
   data: null,
@@ -27,6 +36,46 @@ let memoryCache = {
 
 function createClient(apiBaseUrl) {
   return apiBaseUrl ? new NotionAPI({ apiBaseUrl }) : new NotionAPI();
+}
+
+/**
+ * Notion's public API now nests records as `{ spaceId, value: { value, role } }`.
+ * react-notion-x / our MicroBlog expect the older `{ role, value: Block }` shape.
+ */
+function normalizeRecordMapEntry(entry) {
+  if (!entry || typeof entry !== "object") return entry;
+  const nested = entry.value;
+  if (
+    nested &&
+    typeof nested === "object" &&
+    nested.value &&
+    typeof nested.value === "object" &&
+    nested.value.type &&
+    !nested.type
+  ) {
+    return {
+      role: nested.role ?? entry.role,
+      value: nested.value,
+      ...(entry.spaceId ? { spaceId: entry.spaceId } : {}),
+    };
+  }
+  return entry;
+}
+
+function normalizeRecordMap(recordMap) {
+  if (!recordMap || typeof recordMap !== "object") return recordMap;
+
+  const out = { ...recordMap };
+  for (const table of RECORD_MAP_TABLES) {
+    const tableMap = recordMap[table];
+    if (!tableMap || typeof tableMap !== "object") continue;
+    const next = {};
+    for (const [id, entry] of Object.entries(tableMap)) {
+      next[id] = normalizeRecordMapEntry(entry);
+    }
+    out[table] = next;
+  }
+  return out;
 }
 
 async function readSharedCache() {
@@ -58,7 +107,10 @@ async function writeSharedCache(data) {
 }
 
 function isUsableRecordMap(recordMap) {
-  return Boolean(recordMap?.block && Object.keys(recordMap.block).length);
+  if (!recordMap?.block || !Object.keys(recordMap.block).length) return false;
+  return Object.values(recordMap.block).some(
+    block => block?.value?.type === "page" || block?.value?.type === "collection_view_page"
+  );
 }
 
 async function fetchFreshMicroBlogData() {
@@ -87,7 +139,7 @@ async function fetchFreshMicroBlogData() {
 
       const pages = settled
         .filter(result => result.status === "fulfilled")
-        .map(result => result.value)
+        .map(result => normalizeRecordMap(result.value))
         .filter(isUsableRecordMap);
 
       settled.forEach((result, index) => {
