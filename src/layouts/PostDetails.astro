@@ -16,6 +16,7 @@ import IconChevronLeft from "@/assets/icons/IconChevronLeft.svg";
 import IconChevronRight from "@/assets/icons/IconChevronRight.svg";
 import { SITE } from "@/config";
 import BackToTopButton from "@/components/BackToTopButton.astro";
+import "lightgallery/css/lightgallery.css";
 
 export interface Props {
   post: CollectionEntry<"blog">;
@@ -280,31 +281,23 @@ const nextPost =
     }
   }
   attachCopyButtons();
-
-  /* Go to page start after page swap */
-  document.addEventListener("astro:after-swap", () =>
-    window.scrollTo({ left: 0, top: 0, behavior: "instant" })
-  );
 </script>
 
-<!-- 加载lightGallery资源 -->
-<link
-  rel="stylesheet"
-  href="https://cdn.jsdelivr.net/npm/lightgallery@2.9.0/css/lightgallery-bundle.min.css"
-/>
-<script
-  is:inline
-  src="https://cdn.jsdelivr.net/npm/lightgallery@2.9.0/lightgallery.umd.min.js"
-></script>
 <script>
   import lightGallery from "lightgallery";
-  const articleDiv = document.getElementById("article");
-  if (articleDiv) {
+
+  function initLightGallery() {
+    const articleDiv = document.getElementById("article");
+    if (!articleDiv || articleDiv.dataset.lgReady) return;
+    articleDiv.dataset.lgReady = "true";
+
     lightGallery(articleDiv, {
       selector: ".figure-image",
       download: false,
     });
   }
+
+  document.addEventListener("astro:page-load", initLightGallery);
 </script>
 <style is:global>
   div.lg-backdrop {

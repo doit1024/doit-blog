@@ -22,7 +22,12 @@ import cloudflare from "@astrojs/cloudflare";
 export default defineConfig({
   site: SITE.website,
 
-  prefetch: true,
+  prefetch: {
+    prefetchAll: true,
+    // hover includes touchstart on mobile, so the next page is often
+    // already in memory before the click/tap completes.
+    defaultStrategy: "hover",
+  },
 
   integrations: [
     sitemap({

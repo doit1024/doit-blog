@@ -7,6 +7,7 @@ export interface Props {
   title?: string;
   disabled?: boolean;
   redirect?: boolean;
+  prefetch?: "hover" | "tap" | "viewport" | "load" | boolean;
 }
 
 const {
@@ -17,7 +18,15 @@ const {
   title,
   disabled = false,
   redirect = true,
+  prefetch,
 } = Astro.props;
+
+const prefetchValue =
+  prefetch === undefined
+    ? undefined
+    : prefetch === true
+      ? ""
+      : String(prefetch);
 ---
 
 {
@@ -34,10 +43,11 @@ const {
     <a
       id={id}
       {href}
-      target={redirect ? '_self' : '_blank'}
+      target={redirect ? "_self" : "_blank"}
       class:list={["group inline-block hover:text-accent", className]}
       aria-label={ariaLabel}
       title={title}
+      data-astro-prefetch={prefetchValue}
     >
       <slot />
     </a>

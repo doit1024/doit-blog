@@ -4,6 +4,10 @@
 
 ## 未发布（2026-09-09）
 
+### 优化
+
+- **页面切换**：去掉默认整页淡入淡出，导航悬停/点按时预取静态页，点击后立刻显示顶栏进度；文章页不再阻塞加载 jsDelivr 上的 lightGallery
+
 ### 修复
 
 - **小声哔哔 `/bb`**：Notion `*.notion.site` 接口返回 403 时，自动切换到可用的 API 地址（[#14](https://github.com/doit1024/doit-blog/pull/14)）

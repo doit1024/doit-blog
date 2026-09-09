@@ -39,7 +39,9 @@ body {
     scrollbar-color: var(--color-muted) transparent;
   }
   html {
-    @apply overflow-y-scroll scroll-smooth;
+    /* Instant scroll on route changes; post pages opt into smooth
+       in-page anchors via the `scroll-smooth` class on <html>. */
+    @apply overflow-y-scroll;
   }
   body {
     @apply flex min-h-svh flex-col bg-background font-mono text-foreground selection:bg-accent/75 selection:text-background;
