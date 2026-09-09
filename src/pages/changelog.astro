@@ -1,0 +1,182 @@
+---
+import Main from "@/layouts/Main.astro";
+import Layout from "@/layouts/Layout.astro";
+import Header from "@/components/Header.astro";
+import Footer from "@/components/Footer.astro";
+import { SITE } from "@/config";
+import { fetchRecentCommits } from "@/utils/github-commits";
+import changelogMd from "../../CHANGELOG.md?raw";
+
+const commits = await fetchRecentCommits(40);
+
+function formatShanghai(iso: string): string {
+  if (!iso) return "";
+  try {
+    return new Intl.DateTimeFormat("zh-CN", {
+      timeZone: "Asia/Shanghai",
+      year: "numeric",
+      month: "2-digit",
+      day: "2-digit",
+      hour: "2-digit",
+      minute: "2-digit",
+      hour12: false,
+    }).format(new Date(iso));
+  } catch {
+    return iso;
+  }
+}
+
+type ChangelogBlock =
+  | { type: "h2"; text: string }
+  | { type: "h3"; text: string }
+  | { type: "p"; text: string }
+  | { type: "ul"; items: string[] };
+
+function parseChangelog(md: string): ChangelogBlock[] {
+  const lines = md.replace(/\r\n/g, "\n").split("\n");
+  const blocks: ChangelogBlock[] = [];
+  let listItems: string[] = [];
+
+  const flushList = () => {
+    if (listItems.length) {
+      blocks.push({ type: "ul", items: listItems });
+      listItems = [];
+    }
+  };
+
+  for (const raw of lines) {
+    const line = raw.trimEnd();
+    if (!line.trim()) {
+      flushList();
+      continue;
+    }
+    if (line.startsWith("### ")) {
+      flushList();
+      blocks.push({ type: "h3", text: line.slice(4).trim() });
+      continue;
+    }
+    if (line.startsWith("## ")) {
+      flushList();
+      blocks.push({ type: "h2", text: line.slice(3).trim() });
+      continue;
+    }
+    if (line.startsWith("# ")) {
+      flushList();
+      // Skip top-level title; page already has a heading
+      continue;
+    }
+    if (line.startsWith("- ") || line.startsWith("* ")) {
+      listItems.push(line.slice(2).trim());
+      continue;
+    }
+    flushList();
+    blocks.push({ type: "p", text: line.trim() });
+  }
+  flushList();
+  return blocks;
+}
+
+/** Escape HTML, then lightly format **bold** and [text](url) from our own CHANGELOG. */
+function formatInline(text: string): string {
+  const escaped = text
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;");
+  return escaped
+    .replace(
+      /\[([^\]]+)\]\((https?:\/\/[^)\s]+)\)/g,
+      '<a href="$2" class="text-accent underline-offset-2 hover:underline" rel="noopener noreferrer" target="_blank">$1</a>'
+    )
+    .replace(/\*\*([^*]+)\*\*/g, "<strong>$1</strong>");
+}
+
+const changelogBlocks = parseChangelog(changelogMd);
+---
+
+<Layout title={`更新日志 | ${SITE.title}`}>
+  <Header />
+  <Main pageTitle="更新日志" pageDesc="博客与站点的近期改动">
+    <section class="space-y-4">
+      <h2 class="text-xl font-semibold">近期提交</h2>
+      {
+        commits.length === 0 ? (
+          <p class="text-muted-foreground">暂时无法加载提交记录。</p>
+        ) : (
+          <ul class="space-y-3">
+            {commits.map(commit => (
+              <li class="rounded-md border border-border px-4 py-3">
+                <div class="flex flex-wrap items-baseline gap-x-3 gap-y-1">
+                  <span class="font-medium">{commit.title}</span>
+                  <a
+                    href={commit.url}
+                    class="font-mono text-sm text-accent hover:underline"
+                    rel="noopener noreferrer"
+                    target="_blank"
+                  >
+                    {commit.shortSha}
+                  </a>
+                  {commit.date && (
+                    <time
+                      class="text-sm text-muted-foreground"
+                      datetime={commit.date}
+                    >
+                      {formatShanghai(commit.date)}
+                    </time>
+                  )}
+                </div>
+                {commit.body && (
+                  <p class="mt-2 whitespace-pre-wrap text-sm text-muted-foreground">
+                    {commit.body}
+                  </p>
+                )}
+              </li>
+            ))}
+          </ul>
+        )
+      }
+    </section>
+
+    <section class="mt-10 space-y-4">
+      <h2 class="text-xl font-semibold">CHANGELOG</h2>
+      <div class="space-y-3 rounded-md border border-border px-4 py-4">
+        {
+          changelogBlocks.map(block => {
+            if (block.type === "h2") {
+              return (
+                <h3
+                  class="mt-6 border-b border-border pb-2 text-lg font-semibold first:mt-0"
+                  set:html={formatInline(block.text)}
+                />
+              );
+            }
+            if (block.type === "h3") {
+              return (
+                <h4
+                  class="mt-4 text-base font-medium"
+                  set:html={formatInline(block.text)}
+                />
+              );
+            }
+            if (block.type === "ul") {
+              return (
+                <ul class="list-disc space-y-1 ps-5 text-sm leading-relaxed">
+                  {block.items.map(item => (
+                    <li set:html={formatInline(item)} />
+                  ))}
+                </ul>
+              );
+            }
+            return (
+              <p
+                class="text-sm text-muted-foreground leading-relaxed"
+                set:html={formatInline(block.text)}
+              />
+            );
+          })
+        }
+      </div>
+    </section>
+  </Main>
+  <Footer />
+</Layout>
