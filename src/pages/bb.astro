@@ -13,15 +13,29 @@ import "@/styles/notion.css";
 export const prerender = false;
 
 const microBlogData = (await getMicroBlogData()) as ExtendedRecordMap[];
+const hasPosts = microBlogData.length > 0;
+
+// Edge-cache the HTML so Cloudflare doesn't SSR-hit Notion on every visitor.
+Astro.response.headers.set(
+  "Cache-Control",
+  "public, s-maxage=180, stale-while-revalidate=600"
+);
 ---
 
 <Layout title={`微博 | ${SITE.title}`}>
   <Header />
   <Main pageTitle="小声哔哔" pageDesc="短更新和碎碎念" showBreadcrumb={false}>
-    <!-- <div>{JSON.stringify(microBlogData[0])}</div> -->
-    <div class="flex flex-col gap-4">
-      {microBlogData.map(item => <MicroBlog blockData={item} />)}
-    </div>
+    {
+      hasPosts ? (
+        <div class="flex flex-col gap-4">
+          {microBlogData.map(item => <MicroBlog blockData={item} />)}
+        </div>
+      ) : (
+        <p class="text-muted-foreground">
+          暂时没有内容，或 Notion 数据暂时拉不下来。请稍后再试。
+        </p>
+      )
+    }
   </Main>
   <Footer />
 </Layout>
