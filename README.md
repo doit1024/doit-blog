@@ -73,6 +73,12 @@ Any static assets, like images, can be placed in the `public/` directory.
 
 All blog posts are stored in `src/data/blog` directory.
 
+## 小声哔哔 `/bb`
+
+`/bb` is a **static** Notion microblog: `astro build` fetches the public collection (no token) and bakes HTML. Runtime no longer hits Notion.
+
+When the Notion database changes, trigger a [Cloudflare Workers Builds Deploy Hook](https://developers.cloudflare.com/workers/ci-cd/builds/deploy-hooks/) (or push to `main`). Steps, optional `BB_ALLOW_EMPTY`, and Make/Zapier/n8n wiring: **[docs/bb-static-rebuild.md](docs/bb-static-rebuild.md)** (中文).
+
 ## 📖 Documentation
 
 Documentation can be read in two formats\_ _markdown_ & _blog post_.

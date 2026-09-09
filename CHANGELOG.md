@@ -4,9 +4,14 @@
 
 ## 未发布（2026-09-09）
 
+### 变更
+
+- **小声哔哔 `/bb`**：改为构建时静态生成（SSG）。`astro build` 用现有 `notion-client` 公开接口拉取 Notion 并烘焙 HTML，运行时不再请求 Notion、不再依赖 Worker SSR。Notion 更新后需触发 Cloudflare Workers Builds Deploy Hook 重建，见 [docs/bb-static-rebuild.md](docs/bb-static-rebuild.md)
+
 ### 优化
 
 - **页面切换**：去掉默认整页淡入淡出，导航悬停/点按时预取静态页，点击后立刻显示顶栏进度；文章页不再阻塞加载 jsDelivr 上的 lightGallery
+- **小声哔哔 `/bb`**：静态化后导航链接与其它页一样进站预取
 - **页头字体**：切换页面时保留 `@font-face`，避免粗体标题先闪成细字体再变回去
 
 ### 修复
@@ -26,4 +31,4 @@
 ### 说明
 
 - 上游 AstroPaper 的完整历史仍在 git 中；本文件主要记录 doit-blog 自身改动。
-- `/bb` 相关文件：`src/pages/bb.astro`、`src/utils/notion.js`、`src/components/MicroBlog.astro`
+- `/bb` 相关文件：`src/pages/bb.astro`、`src/utils/notion.js`、`src/components/MicroBlog.astro`、`docs/bb-static-rebuild.md`
