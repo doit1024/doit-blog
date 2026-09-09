@@ -20,6 +20,9 @@ Cloudflare Workers Builds 需要：
 - Node 构建环境（现有 `pnpm run build`）
 - 出网访问 `www.notion.so`（以及回退用的 `*.notion.site`）
 - **不必** 在 Worker 绑定里加 Notion secret
+- **不必** 为 `/bb` 配置任何 Astro/Cloudflare secret。请求会带浏览器 User-Agent，避免 Node 构建对 `www.notion.so` 被 403
+
+`@astrojs/cloudflare` 适配器仍然保留：当前 `wrangler.jsonc` 按 Worker + assets 部署。全部页面静态化后 Astro 会提示 adapter「不必要」，先不要删，否则 `_worker.js` 产物路径会对不上。
 
 可选：
 
@@ -73,8 +76,10 @@ pnpm install
 pnpm run build
 # 静态 HTML 里应有 Notion 渲染后的内容
 grep -l "notion-page" dist/bb/index.html
-pnpm run preview
-# 打开 http://localhost:4321/bb
+
+# @astrojs/cloudflare 不支持 `astro preview`，直接起静态服务看产物即可：
+python3 -m http.server --directory dist 4321
+# 打开 http://localhost:4321/bb/
 ```
 
-构建日志里应看到类似：`getMicroBlogData: fetched N pages via …`。
+构建日志里应看到类似：`getMicroBlogData: fetched N pages via …`。本地构建确认 `dist/bb/index.html` 含 10 条 `notion-page` 正文。

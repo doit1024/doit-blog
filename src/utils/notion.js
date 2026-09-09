@@ -21,6 +21,17 @@ const API_BASES = [
   "https://doooit.notion.site/api/v3",
 ];
 
+/**
+ * Node `ofetch` without a browser UA often gets 403 from www.notion.so.
+ * Custom `*.notion.site` bases are still tried as a fallback.
+ */
+const FETCH_OPTIONS = {
+  headers: {
+    "user-agent":
+      "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36",
+  },
+};
+
 const RECORD_MAP_TABLES = [
   "block",
   "collection",
@@ -40,7 +51,10 @@ function allowEmptyBuild() {
 }
 
 function createClient(apiBaseUrl) {
-  return apiBaseUrl ? new NotionAPI({ apiBaseUrl }) : new NotionAPI();
+  const options = { ofetchOptions: FETCH_OPTIONS };
+  return apiBaseUrl
+    ? new NotionAPI({ ...options, apiBaseUrl })
+    : new NotionAPI(options);
 }
 
 /**
