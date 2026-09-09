@@ -1,12 +1,15 @@
 ---
+import { readFileSync } from "node:fs";
+import { join } from "node:path";
 import Main from "@/layouts/Main.astro";
 import Layout from "@/layouts/Layout.astro";
 import Header from "@/components/Header.astro";
 import Footer from "@/components/Footer.astro";
 import { SITE } from "@/config";
 import { fetchRecentCommits } from "@/utils/github-commits";
-import changelogMd from "../../CHANGELOG.md?raw";
 
+// Read at build time — Cloudflare Workers replace root raw markdown imports with a stub string.
+const changelogMd = readFileSync(join(process.cwd(), "CHANGELOG.md"), "utf-8");
 const commits = await fetchRecentCommits(40);
 
 function formatShanghai(iso: string): string {
@@ -62,7 +65,6 @@ function parseChangelog(md: string): ChangelogBlock[] {
     }
     if (line.startsWith("# ")) {
       flushList();
-      // Skip top-level title; page already has a heading
       continue;
     }
     if (line.startsWith("- ") || line.startsWith("* ")) {
@@ -76,7 +78,6 @@ function parseChangelog(md: string): ChangelogBlock[] {
   return blocks;
 }
 
-/** Escape HTML, then lightly format **bold** and [text](url) from our own CHANGELOG. */
 function formatInline(text: string): string {
   const escaped = text
     .replace(/&/g, "&amp;")
