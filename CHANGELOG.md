@@ -1,24 +1,24 @@
-# Changelog
+# 更新日志
 
-All notable changes to this project will be documented in this file.
+记录本站（doit-blog）的产品改动。
 
-## Unreleased (2026-09-09)
+## 未发布（2026-09-09）
 
-### Fix
+### 修复
 
-- **microblog `/bb`**: fall back across Notion API bases when `*.notion.site` `queryCollection` returns 403 ([#14](https://github.com/doit1024/doit-blog/pull/14))
-- **microblog `/bb`**: show an empty state when Notion returns no posts ([#14](https://github.com/doit1024/doit-blog/pull/14))
-- **microblog `/bb`**: cache Notion payloads (~3 min in-memory + Cloudflare `caches.default`) and edge-cache `/bb` HTML (`s-maxage=180`, `stale-while-revalidate=600`) ([#14](https://github.com/doit1024/doit-blog/pull/14))
-- **microblog `/bb`**: harden `MicroBlog` against missing page blocks; tolerate individual `getPage` failures ([#15](https://github.com/doit1024/doit-blog/pull/15))
-- **microblog `/bb`**: normalize Notion nested `{ value: { value, role } }` recordMaps for `react-notion-x` (cache key `microblog-v2`)
-- **microblog `/bb`**: fix Cloudflare `astro check` failure (`tag` implicit `any`)
+- **小声哔哔 `/bb`**：Notion `*.notion.site` 接口返回 403 时，自动切换到可用的 API 地址（[#14](https://github.com/doit1024/doit-blog/pull/14)）
+- **小声哔哔 `/bb`**：没有内容时展示空状态提示（[#14](https://github.com/doit1024/doit-blog/pull/14)）
+- **小声哔哔 `/bb`**：Notion 数据短缓存约 3 分钟（内存 + Cloudflare Cache），页面 HTML 边缘缓存 `s-maxage=180`（[#14](https://github.com/doit1024/doit-blog/pull/14)）
+- **小声哔哔 `/bb`**：单条帖子拉取失败不再拖垮整页；缺少 page 块时更稳健（[#15](https://github.com/doit1024/doit-blog/pull/15)）
+- **小声哔哔 `/bb`**：兼容 Notion 公共 API 双层 `value` 结构，恢复 `react-notion-x` 渲染（缓存 key：`microblog-v2`）
+- **小声哔哔 `/bb`**：修复 Cloudflare 构建时 `astro check` 的 `tag` 隐式 any 报错
 
-### Feat
+### 新增
 
-- **microblog `/bb`**: restore full SSR for `NotionRenderer` on Cloudflare Workers after recordMap normalization
-- **site**: add `/changelog` page (recent commits + this file) and nav link 日志
+- **小声哔哔 `/bb`**：在 Cloudflare Worker 上恢复全文 SSR 渲染 Notion 内容
+- **站点**：新增 `/changelog` 更新日志页（近期提交 + 本文件），导航增加「日志」
 
-### Notes
+### 说明
 
-- Full upstream AstroPaper history remains in git; this file focuses on doit-blog product changes.
-- Touched for `/bb`: `src/pages/bb.astro`, `src/utils/notion.js`, `src/components/MicroBlog.astro`
+- 上游 AstroPaper 的完整历史仍在 git 中；本文件主要记录 doit-blog 自身改动。
+- `/bb` 相关文件：`src/pages/bb.astro`、`src/utils/notion.js`、`src/components/MicroBlog.astro`
