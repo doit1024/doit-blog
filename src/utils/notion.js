@@ -57,6 +57,10 @@ async function writeSharedCache(data) {
   }
 }
 
+function isUsableRecordMap(recordMap) {
+  return Boolean(recordMap?.block && Object.keys(recordMap.block).length);
+}
+
 async function fetchFreshMicroBlogData() {
   let lastError;
 
@@ -77,9 +81,34 @@ async function fetchFreshMicroBlogData() {
         continue;
       }
 
-      return await Promise.all(
+      const settled = await Promise.allSettled(
         allBlockIds.reverse().map(id => notionClient.getPage(id))
       );
+
+      const pages = settled
+        .filter(result => result.status === "fulfilled")
+        .map(result => result.value)
+        .filter(isUsableRecordMap);
+
+      settled.forEach((result, index) => {
+        if (result.status === "rejected") {
+          console.error(
+            "getMicroBlogData: getPage failed",
+            allBlockIds[allBlockIds.length - 1 - index],
+            result.reason
+          );
+        }
+      });
+
+      if (!pages.length) {
+        console.warn(
+          "getMicroBlogData: no usable pages via",
+          apiBaseUrl ?? "default"
+        );
+        continue;
+      }
+
+      return pages;
     } catch (err) {
       lastError = err;
       console.error(

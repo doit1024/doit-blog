@@ -12,8 +12,15 @@ import "@/styles/notion.css";
 
 export const prerender = false;
 
-const microBlogData = (await getMicroBlogData()) as ExtendedRecordMap[];
-const hasPosts = microBlogData.length > 0;
+let microBlogData: ExtendedRecordMap[] = [];
+try {
+  microBlogData = (await getMicroBlogData()) as ExtendedRecordMap[];
+} catch (err) {
+  console.error("bb.astro: getMicroBlogData threw", err);
+  microBlogData = [];
+}
+
+const hasPosts = Array.isArray(microBlogData) && microBlogData.length > 0;
 
 // Edge-cache the HTML so Cloudflare doesn't SSR-hit Notion on every visitor.
 Astro.response.headers.set(
@@ -28,7 +35,9 @@ Astro.response.headers.set(
     {
       hasPosts ? (
         <div class="flex flex-col gap-4">
-          {microBlogData.map(item => <MicroBlog blockData={item} />)}
+          {microBlogData.map(item => (
+            <MicroBlog blockData={item} />
+          ))}
         </div>
       ) : (
         <p class="text-muted-foreground">
