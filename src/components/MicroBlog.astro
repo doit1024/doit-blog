@@ -18,7 +18,7 @@ const pageBlock = blockData?.block
 const createdTime = pageBlock?.value?.created_time;
 const tagString = pageBlock?.value?.properties?.rRiX?.[0]?.[0] ?? "";
 const tags = tagString
-  ? tagString.split(",").map(tag => tag.trim()).filter(Boolean)
+  ? tagString.split(",").map((tag: string) => tag.trim()).filter(Boolean)
   : [];
 const canRender = Boolean(blockData?.block && pageBlock);
 ---
