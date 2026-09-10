@@ -1,0 +1,49 @@
+{
+  "schemaVersion": 1,
+  "targets": {
+    "/digital": {
+      "targetKind": "new-target",
+      "projectId": "3b7d7712-29b8-4823-a0e0-e2fe46dabe49",
+      "activeDraftId": "b854480e-5408-4566-8fb1-354e21a85c55",
+      "designSystemPath": ".superdesign/design-system.md",
+      "contextFiles": [
+        ".superdesign/design-system.md",
+        "src/styles/global.css",
+        "src/components/Header.astro",
+        "src/components/Footer.astro",
+        "src/pages/index.astro",
+        "src/components/Hr.astro",
+        "src/components/LinkButton.astro"
+      ],
+      "fingerprints": {
+        ".superdesign/design-system.md": "97db84c000b1011ff784dd81c92a95d6c50905ff0cae0391aa438c059f3753de",
+        "src/styles/global.css": "3920c749ac7d11674f4c059013078b7757ba4224ee1f7ebd0acee541a83daf27",
+        "src/components/Header.astro": "737a4c311cfe4df2812b503ddbce368606876842c5db00a2c290894c95506da4",
+        "src/components/Footer.astro": "9605dba9b305af7b84e53679b3dda6d8334a2de741ecc32d7e8d1c360f74cf98",
+        "src/pages/index.astro": "9ebb7c8a2dbe7e5e398d3c414ef3a025d150b46b4c49ce5a57e729d85056db10",
+        "src/components/Hr.astro": "6b1de816edeafaa16be41e5dd91eb1bfaa94108b70c469b83c5ecfbc694e885a",
+        "src/components/LinkButton.astro": "de00e237484c4cee7d9116cf40281a117820243f46573c9cb5d8f236df22e94b"
+      },
+      "components": [
+        {
+          "name": "NavBar",
+          "id": "1cb00769-f4ea-439c-ae53-1b2d27e30b01",
+          "sourcePath": "src/components/Header.astro"
+        },
+        {
+          "name": "Footer",
+          "id": "855d127b-054d-4af4-9d16-05ff67914494",
+          "sourcePath": "src/components/Footer.astro"
+        }
+      ],
+      "drafts": {
+        "b854480e-5408-4566-8fb1-354e21a85c55": {
+          "title": "日常数码 3D 陈列柜",
+          "visualDirection": "CSS 3D pedestal stage with everyday gadgets, blog magenta tokens, first-person copy",
+          "currentVersion": 1
+        }
+      },
+      "updatedAt": "2026-09-10T08:35:00.000Z"
+    }
+  }
+}
