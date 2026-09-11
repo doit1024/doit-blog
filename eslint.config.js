@@ -13,6 +13,31 @@ export default [
       },
     },
   },
-  { rules: { "no-console": "error" } },
+  {
+    rules: {
+      "no-console": "error",
+      "@typescript-eslint/no-explicit-any": "error",
+    },
+  },
+  {
+    // eslint-plugin-astro extracts <script> into virtual files (*.astro/*.ts).
+    // Require parameter types so implicit any is caught by `pnpm lint`, not only
+    // later by `astro check` (tsconfig strict / noImplicitAny).
+    files: ["**/*.astro/*.ts", "*.astro/*.ts"],
+    rules: {
+      "@typescript-eslint/typedef": [
+        "error",
+        {
+          parameter: true,
+          arrowParameter: false,
+          variableDeclaration: false,
+          memberVariableDeclaration: false,
+          propertyDeclaration: false,
+          objectDestructuring: false,
+          arrayDestructuring: false,
+        },
+      ],
+    },
+  },
   { ignores: ["dist/**", ".astro", "public/pagefind/**"] },
 ];

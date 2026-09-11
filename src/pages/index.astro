@@ -11,6 +11,7 @@ import Hr from "@/components/Hr.astro";
 import getSortedPosts from "@/utils/getSortedPosts";
 import IconArrowRight from "@/assets/icons/IconArrowRight.svg";
 import cuteBear from "@/assets/images/cute_bear.png";
+import cuteBearGif from "@/assets/images/cute_bear.gif";
 import { SITE } from "@/config";
 import { SOCIALS } from "@/constants";
 
@@ -46,8 +47,20 @@ const recentPosts = sortedPosts.filter(({ data }) => !data.featured);
           )
         }
       </div>
-      <div class="hidden sm:block">
-        <Image src={cuteBear} alt="A Cute Bear." height="480" />
+      <div id="hero-bear" class="hero-bear relative hidden sm:block">
+        <Image
+          class="bear-static"
+          src={cuteBear}
+          alt="A Cute Bear."
+          height={480}
+        />
+        <img
+          class="bear-gif absolute inset-0 h-full w-full"
+          src={cuteBearGif.src}
+          alt=""
+          width={cuteBearGif.width}
+          height={cuteBearGif.height}
+        />
       </div>
     </section>
 
@@ -94,11 +107,96 @@ const recentPosts = sortedPosts.filter(({ data }) => !data.featured);
 </Layout>
 
 <script>
-  document.addEventListener("astro:page-load", () => {
+  const BEAR_PLAY_MS = 2900;
+  const BEAR_INTERVAL_MS = 10_000;
+
+  let bearPlayTimer = 0;
+  let bearIdleTimer = 0;
+
+  function prefersReducedMotion() {
+    return window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+  }
+
+  function getHeroBear() {
+    return document.querySelector("#hero-bear");
+  }
+
+  function getHeroBearGif() {
+    const gif = document.querySelector("#hero-bear .bear-gif");
+    return gif instanceof HTMLImageElement ? gif : null;
+  }
+
+  function stopHeroBear() {
+    window.clearTimeout(bearPlayTimer);
+    window.clearTimeout(bearIdleTimer);
+    bearPlayTimer = 0;
+    bearIdleTimer = 0;
+    getHeroBear()?.removeAttribute("data-playing");
+  }
+
+  function scheduleHeroBear() {
+    window.clearTimeout(bearIdleTimer);
+    if (prefersReducedMotion() || !getHeroBear()) return;
+    bearIdleTimer = window.setTimeout(() => {
+      playHeroBearOnce();
+    }, BEAR_INTERVAL_MS);
+  }
+
+  function playHeroBearOnce() {
+    if (prefersReducedMotion()) return;
+    const bear = getHeroBear();
+    const gif = getHeroBearGif();
+    if (!bear || !gif) return;
+
+    window.clearTimeout(bearIdleTimer);
+
+    const src = gif.dataset.src ?? gif.src;
+    gif.dataset.src = src;
+    bear.setAttribute("data-playing", "true");
+    gif.src = "";
+    gif.src = src;
+
+    window.clearTimeout(bearPlayTimer);
+    bearPlayTimer = window.setTimeout(() => {
+      bear.removeAttribute("data-playing");
+      scheduleHeroBear();
+    }, BEAR_PLAY_MS);
+  }
+
+  function bindHeroBear() {
+    stopHeroBear();
+    const bear = getHeroBear();
+    if (!bear || prefersReducedMotion()) return;
+    if (bear.getAttribute("data-bound") !== "true") {
+      bear.setAttribute("data-bound", "true");
+      bear.addEventListener("mouseenter", playHeroBearOnce);
+    }
+    scheduleHeroBear();
+  }
+
+  function onPageReady() {
     const indexLayout = (document.querySelector("#main-content") as HTMLElement)
       ?.dataset?.layout;
     if (indexLayout) {
       sessionStorage.setItem("backUrl", "/");
     }
-  });
+    bindHeroBear();
+  }
+
+  onPageReady();
+  document.addEventListener("astro:page-load", onPageReady);
 </script>
+
+<style>
+  .bear-gif {
+    visibility: hidden;
+  }
+
+  .hero-bear[data-playing] .bear-static {
+    visibility: hidden;
+  }
+
+  .hero-bear[data-playing] .bear-gif {
+    visibility: visible;
+  }
+</style>

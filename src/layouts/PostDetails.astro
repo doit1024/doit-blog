@@ -266,6 +266,9 @@ const nextPost =
       });
     }
 
+    // is:inline scripts are shipped as JS; TS param types would be a syntax error
+    // in the browser. astro check also treats this block as JS (ts(8010)).
+    // eslint-disable-next-line @typescript-eslint/typedef -- inline script cannot use TS types
     async function copyCode(block, button) {
       const code = block.querySelector("code");
       const text = code?.innerText;
