@@ -200,7 +200,7 @@ const isActive = (path: string) => {
     return document.querySelector("#site-title");
   }
 
-  function setBrainLoading(loading) {
+  function setBrainLoading(loading: boolean) {
     const title = getSiteTitle();
     if (!title) return;
     if (loading) title.setAttribute("data-brain-loading", "true");
@@ -216,7 +216,10 @@ const isActive = (path: string) => {
 
   function bindBrainLogo() {
     const title = getSiteTitle();
-    if (!(title instanceof HTMLElement) || title.dataset.brainBound === "true") {
+    if (
+      !(title instanceof HTMLElement) ||
+      title.dataset.brainBound === "true"
+    ) {
       return;
     }
     title.dataset.brainBound = "true";
@@ -249,7 +252,9 @@ const isActive = (path: string) => {
   if (document.readyState === "complete") {
     setBrainLoading(false);
   } else {
-    window.addEventListener("load", () => setBrainLoading(false), { once: true });
+    window.addEventListener("load", () => setBrainLoading(false), {
+      once: true,
+    });
   }
 
   // Runs on view transitions navigation
