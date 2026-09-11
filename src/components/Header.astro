@@ -65,7 +65,7 @@ const isActive = (path: string) => {
             "mt-4 grid w-44 grid-cols-2 place-content-center gap-2",
             "[&>li>a]:block [&>li>a]:px-4 [&>li>a]:py-3 [&>li>a]:text-center [&>li>a]:font-medium [&>li>a]:hover:text-accent sm:[&>li>a]:px-2 sm:[&>li>a]:py-1",
             "hidden",
-            "sm:mt-0 sm:flex sm:w-auto sm:gap-x-5 sm:gap-y-0",
+            "sm:mt-0 sm:flex sm:w-auto sm:gap-x-1 sm:gap-y-0",
           ]}
         >
           <li class="col-span-2">
@@ -81,6 +81,11 @@ const isActive = (path: string) => {
           <li class="col-span-2">
             <a href="/bb" class:list={{ "active-nav": isActive("/bb") }}>
               哔哔
+            </a>
+          </li>
+          <li class="col-span-2">
+            <a href="/gear" class:list={{ "active-nav": isActive("/gear") }}>
+              设备
             </a>
           </li>
           <li class="col-span-2">

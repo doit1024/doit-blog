@@ -1,0 +1,121 @@
+---
+import Layout from "@/layouts/Layout.astro";
+import Header from "@/components/Header.astro";
+import Footer from "@/components/Footer.astro";
+import GearExperience from "@/components/gear/GearExperience";
+import { gearDevices } from "@/data/gear";
+import { SITE } from "@/config";
+import "@/styles/gear.css";
+
+export const prerender = true;
+const credited = gearDevices.filter(device => device.asset);
+---
+
+<Layout
+  title={`我的设备 | ${SITE.title}`}
+  description="我的日常设备：手机、耳机、手表、电脑与相机。在展台与一间小书房里，换个角度看看它们。"
+>
+  <Header />
+  <main id="main-content" class="gear-page">
+    <div class="gear-intro">
+      <div>
+        <p class="gear-eyebrow">日常 · 器物</p>
+        <h1>我的设备<span aria-hidden="true">。</span></h1>
+        <p class="gear-lede">
+          口袋里、手腕上，和书桌前。<br />这里是我正在使用的几件设备。
+        </p>
+      </div>
+      <p class="gear-intro-note">
+        <span>五件设备</span><span>两种观看方式</span>
+      </p>
+    </div>
+    <GearExperience devices={gearDevices} client:load>
+      <div class="gear-stories">
+        {
+          gearDevices.map((device, index) => (
+            <article
+              id={device.id}
+              data-gear-story={device.id}
+              class="gear-story"
+              tabindex={-1}
+            >
+              <div class="gear-story-copy">
+                <p class="gear-eyebrow">
+                  <span>{String(index + 1).padStart(2, "0")}</span> /{" "}
+                  {device.category}
+                </p>
+                <h2>{device.name}</h2>
+                <p class="gear-spec">
+                  {[device.color, device.configuration]
+                    .filter(Boolean)
+                    .join(" · ")}
+                </p>
+                {device.description && (
+                  <p class="gear-description">{device.description}</p>
+                )}
+                {!device.asset && <p class="gear-pending">精细模型准备中</p>}
+              </div>
+              {device.asset && (
+                <img
+                  class="gear-nojs-preview"
+                  src={device.asset.preview}
+                  alt={`${device.name} 静态预览`}
+                  width="640"
+                  height="640"
+                  loading={index === 0 ? "eager" : "lazy"}
+                />
+              )}
+            </article>
+          ))
+        }
+      </div>
+    </GearExperience>
+    <div class="gear-colophon">
+      <p>物件有各自的位置，日常也有自己的秩序。</p>
+      <details>
+        <summary>关于模型与署名</summary>
+        <p>
+          书房为构想空间。设备模型经整理后用于此页展示，AI
+          生成的资产会单独注明。
+        </p>
+        {
+          credited.length === 0 && (
+            <p>
+              精细模型尚在准备中。取得并核验后，将在这里列出作者、来源与许可。
+            </p>
+          )
+        }
+        <ul>
+          {
+            credited.map(
+              device =>
+                device.asset && (
+                  <li>
+                    <strong>{device.name}</strong> —{" "}
+                    <a
+                      href={device.asset.source}
+                      target="_blank"
+                      rel="noreferrer"
+                    >
+                      {device.asset.author}
+                    </a>{" "}
+                    ·{" "}
+                    <a
+                      href={device.asset.licenseUrl}
+                      target="_blank"
+                      rel="noreferrer"
+                    >
+                      {device.asset.license}
+                    </a>
+                    {device.asset.generated && <span> · AI 生成</span>}
+                    <p>{device.asset.modifications}</p>
+                  </li>
+                )
+            )
+          }
+        </ul>
+      </details>
+    </div>
+  </main>
+  <Footer />
+</Layout>
