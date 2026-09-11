@@ -257,6 +257,12 @@ const isActive = (path: string) => {
     });
   }
 
+  // Same window as the top nav progress bar (`html[aria-busy]`).
+  document.addEventListener("astro:before-preparation", () => {
+    setBrainLoading(true);
+    replayBrainGif();
+  });
+
   // Runs on view transitions navigation
   document.addEventListener("astro:after-swap", toggleNav);
   document.addEventListener("astro:after-swap", bindBrainLogo);
@@ -276,23 +282,27 @@ const isActive = (path: string) => {
   }
 
   #site-title:hover .brain-static,
-  #site-title[data-brain-loading="true"] .brain-static {
+  #site-title[data-brain-loading="true"] .brain-static,
+  :global(html[aria-busy]) #site-title .brain-static {
     visibility: hidden;
   }
 
   #site-title:hover .brain-gif,
-  #site-title[data-brain-loading="true"] .brain-gif {
+  #site-title[data-brain-loading="true"] .brain-gif,
+  :global(html[aria-busy]) #site-title .brain-gif {
     visibility: visible;
   }
 
   @media (prefers-reduced-motion: reduce) {
     #site-title:hover .brain-static,
-    #site-title[data-brain-loading="true"] .brain-static {
+    #site-title[data-brain-loading="true"] .brain-static,
+    :global(html[aria-busy]) #site-title .brain-static {
       visibility: visible;
     }
 
     #site-title:hover .brain-gif,
-    #site-title[data-brain-loading="true"] .brain-gif {
+    #site-title[data-brain-loading="true"] .brain-gif,
+    :global(html[aria-busy]) #site-title .brain-gif {
       visibility: hidden;
     }
   }
