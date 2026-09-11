@@ -47,23 +47,19 @@ const recentPosts = sortedPosts.filter(({ data }) => !data.featured);
           )
         }
       </div>
-      <div
-        id="hero-bear"
-        class="hero-bear relative hidden size-[480px] shrink-0 sm:block"
-      >
+      <div id="hero-bear" class="hero-bear relative hidden sm:block">
         <Image
-          class="bear-static size-full max-w-none"
+          class="bear-static"
           src={cuteBear}
           alt="A Cute Bear."
           height={480}
-          width={480}
         />
         <img
-          class="bear-gif absolute inset-0 size-full max-w-none"
+          class="bear-gif absolute inset-0 h-full w-full"
           src={cuteBearGif.src}
           alt=""
-          width="480"
-          height="480"
+          width={cuteBearGif.width}
+          height={cuteBearGif.height}
         />
       </div>
     </section>
