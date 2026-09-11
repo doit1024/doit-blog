@@ -185,22 +185,34 @@ const isActive = (path: string) => {
 </header>
 
 <script>
-  const HEADER_BRAIN_GIF =
-    "https://fonts.gstatic.com/s/e/notoemoji/latest/1f9e0/512.gif";
+  const HEADER_BRAIN_MARKUP = `
+    <picture>
+      <source srcset="https://fonts.gstatic.com/s/e/notoemoji/latest/1f9e0/512.webp" type="image/webp">
+      <img src="https://fonts.gstatic.com/s/e/notoemoji/latest/1f9e0/512.gif" alt="🧠" width="32" height="32">
+    </picture>
+  `;
 
   function prefersReducedMotion() {
     return window.matchMedia("(prefers-reduced-motion: reduce)").matches;
   }
 
   function playHeaderBrainAnimation() {
-    const img = document.querySelector("#header-brain");
-    if (!(img instanceof HTMLImageElement) || prefersReducedMotion()) return;
-    if (img.dataset.brainAnimated === "1") return;
+    const current = document.querySelector("#header-brain");
+    if (!(current instanceof HTMLElement) || prefersReducedMotion()) return;
+    if (current.dataset.brainAnimated === "1") return;
 
-    img.removeAttribute("srcset");
-    img.removeAttribute("sizes");
-    img.src = HEADER_BRAIN_GIF;
-    img.dataset.brainAnimated = "1";
+    const holder = document.createElement("div");
+    holder.innerHTML = HEADER_BRAIN_MARKUP.trim();
+    const picture = holder.querySelector("picture");
+    const animatedImg = picture?.querySelector("img");
+    if (!picture || !(animatedImg instanceof HTMLImageElement)) return;
+
+    animatedImg.id = "header-brain";
+    animatedImg.className = "size-7 sm:size-8";
+    animatedImg.dataset.brainAnimated = "1";
+
+    const root = current.closest("picture") ?? current;
+    root.replaceWith(picture);
   }
 
   function toggleNav() {
