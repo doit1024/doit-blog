@@ -197,33 +197,26 @@ const isActive = (path: string) => {
   function playHeaderBrainAnimation() {
     const img = document.querySelector("#header-brain");
     if (!(img instanceof HTMLImageElement) || prefersReducedMotion()) return;
+    if (img.dataset.brainAnimated === "1") return;
 
-    const applyAnimation = () => {
-      const current = document.querySelector("#header-brain");
-      if (!(current instanceof HTMLImageElement)) return;
+    const picture = document.createElement("picture");
+    picture.className = img.className;
 
-      const picture = document.createElement("picture");
-      picture.className = current.className;
-      const source = document.createElement("source");
-      source.srcset = HEADER_BRAIN_WEBP;
-      source.type = "image/webp";
+    const source = document.createElement("source");
+    source.srcset = HEADER_BRAIN_WEBP;
+    source.type = "image/webp";
 
-      const animatedImg = document.createElement("img");
-      animatedImg.id = "header-brain";
-      animatedImg.src = HEADER_BRAIN_GIF;
-      animatedImg.alt = "";
-      animatedImg.width = 32;
-      animatedImg.height = 32;
-      animatedImg.className = current.className;
+    const animatedImg = document.createElement("img");
+    animatedImg.id = "header-brain";
+    animatedImg.src = HEADER_BRAIN_GIF;
+    animatedImg.alt = "";
+    animatedImg.width = 32;
+    animatedImg.height = 32;
+    animatedImg.className = img.className;
+    animatedImg.dataset.brainAnimated = "1";
 
-      picture.append(source, animatedImg);
-      (current.closest("picture") ?? current).replaceWith(picture);
-    };
-
-    const preload = new Image();
-    preload.onload = applyAnimation;
-    preload.onerror = applyAnimation;
-    preload.src = HEADER_BRAIN_WEBP;
+    picture.append(source, animatedImg);
+    (img.closest("picture") ?? img).replaceWith(picture);
   }
 
   function toggleNav() {
