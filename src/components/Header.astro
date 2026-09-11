@@ -185,8 +185,6 @@ const isActive = (path: string) => {
 </header>
 
 <script>
-  const HEADER_BRAIN_WEBP =
-    "https://fonts.gstatic.com/s/e/notoemoji/latest/1f9e0/512.webp";
   const HEADER_BRAIN_GIF =
     "https://fonts.gstatic.com/s/e/notoemoji/latest/1f9e0/512.gif";
 
@@ -194,29 +192,40 @@ const isActive = (path: string) => {
     return window.matchMedia("(prefers-reduced-motion: reduce)").matches;
   }
 
-  function playHeaderBrainAnimation() {
+  const brainGif = fetch(HEADER_BRAIN_GIF).then(response => {
+    if (!response.ok) throw new Error("Failed to load brain gif");
+    return response.blob();
+  });
+
+  function swapHeaderBrain(gifUrl) {
     const img = document.querySelector("#header-brain");
-    if (!(img instanceof HTMLImageElement) || prefersReducedMotion()) return;
-    if (img.dataset.brainAnimated === "1") return;
+    if (!(img instanceof HTMLImageElement) || img.dataset.brainAnimated === "1") {
+      return;
+    }
 
     const picture = document.createElement("picture");
-    picture.className = img.className;
-
-    const source = document.createElement("source");
-    source.srcset = HEADER_BRAIN_WEBP;
-    source.type = "image/webp";
 
     const animatedImg = document.createElement("img");
     animatedImg.id = "header-brain";
-    animatedImg.src = HEADER_BRAIN_GIF;
+    animatedImg.src = gifUrl;
     animatedImg.alt = "";
     animatedImg.width = 32;
     animatedImg.height = 32;
     animatedImg.className = img.className;
     animatedImg.dataset.brainAnimated = "1";
 
-    picture.append(source, animatedImg);
-    (img.closest("picture") ?? img).replaceWith(picture);
+    picture.append(animatedImg);
+    img.replaceWith(picture);
+  }
+
+  async function playHeaderBrainAnimation() {
+    if (prefersReducedMotion()) return;
+
+    try {
+      swapHeaderBrain(URL.createObjectURL(await brainGif));
+    } catch {
+      swapHeaderBrain(HEADER_BRAIN_GIF);
+    }
   }
 
   function toggleNav() {
