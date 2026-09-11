@@ -178,14 +178,17 @@ const recentPosts = sortedPosts.filter(({ data }) => !data.featured);
     scheduleHeroBear();
   }
 
-  document.addEventListener("astro:page-load", () => {
+  function onPageReady() {
     const indexLayout = (document.querySelector("#main-content") as HTMLElement)
       ?.dataset?.layout;
     if (indexLayout) {
       sessionStorage.setItem("backUrl", "/");
     }
     bindHeroBear();
-  });
+  }
+
+  onPageReady();
+  document.addEventListener("astro:page-load", onPageReady);
 </script>
 
 <style>
