@@ -50,44 +50,9 @@
 
 .collage-title {
   z-index: 6;
-  width: min(32rem, 96%);
+  width: min(34rem, 96%);
   margin: 0;
-  --rot: -2.2deg;
-}
-
-.collage-title__copy {
-  position: absolute;
-  inset: 30% 12% 32% 14%;
-  display: flex;
-  flex-wrap: wrap;
-  align-items: baseline;
-  justify-content: flex-start;
-  gap: 0.12em 0.28em;
-  color: var(--sticker-ink);
-  font-family: var(--font-rounded);
-  font-size: clamp(1.85rem, 7vw, 3.15rem);
-  font-weight: 700;
-  line-height: 0.95;
-  letter-spacing: -0.03em;
-}
-
-.collage-title__doit {
-  position: relative;
-  display: inline-block;
-  z-index: 1;
-}
-
-.collage-title__underline {
-  position: absolute;
-  left: -12%;
-  bottom: -0.28em;
-  z-index: -1;
-  width: 124% !important;
-  max-width: none;
-}
-
-.collage-title__cjk {
-  letter-spacing: 0.04em;
+  --rot: 0deg;
 }
 
 .collage-quote {
@@ -252,14 +217,27 @@
 
   .collage-title {
     position: absolute;
-    top: 8%;
-    left: 6%;
-    width: min(34rem, 50%);
+    top: 7%;
+    left: 5%;
+    width: min(36rem, 52%);
     margin: 0;
   }
 
-  .collage-title__copy {
-    font-size: clamp(2.45rem, 4.2vw, 3.45rem);
+  .collage-cloud {
+    position: absolute;
+    top: 16%;
+    left: 20%;
+    width: min(14rem, 20vw);
+    --rot: 7deg;
+    z-index: 2;
+  }
+
+  .collage-underline {
+    position: absolute;
+    left: 36%;
+    bottom: 22%;
+    width: 6.5rem;
+    --rot: -12deg;
   }
 
   .collage-quote {

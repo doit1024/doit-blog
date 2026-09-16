@@ -29,3 +29,4 @@
 - `doodle-sparkle-b.png` 232×193
 - `doodle-star.png` 178×215
 - `doodle-underline.png` 429×136
+- `logo-doit-duyite.png` 1974×730 — hero title sticker

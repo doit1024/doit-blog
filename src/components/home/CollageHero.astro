@@ -23,6 +23,7 @@ import doodleSparkleA from "@/assets/collage/doodles/doodle-sparkle-a.png";
 import doodleSparkleB from "@/assets/collage/doodles/doodle-sparkle-b.png";
 import doodleStar from "@/assets/collage/doodles/doodle-star.png";
 import doodleUnderline from "@/assets/collage/doodles/doodle-underline.png";
+import logoDoit from "@/assets/collage/doodles/logo-doit-duyite.png";
 import iconGithub from "@/assets/collage/doodles/doodle-icon-github.png";
 import iconEmail from "@/assets/collage/doodles/doodle-icon-email.png";
 import iconRss from "@/assets/collage/doodles/doodle-icon-rss.png";
@@ -50,26 +51,12 @@ const SOCIAL_ROT = ["-8deg", "5deg", "-4deg"] as const;
 >
   <h1 id="collage-title" class="collage-title" data-draggable>
     <Image
-      src={cloudBanner}
-      alt=""
-      width={956}
-      sizes="(min-width: 900px) 34rem, 94vw"
+      src={logoDoit}
+      alt="doit 杜伊特"
+      width={1974}
+      sizes="(min-width: 900px) 36rem, 94vw"
       draggable="false"
-      class="collage-title__paper"
     />
-    <span class="collage-title__copy">
-      <span class="collage-title__doit">
-        doit
-        <Image
-          src={doodleUnderline}
-          alt=""
-          width={429}
-          draggable="false"
-          class="collage-title__underline"
-        />
-      </span>
-      <span class="collage-title__cjk">杜伊特</span>
-    </span>
   </h1>
 
   <blockquote class="collage-quote" data-draggable lang="en">
@@ -128,6 +115,17 @@ const SOCIAL_ROT = ["-8deg", "5deg", "-4deg"] as const;
     )
   }
 
+  <CollageSticker
+    class="collage-cloud collage-desktop"
+    src={cloudBanner}
+    width={956}
+    sizes="16rem"
+  />
+  <CollageSticker
+    class="collage-underline collage-desktop"
+    src={doodleUnderline}
+    width={429}
+  />
   <CollageSticker
     class="collage-heart collage-heart--a"
     src={doodleHeartA}
