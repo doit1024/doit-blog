@@ -499,7 +499,7 @@ html[data-theme="dark"] .notebook-brush {
 }
 
 .collage-card__photo[data-tone="blush"] {
-  background: #ffc6d8;
+  background: #ffb3cc;
 }
 .collage-card__photo[data-tone="candy"] {
   background: #ff9ec4;
@@ -667,15 +667,11 @@ html[data-theme="dark"] .notebook-brush {
 
   .collage-stack {
     gap: 0;
-    padding-top: 1.5rem;
+    padding-top: 0;
   }
 
-  .collage-stack .collage-card {
+  .collage-stack .collage-card + .collage-card {
     margin-top: -1.75rem;
-  }
-
-  .collage-stack .collage-card:first-child {
-    margin-top: 0;
   }
 }
 
