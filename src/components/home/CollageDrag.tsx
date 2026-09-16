@@ -26,6 +26,14 @@ export default function CollageDrag() {
       let dragging = false;
       let suppressClick = false;
 
+      const onEnter = () => {
+        item.classList.add("is-lifted");
+      };
+
+      const onLeave = () => {
+        if (!dragging) item.classList.remove("is-lifted");
+      };
+
       const onDown = (event: PointerEvent) => {
         if (event.button !== 0) return;
         pointerId = event.pointerId;
@@ -36,6 +44,7 @@ export default function CollageDrag() {
         startX = event.clientX;
         startY = event.clientY;
         dragging = false;
+        item.classList.add("is-lifted");
       };
 
       const onMove = (event: PointerEvent) => {
@@ -58,6 +67,10 @@ export default function CollageDrag() {
           item.classList.remove("is-dragging");
         }
         dragging = false;
+        const under = document.elementFromPoint(event.clientX, event.clientY);
+        if (!under || !item.contains(under)) {
+          item.classList.remove("is-lifted");
+        }
       };
 
       const onClick = (event: MouseEvent) => {
@@ -71,6 +84,8 @@ export default function CollageDrag() {
         event.preventDefault();
       };
 
+      item.addEventListener("pointerenter", onEnter);
+      item.addEventListener("pointerleave", onLeave);
       item.addEventListener("pointerdown", onDown);
       item.addEventListener("pointermove", onMove);
       item.addEventListener("pointerup", onUp);
@@ -79,6 +94,8 @@ export default function CollageDrag() {
       item.addEventListener("click", onClick, true);
 
       cleanups.push(() => {
+        item.removeEventListener("pointerenter", onEnter);
+        item.removeEventListener("pointerleave", onLeave);
         item.removeEventListener("pointerdown", onDown);
         item.removeEventListener("pointermove", onMove);
         item.removeEventListener("pointerup", onUp);
