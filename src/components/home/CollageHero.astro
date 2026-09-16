@@ -1,46 +1,19 @@
 ---
 import { Image } from "astro:assets";
-import type { ImageMetadata } from "astro";
 import CollageDrag from "./CollageDrag";
 import CollageSticker from "./CollageSticker.astro";
 import { SOCIALS } from "@/constants";
 
-import cloudBanner from "@/assets/collage/paper/paper-cloud-banner.png";
-import postageStamp from "@/assets/collage/paper/paper-postage-stamp.png";
-import spiralNotebook from "@/assets/collage/paper/paper-spiral-notebook.png";
-import tornLong from "@/assets/collage/paper/paper-torn-strip-long.png";
-import tornMed from "@/assets/collage/paper/paper-torn-strip-med.png";
-import tornSmall from "@/assets/collage/paper/paper-torn-strip-small.png";
-import washiTape from "@/assets/collage/paper/paper-washi-tape.png";
+import logoDoit from "@/assets/collage/v2/logo-doit.png";
+import quoteTorn from "@/assets/collage/v2/quote-torn.png";
+import socialIconsBar from "@/assets/collage/v2/social-icons-bar.png";
+import heartsPair from "@/assets/collage/v2/hearts-pair.png";
+import heartSparkle from "@/assets/collage/v2/heart-sparkle.png";
+import arrowLoop from "@/assets/collage/v2/arrow-loop.png";
 
-import doodleBear from "@/assets/collage/doodles/doodle-bear.png";
-import doodleArrow from "@/assets/collage/doodles/doodle-arrow.png";
-import doodleArrowLoop from "@/assets/collage/doodles/doodle-arrow-loop.png";
-import doodleHeartA from "@/assets/collage/doodles/doodle-heart-a.png";
-import doodleHeartB from "@/assets/collage/doodles/doodle-heart-b.png";
-import doodleHeartC from "@/assets/collage/doodles/doodle-heart-c.png";
-import doodleSparkleA from "@/assets/collage/doodles/doodle-sparkle-a.png";
-import doodleSparkleB from "@/assets/collage/doodles/doodle-sparkle-b.png";
-import doodleStar from "@/assets/collage/doodles/doodle-star.png";
-import doodleUnderline from "@/assets/collage/doodles/doodle-underline.png";
-import logoDoit from "@/assets/collage/doodles/logo-doit-duyite.png";
-import iconGithub from "@/assets/collage/doodles/doodle-icon-github.png";
-import iconEmail from "@/assets/collage/doodles/doodle-icon-email.png";
-import iconRss from "@/assets/collage/doodles/doodle-icon-rss.png";
-
-interface Props {
-  showSocials?: boolean;
-}
-
-const { showSocials = SOCIALS.length > 0 } = Astro.props;
-
-const SOCIAL_STICKERS: Record<string, ImageMetadata> = {
-  GitHub: iconGithub,
-  Mail: iconEmail,
-  Rss: iconRss,
-};
-
-const SOCIAL_ROT = ["-8deg", "5deg", "-4deg"] as const;
+const github = SOCIALS.find(social => social.name === "GitHub");
+const mail = SOCIALS.find(social => social.name === "Mail");
+const rss = SOCIALS.find(social => social.name === "Rss");
 ---
 
 <section
@@ -49,141 +22,93 @@ const SOCIAL_ROT = ["-8deg", "5deg", "-4deg"] as const;
   data-collage-board
   aria-labelledby="collage-title"
 >
-  <h1 id="collage-title" class="collage-title" data-draggable>
+  <h1 id="collage-title" class="collage-logo" data-draggable>
     <Image
       src={logoDoit}
       alt="doit 杜伊特"
-      width={1974}
-      sizes="(min-width: 900px) 36rem, 94vw"
+      width={840}
+      sizes="(min-width: 900px) 280px, 72vw"
       draggable="false"
     />
   </h1>
 
-  <blockquote class="collage-quote" data-draggable lang="en">
+  <figure class="collage-quote" data-draggable>
     <Image
-      src={tornLong}
-      alt=""
-      width={1443}
-      sizes="(min-width: 900px) 40rem, 96vw"
-      draggable="false"
-      class="collage-quote__paper"
-    />
-    <Image
-      src={washiTape}
-      alt=""
-      width={259}
-      draggable="false"
-      class="collage-quote__washi"
-    />
-    <p>
-      “To see the world, things dangerous to come to, to see behind walls, to
-      draw closer, to find each other and to feel. That is the purpose of life.”
-    </p>
-  </blockquote>
-
-  <figure class="collage-bear" data-draggable>
-    <Image
-      src={doodleBear}
-      alt="一只举手的线稿小熊贴纸"
-      width={711}
-      sizes="(min-width: 900px) 22rem, 78vw"
+      src={quoteTorn}
+      alt="To see the world, things dangerous to come to, to see behind walls, to draw closer, to find each other and to feel. That is the purpose of life."
+      width={1260}
+      sizes="(min-width: 900px) 420px, 92vw"
       draggable="false"
     />
   </figure>
 
-  {
-    showSocials && (
-      <nav class="collage-socials" aria-label="社交链接">
-        {SOCIALS.map((social, index) => {
-          const sticker = SOCIAL_STICKERS[social.name];
-          if (!sticker) return null;
-          return (
-            <CollageSticker
-              class={`collage-social collage-social--${social.name.toLowerCase()}`}
-              src={sticker}
-              width={180}
-              rot={SOCIAL_ROT[index] ?? "0deg"}
-              href={social.href}
-              title={social.linkTitle}
-              alt=""
-            >
-              <span class="sr-only">{social.linkTitle}</span>
-            </CollageSticker>
-          );
-        })}
-      </nav>
-    )
-  }
-
-  <CollageSticker
-    class="collage-cloud collage-desktop"
-    src={cloudBanner}
-    width={956}
-    sizes="16rem"
-  />
-  <CollageSticker
-    class="collage-underline collage-desktop"
-    src={doodleUnderline}
-    width={429}
-  />
-  <CollageSticker
-    class="collage-heart collage-heart--a"
-    src={doodleHeartA}
-    width={211}
-  />
-  <CollageSticker
-    class="collage-heart collage-heart--b collage-desktop"
-    src={doodleHeartB}
-    width={240}
-  />
-  <CollageSticker
-    class="collage-sparkle collage-sparkle--a"
-    src={doodleSparkleA}
-    width={201}
-  />
-  <CollageSticker
-    class="collage-sparkle collage-sparkle--b collage-desktop"
-    src={doodleSparkleB}
-    width={232}
-  />
-  <CollageSticker
-    class="collage-star collage-desktop"
-    src={doodleStar}
-    width={178}
-  />
-  <CollageSticker class="collage-arrow" src={doodleArrow} width={478} />
-  <CollageSticker
-    class="collage-arrow-loop collage-desktop"
-    src={doodleArrowLoop}
-    width={462}
-  />
-  <CollageSticker
-    class="collage-spiral collage-desktop"
-    src={spiralNotebook}
-    width={804}
-    sizes="14rem"
-  />
-  <CollageSticker
-    class="collage-torn collage-torn--med collage-desktop"
-    src={tornMed}
-    width={471}
-  />
-  <CollageSticker
-    class="collage-torn collage-torn--small"
-    src={tornSmall}
-    width={451}
-  />
-
-  <div class="collage-stamp collage-desktop" data-draggable aria-hidden="true">
-    <Image src={postageStamp} alt="" width={443} draggable="false" />
+  <div class="collage-socials" data-draggable>
     <Image
-      src={doodleHeartC}
+      src={socialIconsBar}
       alt=""
-      width={232}
+      width={660}
+      sizes="(min-width: 900px) 220px, 58vw"
       draggable="false"
-      class="collage-stamp__heart"
     />
+    <nav class="collage-socials__hotspots" aria-label="社交链接">
+      {
+        github && (
+          <a
+            class="collage-hotspot collage-hotspot--github"
+            href={github.href}
+            title={github.linkTitle}
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            <span class="sr-only">{github.linkTitle}</span>
+          </a>
+        )
+      }
+      {
+        mail && (
+          <a
+            class="collage-hotspot collage-hotspot--mail"
+            href={mail.href}
+            title={mail.linkTitle}
+          >
+            <span class="sr-only">{mail.linkTitle}</span>
+          </a>
+        )
+      }
+      {
+        rss && (
+          <a
+            class="collage-hotspot collage-hotspot--rss"
+            href={rss.href}
+            title={rss.linkTitle}
+          >
+            <span class="sr-only">{rss.linkTitle}</span>
+          </a>
+        )
+      }
+    </nav>
   </div>
+
+  <CollageSticker
+    class="collage-hearts"
+    src={heartsPair}
+    width={360}
+    sizes="120px"
+    rot="-12deg"
+  />
+  <CollageSticker
+    class="collage-sparkle"
+    src={heartSparkle}
+    width={270}
+    sizes="90px"
+    rot="8deg"
+  />
+  <CollageSticker
+    class="collage-arrow"
+    src={arrowLoop}
+    width={420}
+    sizes="140px"
+  />
 </section>
 
 <CollageDrag client:only="react" />

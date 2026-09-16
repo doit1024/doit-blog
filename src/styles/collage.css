@@ -1,4 +1,4 @@
-/* Homepage hero stickers only. Page ground uses production --background. */
+/* Homepage v2 stickers only. Page ground uses production --background. */
 
 @property --tilt {
   syntax: "<angle>";
@@ -18,18 +18,19 @@
   initial-value: 1;
 }
 
-.collage-hero {
-  --sticker-ink: #2a1238;
-  position: relative;
-  isolation: isolate;
+[data-layout="index"] {
   overflow: visible;
-  display: flex;
-  flex-direction: column;
-  align-items: flex-start;
-  gap: 0.35rem;
+}
+
+.collage-hero {
+  position: relative;
+  z-index: 50;
+  overflow: visible;
+  display: block;
+  min-height: 26rem;
   max-width: 72rem;
   margin-inline: auto;
-  padding: 1.35rem 0.85rem 2.4rem;
+  padding: 1.1rem 0.75rem 2.2rem;
 }
 
 .collage-hero [data-draggable] {
@@ -39,11 +40,11 @@
   --tilt: 0deg;
   --lift: 0px;
   --grow: 1;
+  position: relative;
+  z-index: 2;
   touch-action: none;
   cursor: grab;
   user-select: none;
-  /* Drag writes --dx/--dy. Hover writes --tilt/--lift/--grow.
-     Both live on one transform so they cannot clobber each other. */
   transform: translate3d(var(--dx), var(--dy), 0) translateY(var(--lift))
     rotate(calc(var(--rot) + var(--tilt))) scale(var(--grow));
   filter: drop-shadow(1px 3px 5px rgb(40 18 28 / 0.16));
@@ -62,12 +63,10 @@
   --grow: 1.05;
   filter: drop-shadow(0 3px 0 rgb(255 253 253 / 0.9))
     drop-shadow(12px 24px 16px rgb(40 18 28 / 0.45));
-  z-index: 24;
 }
 
 .collage-hero [data-draggable].is-dragging {
   cursor: grabbing;
-  z-index: 40;
   --tilt: 9deg;
   --lift: -12px;
   --grow: 1.06;
@@ -99,294 +98,125 @@
   object-fit: contain;
 }
 
-.collage-sticker,
-.collage-title,
-.collage-quote,
-.collage-bear,
-.collage-stamp {
-  position: relative;
-  z-index: 3;
-}
-
-.collage-title {
+.collage-logo {
   z-index: 6;
-  width: min(34rem, 96%);
+  width: min(280px, 72vw);
   margin: 0;
-  --rot: 0deg;
+  --rot: -4deg;
 }
 
 .collage-quote {
   z-index: 5;
-  width: min(40rem, 100%);
-  margin: 0.15rem 0 0;
-  --rot: 1.8deg;
-}
-
-.collage-quote p {
-  position: absolute;
-  inset: 22% 11% 24% 10%;
-  margin: 0;
-  color: var(--sticker-ink);
-  font-family: var(--font-display);
-  font-style: italic;
-  font-size: clamp(0.78rem, 2.4vw, 1.04rem);
-  line-height: 1.38;
-}
-
-.collage-quote__washi {
-  position: absolute;
-  top: 2%;
-  right: 9%;
-  z-index: 2;
-  width: 19% !important;
-  rotate: 14deg;
-}
-
-.collage-bear {
-  z-index: 7;
-  width: min(19.5rem, 82vw);
-  margin: 0.15rem auto 0;
-  align-self: center;
-  --rot: 4.5deg;
+  width: min(420px, 92vw);
+  margin: 0.4rem 0 0;
+  --rot: 1.6deg;
 }
 
 .collage-socials {
-  position: relative;
   z-index: 6;
-  display: flex;
-  align-items: center;
-  gap: 0.15rem;
-  margin-top: 0.35rem;
-  padding-inline: 0.2rem;
+  width: min(220px, 58vw);
+  margin: 0.55rem 0 0;
+  --rot: -3deg;
 }
 
-.collage-social {
-  width: 3.45rem;
-  z-index: 6;
-}
-
-.collage-social:hover,
-.collage-social:focus-visible,
-.collage-social.is-lifted {
-  filter: drop-shadow(0 3px 0 rgb(255 253 253 / 0.9))
-    drop-shadow(12px 24px 16px rgb(40 18 28 / 0.45)) brightness(1.06);
-}
-
-.collage-heart--a {
+.collage-socials__hotspots {
   position: absolute;
-  top: 38%;
-  left: 3%;
-  width: 3rem;
-  --rot: -16deg;
+  inset: 0;
 }
 
-.collage-heart--b {
-  width: 2.55rem;
-  --rot: 18deg;
-}
-
-.collage-sparkle--a {
+.collage-hotspot {
   position: absolute;
-  top: 7%;
-  left: 4%;
-  width: 2.55rem;
-  --rot: -14deg;
+  top: 22%;
+  height: 58%;
+  pointer-events: auto;
+  cursor: pointer;
+  border-radius: 22%;
 }
 
-.collage-sparkle--b {
-  width: 2.9rem;
-  --rot: 10deg;
+.collage-hotspot--github {
+  left: 12%;
+  width: 23%;
 }
 
-.collage-star {
-  width: 2.45rem;
-  --rot: 22deg;
+.collage-hotspot--mail {
+  left: 37.5%;
+  width: 24%;
+}
+
+.collage-hotspot--rss {
+  left: 65%;
+  width: 23%;
+}
+
+.collage-hearts {
+  z-index: 4;
+  width: min(120px, 32vw);
+  margin: 0.35rem 0 0;
+}
+
+.collage-sparkle {
+  z-index: 4;
+  width: min(90px, 24vw);
+  margin: 0.2rem 0 0 42%;
 }
 
 .collage-arrow {
-  position: absolute;
-  right: 6%;
-  bottom: 1.4rem;
-  width: 5.6rem;
-  --rot: 8deg;
-}
-
-.collage-arrow-loop {
-  width: 8.5rem;
-  --rot: -6deg;
-}
-
-.collage-spiral {
-  width: min(13.5rem, 30vw);
-  --rot: -7deg;
-}
-
-.collage-torn--med {
-  width: 7.2rem;
-  --rot: -9deg;
-}
-
-.collage-torn--small {
-  position: absolute;
-  left: 28%;
-  bottom: 18%;
-  width: 5.8rem;
-  --rot: 12deg;
-}
-
-.collage-stamp {
-  width: 5.4rem;
-  --rot: 11deg;
-}
-
-.collage-stamp__heart {
-  position: absolute;
-  inset: 18% 16% 16%;
-  width: auto !important;
-  height: auto;
-}
-
-@media (max-width: 899px) {
-  .collage-desktop {
-    display: none;
-  }
-
-  .collage-heart--a {
-    top: auto;
-    bottom: 26%;
-    left: 5%;
-  }
-
-  .collage-sparkle--a {
-    top: 1.6rem;
-    left: 2%;
-  }
-
-  .collage-torn--small {
-    left: auto;
-    right: 8%;
-    bottom: 22%;
-    width: 4.8rem;
-  }
+  z-index: 5;
+  width: min(140px, 36vw);
+  margin: 0.2rem 0 0 auto;
+  --rot: 4deg;
 }
 
 @media (min-width: 900px) {
   .collage-hero {
-    display: block;
-    min-height: 36rem;
-    padding: 2rem 1.1rem 3.1rem;
+    min-height: 34rem;
+    padding: 1.6rem 1rem 2.6rem;
   }
 
-  .collage-title {
+  .collage-logo,
+  .collage-quote,
+  .collage-socials,
+  .collage-hearts,
+  .collage-sparkle,
+  .collage-arrow {
     position: absolute;
-    top: 7%;
-    left: 5%;
-    width: min(36rem, 52%);
     margin: 0;
   }
 
-  .collage-cloud {
-    position: absolute;
-    top: 16%;
-    left: 20%;
-    width: min(14rem, 20vw);
-    --rot: 7deg;
-    z-index: 2;
-  }
-
-  .collage-underline {
-    position: absolute;
-    left: 36%;
-    bottom: 22%;
-    width: 6.5rem;
-    --rot: -12deg;
+  .collage-logo {
+    top: 6%;
+    left: 5%;
+    width: 280px;
   }
 
   .collage-quote {
-    position: absolute;
-    top: 46%;
-    left: 7%;
-    width: min(40rem, 54%);
-    margin: 0;
-  }
-
-  .collage-bear {
-    position: absolute;
-    top: 3%;
-    right: 5%;
-    width: min(22.5rem, 36vw);
-    margin: 0;
+    top: 34%;
+    left: 22%;
+    width: 420px;
   }
 
   .collage-socials {
-    position: absolute;
-    left: 7.5%;
-    bottom: 6%;
-    margin: 0;
+    left: 5%;
+    bottom: 7%;
+    width: 220px;
   }
 
-  .collage-heart--a {
-    top: 36%;
-    left: 3.5%;
-    width: 3.25rem;
+  .collage-hearts {
+    top: 46%;
+    left: 2%;
+    width: 120px;
   }
 
-  .collage-heart--b {
-    position: absolute;
-    top: 6%;
-    right: 34%;
-  }
-
-  .collage-sparkle--a {
-    top: 9%;
-    left: 3%;
-  }
-
-  .collage-sparkle--b {
-    position: absolute;
-    top: 12%;
-    right: 40%;
-  }
-
-  .collage-star {
-    position: absolute;
-    top: 4%;
-    left: 46%;
+  .collage-sparkle {
+    top: 8%;
+    right: 9%;
+    left: auto;
+    width: 90px;
   }
 
   .collage-arrow {
-    right: 8%;
-    bottom: 7%;
-    width: 6.4rem;
-  }
-
-  .collage-arrow-loop {
-    position: absolute;
-    right: 28%;
-    bottom: 10%;
-  }
-
-  .collage-spiral {
-    position: absolute;
     right: 6%;
-    bottom: 4%;
-  }
-
-  .collage-torn--med {
-    position: absolute;
-    top: 42%;
-    left: 48%;
-  }
-
-  .collage-torn--small {
-    left: 38%;
-    bottom: 8%;
-    width: 6.4rem;
-  }
-
-  .collage-stamp {
-    position: absolute;
-    top: 58%;
-    right: 32%;
+    bottom: 5%;
+    width: 140px;
   }
 }

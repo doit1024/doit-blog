@@ -16,6 +16,12 @@ export default function CollageDrag() {
 
     const items = [...board.querySelectorAll<HTMLElement>("[data-draggable]")];
     const cleanups: Array<() => void> = [];
+    let topLayer = 30;
+
+    const bringToFront = (item: HTMLElement) => {
+      topLayer += 1;
+      item.style.zIndex = String(topLayer);
+    };
 
     for (const item of items) {
       let pointerId: number | null = null;
@@ -45,6 +51,7 @@ export default function CollageDrag() {
         startY = event.clientY;
         dragging = false;
         item.classList.add("is-lifted");
+        bringToFront(item);
       };
 
       const onMove = (event: PointerEvent) => {
