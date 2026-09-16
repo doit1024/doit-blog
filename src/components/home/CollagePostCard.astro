@@ -1,0 +1,62 @@
+---
+import type { CollectionEntry } from "astro:content";
+import { slugifyStr } from "@/utils/slugify";
+import { getPath } from "@/utils/getPath";
+import Datetime from "@/components/Datetime.astro";
+import CollageTape from "./CollageTape.astro";
+import type { CollageTone } from "./collage";
+
+interface Props {
+  post: CollectionEntry<"blog">;
+  tone: CollageTone;
+  rot: number;
+  index: number;
+  featured?: boolean;
+  variant?: "h2" | "h3";
+}
+
+const {
+  post,
+  tone,
+  rot,
+  index,
+  featured = false,
+  variant = "h3",
+} = Astro.props;
+
+const { data, id, filePath } = post;
+const { title, description, pubDatetime, modDatetime, timezone, tags } = data;
+const tag = tags[0] ?? "notes";
+const number = String(index + 1).padStart(2, "0");
+
+const headingProps = {
+  style: { viewTransitionName: slugifyStr(title) },
+};
+---
+
+<a
+  href={getPath(id, filePath)}
+  class:list={[
+    "collage-item collage-card",
+    featured ? "collage-card--cover" : "collage-card--note",
+  ]}
+  style={`--rot: ${rot}deg`}
+  data-astro-prefetch="load"
+>
+  <CollageTape placement={featured ? "top" : "tl"} />
+  <div class="collage-card__photo" data-tone={tone}>
+    <span class="collage-card__index" aria-hidden="true">{number}</span>
+    <span class="collage-card__tag">#{tag}</span>
+  </div>
+  <div class="collage-card__body">
+    <Datetime {pubDatetime} {modDatetime} {timezone} />
+    {
+      variant === "h2" ? (
+        <h2 {...headingProps}>{title}</h2>
+      ) : (
+        <h3 {...headingProps}>{title}</h3>
+      )
+    }
+    <p>{description}</p>
+  </div>
+</a>

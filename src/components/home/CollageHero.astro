@@ -1,0 +1,109 @@
+---
+import { Image } from "astro:assets";
+import Socials from "@/components/Socials.astro";
+import CollageTape from "./CollageTape.astro";
+import cuteBear from "@/assets/images/cute_bear.png";
+import { SOCIALS } from "@/constants";
+
+interface Props {
+  showSocials?: boolean;
+}
+
+const { showSocials = SOCIALS.length > 0 } = Astro.props;
+---
+
+<section
+  id="hero"
+  class="collage-hero"
+  data-collage-board
+  aria-labelledby="collage-title"
+>
+  <div class="collage-hero__wash" aria-hidden="true"></div>
+
+  <div class="collage-item collage-title">
+    <CollageTape placement="tl" />
+    <p class="collage-kicker">FIELD NOTES · 现场笔记</p>
+    <h1 id="collage-title">
+      <span class="collage-title__latin">doit</span>
+      <span class="collage-title__cjk">杜伊特</span>
+    </h1>
+    <p class="collage-lede">所思 · 所见 · 所想。把碎片钉回同一张桌上。</p>
+  </div>
+
+  <figure class="collage-item collage-polaroid collage-polaroid--bear">
+    <CollageTape placement="top" />
+    <Image src={cuteBear} alt="一只举手的线稿小熊" height={420} />
+    <figcaption>studio mascot</figcaption>
+  </figure>
+
+  <blockquote class="collage-item collage-quote" lang="en">
+    <CollageTape placement="tr" />
+    <p>
+      “To see the world, things dangerous to come to, to see behind walls, to
+      draw closer, to find each other and to feel. That is the purpose of life.”
+    </p>
+    <cite>— Forrest Gump</cite>
+  </blockquote>
+
+  <figure class="collage-item collage-polaroid collage-polaroid--gump">
+    <CollageTape placement="diag" />
+    <img
+      src="/assets/forrest-gump-quote.webp"
+      alt="Forrest Gump sitting on a bench, with a joke about updating dependencies"
+      width="960"
+      height="480"
+    />
+    <figcaption>a box of chocolates</figcaption>
+  </figure>
+
+  {
+    showSocials && (
+      <div class="collage-item collage-sticker">
+        <CollageTape placement="top" />
+        <Socials />
+      </div>
+    )
+  }
+
+  <div class="collage-item collage-chips" aria-hidden="true">
+    <span></span>
+    <span></span>
+    <span></span>
+    <span></span>
+  </div>
+</section>
+
+<script>
+  const reduceMotion = () =>
+    window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+
+  let abort: AbortController | null = null;
+
+  function setupCollageParallax() {
+    abort?.abort();
+    const board = document.querySelector<HTMLElement>("[data-collage-board]");
+    if (!board || reduceMotion()) return;
+
+    abort = new AbortController();
+    const { signal } = abort;
+
+    const onMove = (event: PointerEvent) => {
+      const rect = board.getBoundingClientRect();
+      const x = (event.clientX - rect.left) / rect.width - 0.5;
+      const y = (event.clientY - rect.top) / rect.height - 0.5;
+      board.style.setProperty("--mx", x.toFixed(3));
+      board.style.setProperty("--my", y.toFixed(3));
+    };
+
+    const reset = () => {
+      board.style.setProperty("--mx", "0");
+      board.style.setProperty("--my", "0");
+    };
+
+    board.addEventListener("pointermove", onMove, { signal });
+    board.addEventListener("pointerleave", reset, { signal });
+  }
+
+  document.addEventListener("astro:page-load", setupCollageParallax);
+  document.addEventListener("astro:before-swap", () => abort?.abort());
+</script>

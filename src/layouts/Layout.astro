@@ -139,7 +139,8 @@ const structuredData = {
 
     <ClientRouter fallback="swap" />
 
-    <Font cssVariable="--font-poppins" preload />
+    <Font cssVariable="--font-bricolage" preload />
+    <Font cssVariable="--font-fraunces" preload />
 
     <script is:inline src="/toggle-theme.js"></script>
   </head>
@@ -168,7 +169,7 @@ const structuredData = {
 
   /** Keep @font-face + font preloads in <head> across ClientRouter swaps.
    *  Otherwise the browser re-evaluates font-display:swap and header
-   *  text flashes from the fallback (thin) to Poppins 600 (thick).
+   *  text flashes from the fallback (thin) to the loaded face (thick).
    *  https://github.com/withastro/astro/issues/15465 */
   function persistFontHead(head: HTMLHeadElement) {
     let styleIdx = 0;

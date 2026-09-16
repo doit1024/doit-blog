@@ -3,29 +3,56 @@
 
 @custom-variant dark (&:where([data-theme=dark], [data-theme=dark] *));
 
+/*
+  Editorial tokens (ZHA-10)
+  Paper-studio palette: warm ground, carmine stamp accent, collage inks.
+  Homepage consumes the full set; reading pages inherit colors/type only.
+*/
 :root,
 html[data-theme="light"] {
-  --background: #fffdfd;
-  --foreground: #222e36;
-  --accent: #d3006a;
-  --muted: #f1bad4;
-  --border: #e3a9c6;
+  --background: #f3eadc;
+  --foreground: #1c1612;
+  --accent: #b4234a;
+  --muted: #e6d5c3;
+  --border: #d2bba6;
+  --paper: #fff8ee;
+  --ink-soft: #5c534a;
+  --cutout: #2e3f52;
+  --collage-butter: #efc75e;
+  --collage-sage: #7f9b74;
+  --collage-rose: #e39aa4;
+  --collage-sky: #8fb7c9;
+  --collage-terracotta: #d57a4e;
+  --collage-navy: #2e3f52;
+  --tape: #f3e19a;
+  --tape-edge: #d4b84a;
 }
 
 html[data-theme="dark"] {
-  --background: #232323;
-  --foreground: #e9edf1;
-  --accent: #ff78c8;
-  --muted: #715566;
-  --border: #86436b;
+  --background: #161310;
+  --foreground: #f3e6d4;
+  --accent: #ff8aa8;
+  --muted: #3a322b;
+  --border: #5c4e42;
+  --paper: #241e19;
+  --ink-soft: #cbbba8;
+  --cutout: #0c0a08;
+  --collage-butter: #c9a338;
+  --collage-sage: #6b8a64;
+  --collage-rose: #c47d88;
+  --collage-sky: #6f97a8;
+  --collage-terracotta: #c06c42;
+  --collage-navy: #9db0c2;
+  --tape: #8a7840;
+  --tape-edge: #c4a84a;
 }
 
 body {
-  /* Fallback inside var() keeps this declaration valid if --font-poppins
-     is briefly unset during a view-transition head swap. */
+  /* Fallback inside var() keeps this valid if font vars are briefly
+     unset during a view-transition head swap. */
   font-family:
-    -apple-system, var(--font-poppins, ui-sans-serif), Arial, Helvetica,
-    sans-serif;
+    var(--font-bricolage, ui-sans-serif), "PingFang SC", "Hiragino Sans GB",
+    "Noto Sans SC", "Microsoft YaHei", system-ui, sans-serif;
 }
 
 @theme inline {
@@ -34,6 +61,23 @@ body {
   --color-accent: var(--accent);
   --color-muted: var(--muted);
   --color-border: var(--border);
+  --color-paper: var(--paper);
+  --color-ink-soft: var(--ink-soft);
+  --color-cutout: var(--cutout);
+  --color-collage-butter: var(--collage-butter);
+  --color-collage-sage: var(--collage-sage);
+  --color-collage-rose: var(--collage-rose);
+  --color-collage-sky: var(--collage-sky);
+  --color-collage-terracotta: var(--collage-terracotta);
+  --color-collage-navy: var(--collage-navy);
+  --color-tape: var(--tape);
+  --color-tape-edge: var(--tape-edge);
+  --font-sans:
+    var(--font-bricolage, ui-sans-serif), "PingFang SC", "Hiragino Sans GB",
+    "Noto Sans SC", "Microsoft YaHei", system-ui, sans-serif;
+  --font-display:
+    var(--font-fraunces, ui-serif), "Songti SC", "Noto Serif SC", "STSong",
+    "SimSun", serif;
 }
 
 @layer base {
@@ -48,7 +92,7 @@ body {
     @apply overflow-y-scroll;
   }
   body {
-    @apply flex min-h-svh flex-col bg-background text-foreground selection:bg-accent/75 selection:text-background;
+    @apply flex min-h-svh flex-col bg-background font-sans text-foreground selection:bg-accent/75 selection:text-background;
   }
   a,
   button {

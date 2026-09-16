@@ -109,9 +109,18 @@ export default defineConfig({
     fonts: [
       {
         provider: fontProviders.fontsource(),
-        name: "Poppins",
-        cssVariable: "--font-poppins",
+        name: "Bricolage Grotesque",
+        cssVariable: "--font-bricolage",
         weights: [400, 500, 600, 700],
+        fallbacks: ["sans-serif"],
+      },
+      {
+        provider: fontProviders.fontsource(),
+        name: "Fraunces",
+        cssVariable: "--font-fraunces",
+        weights: [400, 600, 700],
+        styles: ["normal", "italic"],
+        fallbacks: ["serif"],
       },
     ],
   },

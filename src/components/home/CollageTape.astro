@@ -1,0 +1,10 @@
+---
+interface Props {
+  placement?: "top" | "tl" | "tr" | "diag";
+}
+
+const { placement = "top" } = Astro.props;
+---
+
+<span class={`collage-tape collage-tape--${placement}`} aria-hidden="true"
+></span>
