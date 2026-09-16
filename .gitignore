@@ -3,6 +3,12 @@ dist/
 
 # generated types
 .astro/
+.design-qa/
+.github/
+.wrangler/
+.vscode/
+.output/
+design-qa.md
 
 # dependencies
 node_modules/

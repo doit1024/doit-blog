@@ -27,30 +27,19 @@ const rss = SOCIALS.find(social => social.name === "Rss");
     <Image
       src={logoDoit}
       alt="doit 杜伊特"
-      width={840}
-      sizes="(min-width: 900px) 280px, 72vw"
+      width={1920}
+      sizes="(min-width: 1156px) 563px, 48.75vw"
       fit="contain"
       draggable="false"
     />
   </h1>
 
-  <figure class="collage-quote" data-draggable>
-    <Image
-      src={quoteTorn}
-      alt="To see the world, things dangerous to come to, to see behind walls, to draw closer, to find each other and to feel. That is the purpose of life."
-      width={1260}
-      sizes="(min-width: 900px) 420px, 92vw"
-      fit="contain"
-      draggable="false"
-    />
-  </figure>
-
   <div class="collage-socials" data-draggable>
     <Image
       src={socialIconsBar}
       alt=""
-      width={660}
-      sizes="(min-width: 900px) 220px, 58vw"
+      width={900}
+      sizes="(min-width: 1156px) 269px, 23.25vw"
       fit="contain"
       draggable="false"
     />
@@ -102,25 +91,35 @@ const rss = SOCIALS.find(social => social.name === "Rss");
       draggable="false"
     />
   </figure>
+  <figure class="collage-quote" data-draggable>
+    <Image
+      src={quoteTorn}
+      alt="To see the world, things dangerous to come to, to see behind walls, to draw closer, to find each other and to feel. That is the purpose of life."
+      width={1600}
+      sizes="(min-width: 1156px) 399px, 34.5vw"
+      fit="contain"
+      draggable="false"
+    />
+  </figure>
   <CollageSticker
     class="collage-hearts"
     src={heartsPair}
     width={360}
-    sizes="120px"
+    sizes="(min-width: 1156px) 74px, 6.375vw"
     rot="-12deg"
   />
   <CollageSticker
     class="collage-sparkle"
     src={heartSparkle}
-    width={270}
-    sizes="90px"
+    width={420}
+    sizes="(min-width: 1156px) 130px, 11.25vw"
     rot="8deg"
   />
   <CollageSticker
     class="collage-arrow"
     src={arrowLoop}
     width={420}
-    sizes="140px"
+    sizes="(min-width: 1156px) 104px, 9vw"
   />
 </section>
 

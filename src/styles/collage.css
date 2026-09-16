@@ -27,10 +27,12 @@
   z-index: 50;
   overflow: visible;
   display: block;
-  min-height: 30rem;
-  max-width: 72rem;
+  width: 100%;
+  min-height: 0;
+  max-width: 72.222rem;
+  aspect-ratio: 16 / 9;
   margin-inline: auto;
-  padding: 1.1rem 0.75rem 2.2rem;
+  padding: 0;
 }
 
 .collage-hero [data-draggable] {
@@ -101,34 +103,39 @@
 
 /* Mock defaults: hardcoded % of hero. Drag writes --dx/--dy after load. */
 .collage-logo {
-  top: 6%;
-  left: 4%;
+  top: 19%;
+  left: 23.75%;
   z-index: 6;
-  width: min(280px, 46vw);
+  width: 48.75%;
   --rot: -4deg;
 }
 
 .collage-quote {
-  top: 34%;
-  left: 18%;
+  top: 46%;
+  left: 26.375%;
   z-index: 5;
-  width: min(420px, 62vw);
+  width: 34.5%;
   --rot: 1.6deg;
 }
 
 .collage-bear {
-  top: 5%;
-  right: 2%;
+  top: 35.5%;
+  right: 13.25%;
   z-index: 7;
-  width: min(200px, 36vw);
+  width: 33%;
   --rot: 4deg;
 }
 
+.collage-bear img {
+  transform: scaleY(1.04);
+  transform-origin: center;
+}
+
 .collage-socials {
-  left: 4%;
-  bottom: 6%;
+  left: 27.875%;
+  bottom: 15%;
   z-index: 6;
-  width: min(220px, 48vw);
+  width: 23.25%;
   --rot: -3deg;
 }
 
@@ -162,59 +169,31 @@
 }
 
 .collage-hearts {
-  left: 3%;
-  bottom: 22%;
+  top: 28%;
+  right: 15.875%;
+  bottom: auto;
+  left: auto;
   z-index: 4;
-  width: min(120px, 26vw);
+  width: 6.375%;
 }
 
 .collage-sparkle {
-  top: 5%;
-  right: 22%;
+  top: 45%;
+  right: auto;
+  left: 15.875%;
   z-index: 4;
-  width: min(90px, 18vw);
+  width: 11.25%;
 }
 
 .collage-arrow {
-  right: 6%;
-  bottom: 5%;
+  right: 13.625%;
+  bottom: 16%;
   z-index: 5;
-  width: min(140px, 30vw);
+  width: 9%;
   --rot: 4deg;
 }
 
-@media (min-width: 900px) {
-  .collage-hero {
-    min-height: 36rem;
-    padding: 1.6rem 1rem 2.6rem;
-  }
-
-  .collage-logo {
-    width: 280px;
-  }
-
-  .collage-quote {
-    left: 20%;
-    width: 420px;
-  }
-
-  .collage-bear {
-    width: 200px;
-  }
-
-  .collage-socials {
-    width: 220px;
-  }
-
-  .collage-hearts {
-    width: 120px;
-  }
-
-  .collage-sparkle {
-    width: 90px;
-  }
-
-  .collage-arrow {
-    width: 140px;
-  }
+.collage-arrow img {
+  transform: scaleY(1.35);
+  transform-origin: center;
 }
