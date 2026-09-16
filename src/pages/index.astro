@@ -4,83 +4,64 @@ import Layout from "@/layouts/Layout.astro";
 import Header from "@/components/Header.astro";
 import Footer from "@/components/Footer.astro";
 import CollageHero from "@/components/home/CollageHero.astro";
-import CollagePostCard from "@/components/home/CollagePostCard.astro";
-import { COLLAGE_TONES } from "@/components/home/collage";
-import IconArrowRight from "@/assets/icons/IconArrowRight.svg";
+import LinkButton from "@/components/LinkButton.astro";
+import Card from "@/components/Card.astro";
+import Hr from "@/components/Hr.astro";
 import getSortedPosts from "@/utils/getSortedPosts";
+import IconArrowRight from "@/assets/icons/IconArrowRight.svg";
 import { SITE } from "@/config";
 import "@/styles/collage.css";
 
-const COVER_ROTS = [-2.2, 1.6];
-const STACK_ROTS = [3.1, -2.4, 2.2, -1.4];
-
 const posts = await getCollection("blog");
+
 const sortedPosts = getSortedPosts(posts);
 const featuredPosts = sortedPosts.filter(({ data }) => data.featured);
 const recentPosts = sortedPosts.filter(({ data }) => !data.featured);
-const indexPosts = recentPosts.slice(0, SITE.postPerIndex);
-const coverPosts =
-  featuredPosts.length > 0 ? featuredPosts : indexPosts.slice(0, 1);
-const stackPosts = featuredPosts.length > 0 ? indexPosts : indexPosts.slice(1);
-const hasPosts = coverPosts.length > 0 || stackPosts.length > 0;
 ---
 
 <Layout>
   <Header />
-  <main id="main-content" class="collage-page" data-layout="index">
+  <main id="main-content" data-layout="index">
     <CollageHero />
 
+    <Hr />
+
     {
-      hasPosts && (
-        <section
-          id={featuredPosts.length > 0 ? "featured" : "recent-posts"}
-          class="collage-posts"
-          aria-labelledby="collage-posts-label"
-        >
-          <h2 id="collage-posts-label" class="collage-label">
-            {featuredPosts.length > 0 ? "推荐文章" : "最新文章"}
-          </h2>
-          <div class="collage-posts-grid">
-            <div class="collage-covers">
-              {coverPosts.map((post, i) => (
-                <CollagePostCard
-                  post={post}
-                  tone={COLLAGE_TONES[i % COLLAGE_TONES.length]}
-                  rot={COVER_ROTS[i % COVER_ROTS.length]}
-                  index={i}
-                  featured
-                  variant="h2"
-                />
+      featuredPosts.length > 0 && (
+        <>
+          <section id="featured" class="pt-12 pb-6">
+            <h2 class="text-2xl font-semibold tracking-wide">推荐文章</h2>
+            <ul>
+              {featuredPosts.map(data => (
+                <Card variant="h3" {...data} />
               ))}
-            </div>
-            {stackPosts.length > 0 && (
-              <div class="collage-stack">
-                {stackPosts.map((post, i) => (
-                  <CollagePostCard
-                    post={post}
-                    tone={
-                      COLLAGE_TONES[
-                        (i + coverPosts.length) % COLLAGE_TONES.length
-                      ]
-                    }
-                    rot={STACK_ROTS[i % STACK_ROTS.length]}
-                    index={i + coverPosts.length}
-                    variant="h3"
-                  />
-                ))}
-              </div>
+            </ul>
+          </section>
+          {recentPosts.length > 0 && <Hr />}
+        </>
+      )
+    }
+
+    {
+      recentPosts.length > 0 && (
+        <section id="recent-posts" class="pt-12 pb-6">
+          <h2 class="text-2xl font-semibold tracking-wide">最新文章</h2>
+          <ul>
+            {recentPosts.map(
+              (data, index) =>
+                index < SITE.postPerIndex && <Card variant="h3" {...data} />
             )}
-          </div>
+          </ul>
         </section>
       )
     }
 
-    <p class="collage-cta">
-      <a class="collage-ticket" href="/posts/">
+    <div class="my-8 text-center">
+      <LinkButton class="inline-flex items-center" href="/posts/">
         全部文章
         <IconArrowRight class="inline-block rtl:-rotate-180" />
-      </a>
-    </p>
+      </LinkButton>
+    </div>
   </main>
   <Footer />
 </Layout>
