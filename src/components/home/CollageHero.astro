@@ -7,6 +7,7 @@ import { SOCIALS } from "@/constants";
 import logoDoit from "@/assets/collage/v2/logo-doit.png";
 import quoteTorn from "@/assets/collage/v2/quote-torn.png";
 import socialIconsBar from "@/assets/collage/v2/social-icons-bar.png";
+import bearSticker from "@/assets/collage/v2/bear-sticker.png";
 import heartsPair from "@/assets/collage/v2/hearts-pair.png";
 import heartSparkle from "@/assets/collage/v2/heart-sparkle.png";
 import arrowLoop from "@/assets/collage/v2/arrow-loop.png";
@@ -28,6 +29,7 @@ const rss = SOCIALS.find(social => social.name === "Rss");
       alt="doit 杜伊特"
       width={840}
       sizes="(min-width: 900px) 280px, 72vw"
+      fit="contain"
       draggable="false"
     />
   </h1>
@@ -38,6 +40,7 @@ const rss = SOCIALS.find(social => social.name === "Rss");
       alt="To see the world, things dangerous to come to, to see behind walls, to draw closer, to find each other and to feel. That is the purpose of life."
       width={1260}
       sizes="(min-width: 900px) 420px, 92vw"
+      fit="contain"
       draggable="false"
     />
   </figure>
@@ -48,6 +51,7 @@ const rss = SOCIALS.find(social => social.name === "Rss");
       alt=""
       width={660}
       sizes="(min-width: 900px) 220px, 58vw"
+      fit="contain"
       draggable="false"
     />
     <nav class="collage-socials__hotspots" aria-label="社交链接">
@@ -89,6 +93,14 @@ const rss = SOCIALS.find(social => social.name === "Rss");
     </nav>
   </div>
 
+  <CollageSticker
+    class="collage-bear"
+    src={bearSticker}
+    width={600}
+    sizes="(min-width: 900px) 200px, 52vw"
+    rot="4deg"
+    alt="一只举手的线稿小熊贴纸"
+  />
   <CollageSticker
     class="collage-hearts"
     src={heartsPair}

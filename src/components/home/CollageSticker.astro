@@ -43,6 +43,13 @@ const linkAttrs = isLink
   aria-hidden={isLink || alt ? undefined : "true"}
   {...linkAttrs}
 >
-  <Image src={src} alt={alt} width={width} sizes={sizes} draggable="false" />
+  <Image
+    src={src}
+    alt={alt}
+    width={width}
+    sizes={sizes}
+    fit="contain"
+    draggable="false"
+  />
   <slot />
 </Tag>

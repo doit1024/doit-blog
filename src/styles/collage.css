@@ -148,6 +148,12 @@
   width: 23%;
 }
 
+.collage-bear {
+  z-index: 7;
+  width: min(200px, 52vw);
+  margin: 0.35rem 0 0 auto;
+}
+
 .collage-hearts {
   z-index: 4;
   width: min(120px, 32vw);
@@ -169,13 +175,14 @@
 
 @media (min-width: 900px) {
   .collage-hero {
-    min-height: 34rem;
+    min-height: 36rem;
     padding: 1.6rem 1rem 2.6rem;
   }
 
   .collage-logo,
   .collage-quote,
   .collage-socials,
+  .collage-bear,
   .collage-hearts,
   .collage-sparkle,
   .collage-arrow {
@@ -190,8 +197,8 @@
   }
 
   .collage-quote {
-    top: 34%;
-    left: 22%;
+    top: 38%;
+    left: 14%;
     width: 420px;
   }
 
@@ -201,21 +208,27 @@
     width: 220px;
   }
 
+  .collage-bear {
+    top: 6%;
+    right: 3%;
+    width: 200px;
+  }
+
   .collage-hearts {
-    top: 46%;
+    top: 48%;
     left: 2%;
     width: 120px;
   }
 
   .collage-sparkle {
-    top: 8%;
-    right: 9%;
+    top: 4%;
+    right: 28%;
     left: auto;
     width: 90px;
   }
 
   .collage-arrow {
-    right: 6%;
+    right: 8%;
     bottom: 5%;
     width: 140px;
   }
