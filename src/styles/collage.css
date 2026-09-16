@@ -111,6 +111,7 @@ main.collage-page > .collage-cta {
   gap: 1.25rem;
   padding-block: 1.75rem 2.25rem;
   justify-items: stretch;
+  min-width: 0;
 }
 
 .collage-hero__wash {
@@ -158,10 +159,11 @@ main.collage-page > .collage-cta {
 
 .collage-lede {
   margin: 0.85rem 0 0;
-  max-width: 28ch;
+  max-width: 22em;
   color: var(--ink-soft);
   font-size: 0.95rem;
   line-height: 1.55;
+  text-wrap: pretty;
 }
 
 .collage-polaroid,
@@ -177,7 +179,8 @@ main.collage-page > .collage-cta {
   --depth: 14px;
   padding: 0.7rem 0.7rem 1.7rem;
   box-shadow: 6px 6px 0 var(--cutout);
-  max-width: 18rem;
+  width: min(18rem, 100%);
+  max-width: 100%;
   justify-self: center;
 }
 
@@ -201,7 +204,7 @@ main.collage-page > .collage-cta {
 .collage-polaroid--gump {
   --rot: -3.2deg;
   --depth: 8px;
-  max-width: 28rem;
+  width: min(28rem, 100%);
   padding-bottom: 1.4rem;
 }
 
@@ -412,6 +415,53 @@ main.collage-page > .collage-cta {
 .collage-ticket:hover,
 .collage-ticket:focus-visible {
   color: var(--accent);
+}
+
+@media (max-width: 899px) {
+  .collage-page {
+    overflow-x: clip;
+  }
+
+  .collage-title,
+  .collage-quote,
+  .collage-sticker {
+    width: 100%;
+    max-width: 100%;
+  }
+
+  .collage-title {
+    --rot: -1.2deg;
+  }
+
+  .collage-polaroid--bear {
+    --rot: 1.4deg;
+  }
+
+  .collage-quote {
+    --rot: 1deg;
+  }
+
+  .collage-polaroid--gump {
+    --rot: -1.2deg;
+  }
+
+  .collage-sticker {
+    --rot: -1.6deg;
+  }
+
+  .collage-tape--diag {
+    top: -0.45rem;
+    left: 0.85rem;
+    rotate: -12deg;
+  }
+
+  .collage-chips {
+    display: none;
+  }
+
+  .collage-card {
+    --rot: -0.8deg;
+  }
 }
 
 @media (min-width: 900px) {
