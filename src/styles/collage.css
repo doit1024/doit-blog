@@ -1,21 +1,20 @@
 /* Homepage hero stickers only. Page ground uses production --background. */
 
-.notebook-hero {
-  --sticker: #fffdfb;
+.collage-hero {
   --sticker-ink: #2a1238;
-  --washi: #ff7eb6;
-  --mark-pink: #ff4d9a;
-  --doodle: #ff5ea8;
-  --diecut: #fffdfb;
   position: relative;
   isolation: isolate;
   overflow-x: clip;
-  min-height: 28rem;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 0.35rem;
   max-width: 72rem;
-  padding-block: 1.75rem 2.5rem;
+  margin-inline: auto;
+  padding: 1.35rem 0.85rem 2.4rem;
 }
 
-[data-draggable] {
+.collage-hero [data-draggable] {
   --dx: 0px;
   --dy: 0px;
   --rot: 0deg;
@@ -25,366 +24,329 @@
   transform: translate3d(var(--dx), var(--dy), 0) rotate(var(--rot));
 }
 
-[data-draggable].is-dragging {
+.collage-hero [data-draggable].is-dragging {
   cursor: grabbing;
-  z-index: 30;
+  z-index: 40;
 }
 
-.notebook-brush {
-  position: absolute;
-  pointer-events: none;
-  color: color-mix(in srgb, var(--doodle) 42%, white 58%);
-  z-index: 0;
-}
-
-html[data-theme="dark"] .notebook-brush {
-  color: color-mix(in srgb, var(--doodle) 35%, transparent);
-}
-
-.notebook-brush--title {
-  width: min(28rem, 70%);
-  top: 1.4rem;
-  left: 6%;
-  rotate: -8deg;
-}
-
-.notebook-brush--socials {
-  position: absolute;
-  inset: -18% -10% auto -8%;
-  width: 130%;
+.collage-hero img {
+  display: block;
+  width: 100%;
   height: auto;
-  z-index: 0;
-  rotate: -6deg;
-}
-
-.notebook-doodle {
-  position: absolute;
-  width: 2.6rem;
-  color: var(--doodle);
   pointer-events: none;
-  z-index: 2;
+  -webkit-user-drag: none;
+  object-fit: contain;
 }
 
-.notebook-doodle--spark-l {
-  top: 2.2rem;
-  left: 7%;
-  rotate: -18deg;
-}
-
-.notebook-doodle--spark-r {
-  top: 18%;
-  right: 34%;
-  width: 2.1rem;
-  rotate: 16deg;
-}
-
-.notebook-title {
+.collage-sticker,
+.collage-title,
+.collage-quote,
+.collage-bear,
+.collage-stamp {
   position: relative;
-  z-index: 4;
-  display: inline-flex;
+  z-index: 3;
+  filter: drop-shadow(1px 3px 5px rgb(40 18 28 / 0.14));
+}
+
+.collage-title {
+  z-index: 6;
+  width: min(32rem, 96%);
+  margin: 0;
+  --rot: -2.2deg;
+}
+
+.collage-title__copy {
+  position: absolute;
+  inset: 30% 12% 32% 14%;
+  display: flex;
   flex-wrap: wrap;
   align-items: baseline;
-  gap: 0.28em;
-  width: max-content;
-  max-width: calc(100% - 1rem);
-  margin: 1.4rem 0 0;
-  padding: 0.42rem 1.05rem 0.5rem;
-  background: var(--sticker);
+  justify-content: flex-start;
+  gap: 0.12em 0.28em;
   color: var(--sticker-ink);
   font-family: var(--font-rounded);
-  font-size: clamp(2.05rem, 6.2vw, 3.55rem);
+  font-size: clamp(1.85rem, 7vw, 3.15rem);
   font-weight: 700;
-  line-height: 1.05;
+  line-height: 0.95;
   letter-spacing: -0.03em;
-  border-radius: 1rem;
-  box-shadow:
-    0 0 0 6px var(--diecut),
-    0 10px 22px rgb(80 20 50 / 0.2);
-  --rot: -2.4deg;
 }
 
-.notebook-title__doit {
+.collage-title__doit {
   position: relative;
   display: inline-block;
-  font-style: normal;
+  z-index: 1;
 }
 
-.notebook-title__doit::after {
-  content: "";
+.collage-title__underline {
   position: absolute;
-  left: -2%;
-  right: -4%;
-  bottom: 0.12em;
-  height: 0.16em;
-  background: var(--mark-pink);
-  border-radius: 999px;
+  left: -12%;
+  bottom: -0.28em;
   z-index: -1;
+  width: 124% !important;
+  max-width: none;
 }
 
-.notebook-title__cjk {
+.collage-title__cjk {
   letter-spacing: 0.04em;
 }
 
-.notebook-quote {
-  position: relative;
+.collage-quote {
   z-index: 5;
-  width: min(34rem, 100%);
-  margin: 1.35rem 0 0;
-  --rot: 1.6deg;
+  width: min(40rem, 100%);
+  margin: 0.15rem 0 0;
+  --rot: 1.8deg;
 }
 
-.notebook-quote__paper {
+.collage-quote p {
+  position: absolute;
+  inset: 22% 11% 24% 10%;
   margin: 0;
-  padding: 1.15rem 1.25rem 1.2rem;
-  background: var(--sticker);
   color: var(--sticker-ink);
   font-family: var(--font-display);
   font-style: italic;
-  font-size: clamp(0.95rem, 1.7vw, 1.12rem);
-  line-height: 1.45;
-  position: relative;
-  filter: drop-shadow(4px 8px 10px rgb(80 20 50 / 0.16));
-  clip-path: polygon(
-    1.5% 8%,
-    6% 2%,
-    13% 7%,
-    21% 1.5%,
-    30% 6%,
-    39% 1%,
-    48% 7%,
-    58% 2%,
-    67% 6.5%,
-    76% 1.5%,
-    86% 7%,
-    96% 3%,
-    99% 14%,
-    96% 24%,
-    100% 36%,
-    97% 48%,
-    99.5% 62%,
-    96% 74%,
-    99% 86%,
-    93% 97%,
-    82% 93%,
-    72% 99%,
-    61% 94%,
-    50% 99%,
-    39% 93%,
-    28% 98%,
-    17% 93%,
-    7% 98%,
-    0% 88%,
-    3% 76%,
-    0% 64%,
-    3.5% 50%,
-    0.5% 36%,
-    3% 22%
-  );
+  font-size: clamp(0.78rem, 2.4vw, 1.04rem);
+  line-height: 1.38;
 }
 
-.notebook-washi {
+.collage-quote__washi {
   position: absolute;
-  top: -0.7rem;
-  right: 1.1rem;
-  z-index: 6;
-  width: 6.4rem;
-  height: auto;
-  color: var(--washi);
+  top: 2%;
+  right: 9%;
+  z-index: 2;
+  width: 19% !important;
   rotate: 14deg;
-  filter: drop-shadow(1px 2px 2px rgb(80 20 50 / 0.16));
-  pointer-events: none;
 }
 
-.notebook-quote__paper p {
-  margin: 0;
+.collage-bear {
+  z-index: 7;
+  width: min(19.5rem, 82vw);
+  margin: 0.15rem auto 0;
+  align-self: center;
+  --rot: 4.5deg;
+}
+
+.collage-socials {
   position: relative;
-  z-index: 1;
-}
-
-.notebook-quote__stamp {
-  position: absolute;
-  right: 1.6rem;
-  top: 1.5rem;
-  z-index: 0;
-  width: 2.3rem;
-  color: color-mix(in srgb, var(--doodle) 32%, transparent);
-  pointer-events: none;
-  rotate: 18deg;
-}
-
-.notebook-bear {
-  position: relative;
-  z-index: 4;
-  width: min(18.5rem, 78vw);
-  margin: 0.5rem auto 0;
-  --rot: 4deg;
-}
-
-.notebook-bear img {
-  display: block;
-  width: 100%;
-  height: auto;
-  filter: drop-shadow(3px 0 0 var(--diecut)) drop-shadow(-3px 0 0 var(--diecut))
-    drop-shadow(0 3px 0 var(--diecut)) drop-shadow(0 -3px 0 var(--diecut))
-    drop-shadow(3px 3px 0 var(--diecut)) drop-shadow(-3px 3px 0 var(--diecut))
-    drop-shadow(3px -3px 0 var(--diecut)) drop-shadow(-3px -3px 0 var(--diecut))
-    drop-shadow(6px 10px 12px rgb(80 20 50 / 0.22));
-}
-
-.notebook-heart {
-  position: absolute;
-  z-index: 3;
-  padding: 0;
-  border: 0;
-  background: none;
-  color: var(--doodle);
-  appearance: none;
-}
-
-.notebook-heart svg {
-  display: block;
-  width: 100%;
-  height: auto;
-}
-
-.notebook-heart--left {
-  top: 38%;
-  left: 6%;
-  width: 3.1rem;
-  --rot: -18deg;
-}
-
-.notebook-heart--mid {
-  top: 8%;
-  right: 22%;
-  width: 2.4rem;
-  --rot: 12deg;
-}
-
-.notebook-heart--right {
-  top: 42%;
-  right: 7%;
-  width: 3.4rem;
-  --rot: 16deg;
-}
-
-.notebook-socials {
-  position: relative;
-  z-index: 5;
-  display: inline-block;
-  margin-top: 1.25rem;
-  padding: 0.85rem 1.1rem 0.7rem;
-  --rot: -3.5deg;
-}
-
-.notebook-socials__row {
-  position: relative;
-  z-index: 1;
+  z-index: 6;
   display: flex;
-  gap: 0.55rem;
+  align-items: center;
+  gap: 0.15rem;
+  margin-top: 0.35rem;
+  padding-inline: 0.2rem;
 }
 
-.notebook-socials__icon {
-  display: grid;
-  place-items: center;
-  width: 2.55rem;
-  height: 2.55rem;
-  background: var(--sticker);
-  color: var(--sticker-ink);
-  border-radius: 999px;
-  box-shadow: 0 3px 8px rgb(80 20 50 / 0.16);
+.collage-social {
+  width: 3.45rem;
+  z-index: 6;
 }
 
-.notebook-socials__icon:hover,
-.notebook-socials__icon:focus-visible {
-  color: var(--accent);
+.collage-social:hover,
+.collage-social:focus-visible {
+  filter: drop-shadow(1px 3px 5px rgb(40 18 28 / 0.14)) brightness(1.06);
 }
 
-.notebook-socials__icon svg {
-  width: 1.25rem;
-  height: 1.25rem;
-}
-
-.notebook-arrow {
+.collage-heart--a {
   position: absolute;
-  right: 10%;
-  bottom: 1.2rem;
-  z-index: 3;
-  width: 5.2rem;
-  padding: 0;
-  border: 0;
-  background: none;
-  color: var(--doodle);
-  appearance: none;
+  top: 38%;
+  left: 3%;
+  width: 3rem;
+  --rot: -16deg;
+}
+
+.collage-heart--b {
+  width: 2.55rem;
+  --rot: 18deg;
+}
+
+.collage-sparkle--a {
+  position: absolute;
+  top: 7%;
+  left: 4%;
+  width: 2.55rem;
+  --rot: -14deg;
+}
+
+.collage-sparkle--b {
+  width: 2.9rem;
+  --rot: 10deg;
+}
+
+.collage-star {
+  width: 2.45rem;
+  --rot: 22deg;
+}
+
+.collage-arrow {
+  position: absolute;
+  right: 6%;
+  bottom: 1.4rem;
+  width: 5.6rem;
   --rot: 8deg;
 }
 
-.notebook-arrow svg {
-  display: block;
-  width: 100%;
+.collage-arrow-loop {
+  width: 8.5rem;
+  --rot: -6deg;
+}
+
+.collage-spiral {
+  width: min(13.5rem, 30vw);
+  --rot: -7deg;
+}
+
+.collage-torn--med {
+  width: 7.2rem;
+  --rot: -9deg;
+}
+
+.collage-torn--small {
+  position: absolute;
+  left: 28%;
+  bottom: 18%;
+  width: 5.8rem;
+  --rot: 12deg;
+}
+
+.collage-stamp {
+  width: 5.4rem;
+  --rot: 11deg;
+}
+
+.collage-stamp__heart {
+  position: absolute;
+  inset: 18% 16% 16%;
+  width: auto !important;
   height: auto;
 }
 
 @media (max-width: 899px) {
-  .notebook-heart--mid,
-  .notebook-doodle--spark-r {
+  .collage-desktop {
     display: none;
   }
 
-  .notebook-heart--left {
+  .collage-heart--a {
     top: auto;
-    bottom: 22%;
+    bottom: 26%;
+    left: 5%;
   }
 
-  .notebook-heart--right {
-    top: 8%;
-    right: 6%;
+  .collage-sparkle--a {
+    top: 1.6rem;
+    left: 2%;
+  }
+
+  .collage-torn--small {
+    left: auto;
+    right: 8%;
+    bottom: 22%;
+    width: 4.8rem;
   }
 }
 
 @media (min-width: 900px) {
-  .notebook-hero {
-    min-height: 34rem;
-    padding-block: 2.2rem 3.2rem;
+  .collage-hero {
+    display: block;
+    min-height: 36rem;
+    padding: 2rem 1.1rem 3.1rem;
   }
 
-  .notebook-title {
+  .collage-title {
     position: absolute;
-    top: 12%;
-    left: 8%;
-    margin: 0;
-    font-size: clamp(2.6rem, 4.4vw, 3.7rem);
-  }
-
-  .notebook-quote {
-    position: absolute;
-    top: 42%;
-    left: 9%;
+    top: 8%;
+    left: 6%;
+    width: min(34rem, 50%);
     margin: 0;
   }
 
-  .notebook-bear {
+  .collage-title__copy {
+    font-size: clamp(2.45rem, 4.2vw, 3.45rem);
+  }
+
+  .collage-quote {
+    position: absolute;
+    top: 46%;
+    left: 7%;
+    width: min(40rem, 54%);
+    margin: 0;
+  }
+
+  .collage-bear {
+    position: absolute;
+    top: 3%;
+    right: 5%;
+    width: min(22.5rem, 36vw);
+    margin: 0;
+  }
+
+  .collage-socials {
+    position: absolute;
+    left: 7.5%;
+    bottom: 6%;
+    margin: 0;
+  }
+
+  .collage-heart--a {
+    top: 36%;
+    left: 3.5%;
+    width: 3.25rem;
+  }
+
+  .collage-heart--b {
     position: absolute;
     top: 6%;
-    right: 8%;
-    width: min(22rem, 38vw);
-    margin: 0;
+    right: 34%;
   }
 
-  .notebook-socials {
+  .collage-sparkle--a {
+    top: 9%;
+    left: 3%;
+  }
+
+  .collage-sparkle--b {
     position: absolute;
-    left: 8%;
-    bottom: 8%;
-    margin: 0;
-  }
-
-  .notebook-doodle--spark-l {
-    top: 10%;
-    left: 4.5%;
-  }
-
-  .notebook-doodle--spark-r {
-    top: 14%;
+    top: 12%;
     right: 40%;
+  }
+
+  .collage-star {
+    position: absolute;
+    top: 4%;
+    left: 46%;
+  }
+
+  .collage-arrow {
+    right: 8%;
+    bottom: 7%;
+    width: 6.4rem;
+  }
+
+  .collage-arrow-loop {
+    position: absolute;
+    right: 28%;
+    bottom: 10%;
+  }
+
+  .collage-spiral {
+    position: absolute;
+    right: 6%;
+    bottom: 4%;
+  }
+
+  .collage-torn--med {
+    position: absolute;
+    top: 42%;
+    left: 48%;
+  }
+
+  .collage-torn--small {
+    left: 38%;
+    bottom: 8%;
+    width: 6.4rem;
+  }
+
+  .collage-stamp {
+    position: absolute;
+    top: 58%;
+    right: 32%;
   }
 }

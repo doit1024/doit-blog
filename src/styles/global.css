@@ -5,7 +5,7 @@
 
 /*
   Production ground (live doooit.me): solid --background.
-  Sticker palette lives in collage.css and does not tint the page.
+  Hero stickers are PNGs in collage.css and do not tint the page.
 */
 :root,
 html[data-theme="light"] {
