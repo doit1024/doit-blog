@@ -30,7 +30,6 @@ const rss = SOCIALS.find(social => social.name === "Rss");
       width={840}
       sizes="(min-width: 900px) 280px, 72vw"
       fit="contain"
-      format="png"
       draggable="false"
     />
   </h1>
@@ -42,7 +41,6 @@ const rss = SOCIALS.find(social => social.name === "Rss");
       width={1260}
       sizes="(min-width: 900px) 420px, 92vw"
       fit="contain"
-      format="png"
       draggable="false"
     />
   </figure>
@@ -54,7 +52,6 @@ const rss = SOCIALS.find(social => social.name === "Rss");
       width={660}
       sizes="(min-width: 900px) 220px, 58vw"
       fit="contain"
-      format="png"
       draggable="false"
     />
     <nav class="collage-socials__hotspots" aria-label="社交链接">
@@ -96,14 +93,15 @@ const rss = SOCIALS.find(social => social.name === "Rss");
     </nav>
   </div>
 
-  <CollageSticker
-    class="collage-bear"
-    src={bearSticker}
-    width={600}
-    sizes="(min-width: 900px) 200px, 52vw"
-    rot="4deg"
-    alt="一只举手的线稿小熊贴纸"
-  />
+  <figure class="collage-bear" data-draggable>
+    <img
+      src={bearSticker.src}
+      alt="一只举手的线稿小熊贴纸"
+      width={bearSticker.width}
+      height={bearSticker.height}
+      draggable="false"
+    />
+  </figure>
   <CollageSticker
     class="collage-hearts"
     src={heartsPair}

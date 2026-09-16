@@ -121,6 +121,7 @@
   right: 2%;
   z-index: 7;
   width: min(200px, 36vw);
+  --rot: 4deg;
 }
 
 .collage-socials {
