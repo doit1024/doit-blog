@@ -1,45 +1,79 @@
-/* Homepage collage (ZHA-11). Selectors are scoped to the index layout. */
+/* Homepage: user-confirmed pink lined notebook collage. */
+
+body:has([data-layout="index"]) {
+  --background: #f7d4e6;
+  --foreground: #2a1238;
+  --accent: #e0126a;
+  --muted: #f3c2d6;
+  --border: #efb0c8;
+  --notebook: #f7d4e6;
+  --notebook-line: #c5d6ee;
+  --notebook-margin: #f3a3c5;
+  --sticker: #fffdfb;
+  --sticker-ink: #2a1238;
+  --washi: #ff7eb6;
+  --mark-pink: #ff4d9a;
+  --doodle: #ff5ea8;
+  --diecut: #fffdfb;
+}
+
+html[data-theme="dark"] body:has([data-layout="index"]) {
+  --background: #2a1822;
+  --foreground: #f8eef4;
+  --accent: #ff8ab4;
+  --muted: #4a3340;
+  --border: #6a4a58;
+  --notebook: #2a1822;
+  --notebook-line: #4d5d74;
+  --notebook-margin: #c46b90;
+  --sticker: #fffdfb;
+  --sticker-ink: #2a1238;
+  --washi: #d46896;
+  --mark-pink: #ff7eb6;
+  --doodle: #ff8ab4;
+  --diecut: #fffdfb;
+}
 
 body:has([data-layout="index"]) #nav-container {
   max-width: 72rem;
 }
 
 .collage-page {
+  --line-gap: 1.7rem;
+  --margin-inset: clamp(1.1rem, 4vw, 3.1rem);
   position: relative;
   isolation: isolate;
   overflow-x: clip;
-  background-image:
-    radial-gradient(
-      circle at 12% 8%,
-      color-mix(in srgb, var(--collage-rose) 32%, transparent),
-      transparent 34%
-    ),
-    radial-gradient(
-      circle at 92% 14%,
-      color-mix(in srgb, var(--collage-sage) 26%, transparent),
-      transparent 30%
-    ),
-    radial-gradient(
-      circle at 78% 92%,
-      color-mix(in srgb, var(--collage-butter) 22%, transparent),
-      transparent 32%
-    );
+  background-color: var(--notebook);
+  background-image: repeating-linear-gradient(
+    to bottom,
+    transparent 0,
+    transparent calc(var(--line-gap) - 1px),
+    var(--notebook-line) calc(var(--line-gap) - 1px),
+    var(--notebook-line) var(--line-gap)
+  );
+}
+
+.collage-page::before,
+.collage-page::after {
+  content: "";
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  z-index: 0;
+  width: 7px;
+  pointer-events: none;
+  border-left: 2px solid var(--notebook-margin);
+  border-right: 2px solid var(--notebook-margin);
+  opacity: 0.9;
 }
 
 .collage-page::before {
-  content: "";
-  pointer-events: none;
-  position: absolute;
-  inset: 0;
-  z-index: 0;
-  opacity: 0.22;
-  mix-blend-mode: multiply;
-  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='180' height='180'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.8' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  left: var(--margin-inset);
 }
 
-html[data-theme="dark"] .collage-page::before {
-  opacity: 0.12;
-  mix-blend-mode: overlay;
+.collage-page::after {
+  right: var(--margin-inset);
 }
 
 .collage-page > * {
@@ -51,19 +85,323 @@ main.collage-page > section,
 main.collage-page > .collage-cta {
   max-width: 72rem;
   margin-inline: auto;
-  padding-inline: 1.25rem;
+  padding-inline: clamp(1.4rem, 6vw, 4.25rem);
 }
 
-.collage-item {
+[data-draggable] {
+  --dx: 0px;
+  --dy: 0px;
   --rot: 0deg;
-  --depth: 0px;
+  touch-action: none;
+  cursor: grab;
+  user-select: none;
+  transform: translate3d(var(--dx), var(--dy), 0) rotate(var(--rot));
+}
+
+[data-draggable].is-dragging {
+  cursor: grabbing;
+  z-index: 30;
+}
+
+.notebook-hero {
   position: relative;
-  transform: rotate(var(--rot));
-  translate: calc(var(--mx, 0) * var(--depth)) calc(var(--my, 0) * var(--depth));
-  transition:
-    translate 220ms ease-out,
-    transform 220ms ease,
-    box-shadow 220ms ease;
+  min-height: 28rem;
+  padding-block: 1.75rem 2.5rem;
+}
+
+.notebook-brush {
+  position: absolute;
+  pointer-events: none;
+  color: color-mix(in srgb, var(--doodle) 42%, white 58%);
+  z-index: 0;
+}
+
+html[data-theme="dark"] .notebook-brush {
+  color: color-mix(in srgb, var(--doodle) 35%, transparent);
+}
+
+.notebook-brush--title {
+  width: min(28rem, 70%);
+  top: 1.4rem;
+  left: 6%;
+  rotate: -8deg;
+}
+
+.notebook-brush--socials {
+  position: absolute;
+  inset: -18% -10% auto -8%;
+  width: 130%;
+  height: auto;
+  z-index: 0;
+  rotate: -6deg;
+}
+
+.notebook-doodle {
+  position: absolute;
+  width: 2.6rem;
+  color: var(--doodle);
+  pointer-events: none;
+  z-index: 2;
+}
+
+.notebook-doodle--spark-l {
+  top: 2.2rem;
+  left: 7%;
+  rotate: -18deg;
+}
+
+.notebook-doodle--spark-r {
+  top: 18%;
+  right: 34%;
+  width: 2.1rem;
+  rotate: 16deg;
+}
+
+.notebook-title {
+  position: relative;
+  z-index: 4;
+  display: inline-flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 0.28em;
+  width: max-content;
+  max-width: calc(100% - 1rem);
+  margin: 1.4rem 0 0;
+  padding: 0.42rem 1.05rem 0.5rem;
+  background: var(--sticker);
+  color: var(--sticker-ink);
+  font-family: var(--font-rounded);
+  font-size: clamp(2.05rem, 6.2vw, 3.55rem);
+  font-weight: 700;
+  line-height: 1.05;
+  letter-spacing: -0.03em;
+  border-radius: 1rem;
+  box-shadow:
+    0 0 0 6px var(--diecut),
+    0 10px 22px rgb(80 20 50 / 0.2);
+  --rot: -2.4deg;
+}
+
+.notebook-title__doit {
+  position: relative;
+  display: inline-block;
+  font-style: normal;
+}
+
+.notebook-title__doit::after {
+  content: "";
+  position: absolute;
+  left: -2%;
+  right: -4%;
+  bottom: 0.12em;
+  height: 0.16em;
+  background: var(--mark-pink);
+  border-radius: 999px;
+  z-index: -1;
+}
+
+.notebook-title__cjk {
+  letter-spacing: 0.04em;
+}
+
+.notebook-quote {
+  position: relative;
+  z-index: 5;
+  width: min(34rem, 100%);
+  margin: 1.35rem 0 0;
+  --rot: 1.6deg;
+}
+
+.notebook-quote__paper {
+  margin: 0;
+  padding: 1.15rem 1.25rem 1.2rem;
+  background: var(--sticker);
+  color: var(--sticker-ink);
+  font-family: var(--font-display);
+  font-style: italic;
+  font-size: clamp(0.95rem, 1.7vw, 1.12rem);
+  line-height: 1.45;
+  position: relative;
+  filter: drop-shadow(4px 8px 10px rgb(80 20 50 / 0.16));
+  clip-path: polygon(
+    1.5% 8%,
+    6% 2%,
+    13% 7%,
+    21% 1.5%,
+    30% 6%,
+    39% 1%,
+    48% 7%,
+    58% 2%,
+    67% 6.5%,
+    76% 1.5%,
+    86% 7%,
+    96% 3%,
+    99% 14%,
+    96% 24%,
+    100% 36%,
+    97% 48%,
+    99.5% 62%,
+    96% 74%,
+    99% 86%,
+    93% 97%,
+    82% 93%,
+    72% 99%,
+    61% 94%,
+    50% 99%,
+    39% 93%,
+    28% 98%,
+    17% 93%,
+    7% 98%,
+    0% 88%,
+    3% 76%,
+    0% 64%,
+    3.5% 50%,
+    0.5% 36%,
+    3% 22%
+  );
+}
+
+.notebook-washi {
+  position: absolute;
+  top: -0.7rem;
+  right: 1.1rem;
+  z-index: 6;
+  width: 6.4rem;
+  height: auto;
+  color: var(--washi);
+  rotate: 14deg;
+  filter: drop-shadow(1px 2px 2px rgb(80 20 50 / 0.16));
+  pointer-events: none;
+}
+
+.notebook-quote__paper p {
+  margin: 0;
+  position: relative;
+  z-index: 1;
+}
+
+.notebook-quote__stamp {
+  position: absolute;
+  right: 1.6rem;
+  top: 1.5rem;
+  z-index: 0;
+  width: 2.3rem;
+  color: color-mix(in srgb, var(--doodle) 32%, transparent);
+  pointer-events: none;
+  rotate: 18deg;
+}
+
+.notebook-bear {
+  position: relative;
+  z-index: 4;
+  width: min(18.5rem, 78vw);
+  margin: 0.5rem auto 0;
+  --rot: 4deg;
+}
+
+.notebook-bear img {
+  display: block;
+  width: 100%;
+  height: auto;
+  filter: drop-shadow(3px 0 0 var(--diecut)) drop-shadow(-3px 0 0 var(--diecut))
+    drop-shadow(0 3px 0 var(--diecut)) drop-shadow(0 -3px 0 var(--diecut))
+    drop-shadow(3px 3px 0 var(--diecut)) drop-shadow(-3px 3px 0 var(--diecut))
+    drop-shadow(3px -3px 0 var(--diecut)) drop-shadow(-3px -3px 0 var(--diecut))
+    drop-shadow(6px 10px 12px rgb(80 20 50 / 0.22));
+}
+
+.notebook-heart {
+  position: absolute;
+  z-index: 3;
+  padding: 0;
+  border: 0;
+  background: none;
+  color: var(--doodle);
+  appearance: none;
+}
+
+.notebook-heart svg {
+  display: block;
+  width: 100%;
+  height: auto;
+}
+
+.notebook-heart--left {
+  top: 38%;
+  left: 6%;
+  width: 3.1rem;
+  --rot: -18deg;
+}
+
+.notebook-heart--mid {
+  top: 8%;
+  right: 22%;
+  width: 2.4rem;
+  --rot: 12deg;
+}
+
+.notebook-heart--right {
+  top: 42%;
+  right: 7%;
+  width: 3.4rem;
+  --rot: 16deg;
+}
+
+.notebook-socials {
+  position: relative;
+  z-index: 5;
+  display: inline-block;
+  margin-top: 1.25rem;
+  padding: 0.85rem 1.1rem 0.7rem;
+  --rot: -3.5deg;
+}
+
+.notebook-socials__row {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  gap: 0.55rem;
+}
+
+.notebook-socials__icon {
+  display: grid;
+  place-items: center;
+  width: 2.55rem;
+  height: 2.55rem;
+  background: var(--sticker);
+  color: var(--sticker-ink);
+  border-radius: 999px;
+  box-shadow: 0 3px 8px rgb(80 20 50 / 0.16);
+}
+
+.notebook-socials__icon:hover,
+.notebook-socials__icon:focus-visible {
+  color: var(--accent);
+}
+
+.notebook-socials__icon svg {
+  width: 1.25rem;
+  height: 1.25rem;
+}
+
+.notebook-arrow {
+  position: absolute;
+  right: 10%;
+  bottom: 1.2rem;
+  z-index: 3;
+  width: 5.2rem;
+  padding: 0;
+  border: 0;
+  background: none;
+  color: var(--doodle);
+  appearance: none;
+  --rot: 8deg;
+}
+
+.notebook-arrow svg {
+  display: block;
+  width: 100%;
+  height: auto;
 }
 
 .collage-tape {
@@ -72,11 +410,19 @@ main.collage-page > .collage-cta {
   height: 1.35rem;
   width: 4.85rem;
   pointer-events: none;
-  background: color-mix(in srgb, var(--tape) 82%, transparent);
-  border: 1px solid color-mix(in srgb, var(--tape-edge) 70%, white 8%);
+  background:
+    radial-gradient(
+        circle at 18% 50%,
+        rgb(255 255 255 / 0.7) 0 0.22rem,
+        transparent 0.24rem
+      )
+      0 0 / 1.15rem 1.35rem,
+    var(--washi);
+  border: 1px solid color-mix(in srgb, var(--mark-pink) 35%, white);
   box-shadow:
-    inset 0 1px 0 rgb(255 255 255 / 0.38),
-    0 1px 2px rgb(28 22 18 / 0.14);
+    inset 0 1px 0 rgb(255 255 255 / 0.35),
+    0 1px 2px rgb(80 20 50 / 0.14);
+  opacity: 0.92;
 }
 
 .collage-tape--top {
@@ -100,189 +446,22 @@ main.collage-page > .collage-cta {
 }
 
 .collage-tape--diag {
-  top: 1.15rem;
-  left: -1.15rem;
+  top: -0.45rem;
+  left: 0.85rem;
   width: 3.6rem;
-  rotate: -40deg;
-}
-
-.collage-hero {
-  display: grid;
-  gap: 1.25rem;
-  padding-block: 1.75rem 2.25rem;
-  justify-items: stretch;
-  min-width: 0;
-}
-
-.collage-hero__wash {
-  display: none;
-}
-
-.collage-title {
-  --rot: -2.4deg;
-  --depth: 10px;
-  background: var(--paper);
-  color: var(--foreground);
-  border: 2px solid var(--foreground);
-  box-shadow: 7px 7px 0 var(--cutout);
-  padding: 1.35rem 1.4rem 1.5rem;
-}
-
-.collage-kicker {
-  margin: 0 0 0.65rem;
-  font-size: 0.72rem;
-  font-weight: 600;
-  letter-spacing: 0.16em;
-  color: var(--accent);
-}
-
-.collage-title h1 {
-  margin: 0;
-  font-family: var(--font-display);
-  line-height: 0.92;
-}
-
-.collage-title__latin {
-  display: block;
-  font-style: italic;
-  font-weight: 600;
-  font-size: clamp(2.6rem, 8vw, 4.6rem);
-}
-
-.collage-title__cjk {
-  display: block;
-  margin-top: 0.28em;
-  font-size: clamp(1.55rem, 4.4vw, 2.35rem);
-  font-weight: 600;
-  letter-spacing: 0.12em;
-}
-
-.collage-lede {
-  margin: 0.85rem 0 0;
-  max-width: 22em;
-  color: var(--ink-soft);
-  font-size: 0.95rem;
-  line-height: 1.55;
-  text-wrap: pretty;
-}
-
-.collage-polaroid,
-.collage-quote,
-.collage-sticker,
-.collage-chips {
-  background: var(--paper);
-  border: 2px solid var(--foreground);
-}
-
-.collage-polaroid {
-  --rot: 3.4deg;
-  --depth: 14px;
-  padding: 0.7rem 0.7rem 1.7rem;
-  box-shadow: 6px 6px 0 var(--cutout);
-  width: min(18rem, 100%);
-  max-width: 100%;
-  justify-self: center;
-}
-
-.collage-polaroid img {
-  display: block;
-  width: 100%;
-  height: auto;
-  background: #fff8ee;
-  border: 1px solid color-mix(in srgb, var(--foreground) 18%, transparent);
-}
-
-.collage-polaroid figcaption {
-  margin-top: 0.7rem;
-  font-family: var(--font-display);
-  font-style: italic;
-  font-size: 0.85rem;
-  text-align: center;
-  color: var(--ink-soft);
-}
-
-.collage-polaroid--gump {
-  --rot: -3.2deg;
-  --depth: 8px;
-  width: min(28rem, 100%);
-  padding-bottom: 1.4rem;
-}
-
-.collage-quote {
-  --rot: 1.8deg;
-  --depth: 12px;
-  padding: 1.25rem 1.3rem 1.15rem;
-  box-shadow: 5px 5px 0 var(--collage-sage);
-}
-
-.collage-quote p {
-  margin: 0;
-  font-family: var(--font-display);
-  font-style: italic;
-  font-size: clamp(1.05rem, 2.2vw, 1.28rem);
-  line-height: 1.45;
-}
-
-.collage-quote cite {
-  display: block;
-  margin-top: 0.75rem;
-  font-style: normal;
-  font-size: 0.75rem;
-  letter-spacing: 0.08em;
-  color: var(--ink-soft);
-}
-
-.collage-sticker {
-  --rot: -4deg;
-  --depth: 16px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 0.15rem;
-  width: fit-content;
-  padding: 0.55rem 0.7rem;
-  box-shadow: 4px 4px 0 var(--collage-terracotta);
-}
-
-.collage-chips {
-  --rot: 6deg;
-  --depth: 6px;
-  display: flex;
-  overflow: hidden;
-  width: min(12rem, 100%);
-  justify-self: end;
-  box-shadow: 4px 4px 0 var(--cutout);
-}
-
-.collage-chips span {
-  flex: 1;
-  height: 4.5rem;
-}
-
-.collage-chips span:nth-child(1) {
-  background: var(--collage-butter);
-}
-.collage-chips span:nth-child(2) {
-  background: var(--collage-sage);
-}
-.collage-chips span:nth-child(3) {
-  background: var(--collage-rose);
-}
-.collage-chips span:nth-child(4) {
-  background: var(--collage-sky);
+  rotate: -12deg;
 }
 
 .collage-label {
   display: inline-block;
   margin: 0 0 1.25rem;
   padding: 0.4rem 0.95rem;
-  font-family: var(--font-display);
+  font-family: var(--font-rounded);
   font-size: 0.95rem;
   font-weight: 600;
-  background: var(--collage-butter);
-  color: var(--foreground);
-  border: 1px solid color-mix(in srgb, var(--foreground) 22%, transparent);
-  box-shadow: 3px 3px 0 var(--foreground);
+  background: var(--washi);
+  color: var(--sticker-ink);
+  box-shadow: 2px 3px 0 rgb(80 20 50 / 0.12);
   rotate: -1.8deg;
 }
 
@@ -297,15 +476,13 @@ main.collage-page > .collage-cta {
 
 .collage-card {
   --rot: -1.6deg;
-  --depth: 9px;
   display: flex;
   flex-direction: column;
   height: 100%;
-  background: var(--paper);
+  background: var(--sticker);
   color: inherit;
   text-decoration: none;
-  border: 2px solid var(--foreground);
-  box-shadow: 6px 6px 0 var(--cutout);
+  box-shadow: 0 8px 18px rgb(80 20 50 / 0.14);
   overflow: hidden;
 }
 
@@ -318,23 +495,23 @@ main.collage-page > .collage-cta {
   position: relative;
   min-height: 8.5rem;
   padding: 1.1rem 1.15rem;
-  color: var(--foreground);
+  color: var(--sticker-ink);
 }
 
-.collage-card__photo[data-tone="butter"] {
-  background: var(--collage-butter);
+.collage-card__photo[data-tone="blush"] {
+  background: #ffc6d8;
 }
-.collage-card__photo[data-tone="sage"] {
-  background: var(--collage-sage);
+.collage-card__photo[data-tone="candy"] {
+  background: #ff9ec4;
 }
-.collage-card__photo[data-tone="rose"] {
-  background: var(--collage-rose);
+.collage-card__photo[data-tone="lilac"] {
+  background: #e7c4f2;
 }
-.collage-card__photo[data-tone="sky"] {
-  background: var(--collage-sky);
+.collage-card__photo[data-tone="peach"] {
+  background: #ffd2c4;
 }
-.collage-card__photo[data-tone="terracotta"] {
-  background: var(--collage-terracotta);
+.collage-card__photo[data-tone="periwinkle"] {
+  background: #c9d8f5;
 }
 
 .collage-card__index {
@@ -365,15 +542,16 @@ main.collage-page > .collage-cta {
 .collage-card__body h2,
 .collage-card__body h3 {
   margin: 0;
-  font-family: var(--font-display);
+  font-family: var(--font-rounded);
   font-size: 1.28rem;
-  font-weight: 600;
+  font-weight: 700;
   line-height: 1.3;
+  color: var(--sticker-ink);
 }
 
 .collage-card__body p {
   margin: 0;
-  color: var(--ink-soft);
+  color: color-mix(in srgb, var(--sticker-ink) 72%, transparent);
   font-size: 0.92rem;
   line-height: 1.55;
 }
@@ -403,12 +581,13 @@ main.collage-page > .collage-cta {
   align-items: center;
   gap: 0.4rem;
   padding: 0.7rem 1.15rem;
-  background: var(--paper);
-  color: var(--foreground);
-  border: 2px dashed var(--foreground);
-  font-weight: 600;
+  background: var(--sticker);
+  color: var(--sticker-ink);
+  border: 2px dashed var(--mark-pink);
+  font-family: var(--font-rounded);
+  font-weight: 700;
   text-decoration: none;
-  box-shadow: 4px 4px 0 var(--collage-rose);
+  box-shadow: 4px 4px 0 var(--washi);
   rotate: 1.2deg;
 }
 
@@ -418,117 +597,66 @@ main.collage-page > .collage-cta {
 }
 
 @media (max-width: 899px) {
-  .collage-page {
-    overflow-x: clip;
-  }
-
-  .collage-title,
-  .collage-quote,
-  .collage-sticker {
-    width: 100%;
-    max-width: 100%;
-  }
-
-  .collage-title {
-    --rot: -1.2deg;
-  }
-
-  .collage-polaroid--bear {
-    --rot: 1.4deg;
-  }
-
-  .collage-quote {
-    --rot: 1deg;
-  }
-
-  .collage-polaroid--gump {
-    --rot: -1.2deg;
-  }
-
-  .collage-sticker {
-    --rot: -1.6deg;
-  }
-
-  .collage-tape--diag {
-    top: -0.45rem;
-    left: 0.85rem;
-    rotate: -12deg;
-  }
-
-  .collage-chips {
+  .notebook-heart--mid,
+  .notebook-doodle--spark-r {
     display: none;
   }
 
-  .collage-card {
-    --rot: -0.8deg;
+  .notebook-heart--left {
+    top: auto;
+    bottom: 22%;
+  }
+
+  .notebook-heart--right {
+    top: 8%;
+    right: 6%;
   }
 }
 
 @media (min-width: 900px) {
-  .collage-hero {
-    grid-template-columns: repeat(12, minmax(0, 1fr));
-    grid-template-rows: repeat(7, minmax(3.1rem, auto));
-    gap: 0;
-    min-height: 38rem;
-    padding-block: 2rem 3rem;
+  .notebook-hero {
+    min-height: 34rem;
+    padding-block: 2.2rem 3.2rem;
   }
 
-  .collage-hero__wash {
-    display: block;
-    position: relative;
-    grid-column: 4 / 9;
-    grid-row: 1 / 5;
-    z-index: 0;
-    background: var(--collage-sage);
-    border: 2px solid var(--foreground);
-    transform: rotate(-7deg);
-    pointer-events: none;
+  .notebook-title {
+    position: absolute;
+    top: 12%;
+    left: 8%;
+    margin: 0;
+    font-size: clamp(2.6rem, 4.4vw, 3.7rem);
   }
 
-  .collage-title {
-    grid-column: 1 / 8;
-    grid-row: 1 / 4;
-    z-index: 3;
-    max-width: 34rem;
+  .notebook-quote {
+    position: absolute;
+    top: 42%;
+    left: 9%;
+    margin: 0;
   }
 
-  .collage-polaroid--bear {
-    grid-column: 8 / 13;
-    grid-row: 1 / 5;
-    z-index: 2;
-    justify-self: end;
-    align-self: start;
+  .notebook-bear {
+    position: absolute;
+    top: 6%;
+    right: 8%;
+    width: min(22rem, 38vw);
+    margin: 0;
   }
 
-  .collage-quote {
-    grid-column: 1 / 7;
-    grid-row: 3 / 6;
-    z-index: 4;
-    max-width: 28rem;
-    align-self: end;
+  .notebook-socials {
+    position: absolute;
+    left: 8%;
+    bottom: 8%;
+    margin: 0;
   }
 
-  .collage-polaroid--gump {
-    grid-column: 6 / 12;
-    grid-row: 4 / 8;
-    z-index: 3;
-    justify-self: center;
-    align-self: end;
+  .notebook-doodle--spark-l {
+    top: 10%;
+    left: 4.5%;
   }
 
-  .collage-sticker {
-    grid-column: 1 / 4;
-    grid-row: 6 / 8;
-    z-index: 5;
-    align-self: center;
-  }
-
-  .collage-chips {
-    grid-column: 11 / 13;
-    grid-row: 5 / 8;
-    z-index: 1;
-    align-self: end;
-    justify-self: end;
+  .notebook-doodle--spark-r {
+    top: 14%;
+    right: 40%;
   }
 
   .collage-posts-grid {
@@ -566,11 +694,9 @@ main.collage-page > .collage-cta {
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .collage-item,
   .collage-card,
   .collage-ticket,
   .collage-label {
-    translate: 0 !important;
     transition: none;
   }
 

@@ -1,9 +1,9 @@
 export const COLLAGE_TONES = [
-  "butter",
-  "sage",
-  "rose",
-  "sky",
-  "terracotta",
+  "blush",
+  "candy",
+  "lilac",
+  "peach",
+  "periwinkle",
 ] as const;
 
 export type CollageTone = (typeof COLLAGE_TONES)[number];

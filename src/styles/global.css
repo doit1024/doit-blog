@@ -78,6 +78,9 @@ body {
   --font-display:
     var(--font-fraunces, ui-serif), "Songti SC", "Noto Serif SC", "STSong",
     "SimSun", serif;
+  --font-rounded:
+    var(--font-fredoka, ui-rounded), "PingFang SC", "Hiragino Sans GB",
+    "Noto Sans SC", "Microsoft YaHei", sans-serif;
 }
 
 @layer base {

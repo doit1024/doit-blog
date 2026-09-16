@@ -1,7 +1,6 @@
 ---
 import { Image } from "astro:assets";
-import Socials from "@/components/Socials.astro";
-import CollageTape from "./CollageTape.astro";
+import CollageDrag from "./CollageDrag";
 import cuteBear from "@/assets/images/cute_bear.png";
 import { SOCIALS } from "@/constants";
 
@@ -14,96 +13,190 @@ const { showSocials = SOCIALS.length > 0 } = Astro.props;
 
 <section
   id="hero"
-  class="collage-hero"
+  class="notebook-hero"
   data-collage-board
   aria-labelledby="collage-title"
 >
-  <div class="collage-hero__wash" aria-hidden="true"></div>
+  <svg
+    class="notebook-brush notebook-brush--title"
+    viewBox="0 0 420 160"
+    aria-hidden="true"
+  >
+    <path
+      d="M18 94c42-38 118-62 198-58 78 4 148 38 186 72 8 8-18 18-46 14-62-8-128-4-198 8C98 140 8 122 18 94Z"
+      fill="currentColor"></path>
+  </svg>
 
-  <div class="collage-item collage-title">
-    <CollageTape placement="tl" />
-    <p class="collage-kicker">FIELD NOTES · 现场笔记</p>
-    <h1 id="collage-title">
-      <span class="collage-title__latin">doit</span>
-      <span class="collage-title__cjk">杜伊特</span>
-    </h1>
-    <p class="collage-lede">所思、所见、所想，钉在同一张桌上。</p>
+  <svg
+    class="notebook-doodle notebook-doodle--spark-l"
+    viewBox="0 0 48 48"
+    aria-hidden="true"
+  >
+    <path
+      d="M8 28c8-4 14-12 16-20M6 18c10 2 18 2 28-2M12 34c6-2 16-2 24 4"
+      fill="none"
+      stroke="currentColor"
+      stroke-width="3"
+      stroke-linecap="round"></path>
+  </svg>
+
+  <div
+    class="notebook-heart notebook-heart--left"
+    data-draggable
+    aria-hidden="true"
+  >
+    <svg viewBox="0 0 64 64">
+      <path
+        d="M32 54C12 40 6 26 14 16c6-8 16-6 18 2 2-8 12-10 18-2 8 10 2 24-18 38Z"
+        fill="none"
+        stroke="currentColor"
+        stroke-width="3.2"
+        stroke-linejoin="round"></path>
+    </svg>
   </div>
 
-  <figure class="collage-item collage-polaroid collage-polaroid--bear">
-    <CollageTape placement="top" />
-    <Image src={cuteBear} alt="一只举手的线稿小熊" height={420} />
-    <figcaption>studio mascot</figcaption>
-  </figure>
+  <h1 id="collage-title" class="notebook-title" data-draggable>
+    <span class="notebook-title__doit">doit</span>
+    <span class="notebook-title__cjk">杜伊特</span>
+  </h1>
 
-  <blockquote class="collage-item collage-quote" lang="en">
-    <CollageTape placement="tr" />
-    <p>
-      “To see the world, things dangerous to come to, to see behind walls, to
-      draw closer, to find each other and to feel. That is the purpose of life.”
-    </p>
-    <cite>— Forrest Gump</cite>
+  <blockquote class="notebook-quote" data-draggable lang="en">
+    <svg class="notebook-washi" viewBox="0 0 120 36" aria-hidden="true">
+      <rect width="120" height="36" rx="2" fill="currentColor"></rect>
+      <g fill="#fff" opacity="0.82">
+        <path
+          d="M22 24c-6-5-8-10-5-14 2-3 6-2 7 1 1-3 5-4 7-1 3 4 1 9-5 14-1 1-3 1-4 0Z"
+        ></path>
+        <path
+          d="M58 26c-6-5-8-11-5-15 2-3 6-2 7 1 1-3 5-4 7-1 3 4 1 10-5 15-1 1-3 1-4 0Z"
+        ></path>
+        <path
+          d="M94 23c-6-5-8-10-5-14 2-3 6-2 7 1 1-3 5-4 7-1 3 4 1 9-5 14-1 1-3 1-4 0Z"
+        ></path>
+      </g>
+    </svg>
+    <div class="notebook-quote__paper">
+      <svg class="notebook-quote__stamp" viewBox="0 0 48 48" aria-hidden="true">
+        <path
+          d="M24 42C10 32 6 22 12 14c4-6 11-4 12 2 1-6 8-8 12-2 6 8 2 18-12 28Z"
+          fill="currentColor"></path>
+      </svg>
+      <p>
+        “To see the world, things dangerous to come to, to see behind walls, to
+        draw closer, to find each other and to feel. That is the purpose of
+        life.”
+      </p>
+    </div>
   </blockquote>
 
-  <figure class="collage-item collage-polaroid collage-polaroid--gump">
-    <CollageTape placement="diag" />
-    <img
-      src="/assets/forrest-gump-quote.webp"
-      alt="Forrest Gump sitting on a bench, with a joke about updating dependencies"
-      width="960"
-      height="480"
+  <figure class="notebook-bear" data-draggable>
+    <Image
+      src={cuteBear}
+      alt="一只举手的线稿小熊贴纸"
+      width={420}
+      height={420}
+      draggable="false"
     />
-    <figcaption>a box of chocolates</figcaption>
   </figure>
+
+  <svg
+    class="notebook-doodle notebook-doodle--spark-r"
+    viewBox="0 0 40 40"
+    aria-hidden="true"
+  >
+    <path
+      d="M8 20c6 4 10 10 12 16M20 8c2 8 8 12 16 14"
+      fill="none"
+      stroke="currentColor"
+      stroke-width="3"
+      stroke-linecap="round"></path>
+  </svg>
+
+  <div
+    class="notebook-heart notebook-heart--mid"
+    data-draggable
+    aria-hidden="true"
+  >
+    <svg viewBox="0 0 48 48">
+      <path
+        d="M24 42C10 32 6 22 12 14c4-6 11-4 12 2 1-6 8-8 12-2 6 8 2 18-12 28Z"
+        fill="currentColor"
+        opacity="0.35"></path>
+      <path
+        d="M24 42C10 32 6 22 12 14c4-6 11-4 12 2 1-6 8-8 12-2 6 8 2 18-12 28Z"
+        fill="none"
+        stroke="currentColor"
+        stroke-width="2.6"></path>
+    </svg>
+  </div>
+
+  <div
+    class="notebook-heart notebook-heart--right"
+    data-draggable
+    aria-hidden="true"
+  >
+    <svg viewBox="0 0 56 56">
+      <path
+        d="M28 48C12 36 6 24 14 14c5-7 13-5 14 3 1-8 9-10 14-3 8 10 2 22-14 34Z"
+        fill="none"
+        stroke="currentColor"
+        stroke-width="3"
+        stroke-linejoin="round"></path>
+    </svg>
+  </div>
 
   {
     showSocials && (
-      <div class="collage-item collage-sticker">
-        <CollageTape placement="top" />
-        <Socials />
+      <div class="notebook-socials" data-draggable>
+        <svg
+          class="notebook-brush notebook-brush--socials"
+          viewBox="0 0 220 70"
+          aria-hidden="true"
+        >
+          <path
+            d="M8 40c28-22 70-30 118-24 42 6 78 22 90 34-24 10-70 14-122 8C54 54 4 52 8 40Z"
+            fill="currentColor"
+          />
+        </svg>
+        <div class="notebook-socials__row">
+          {SOCIALS.map(social => (
+            <a
+              href={social.href}
+              target={social.href.startsWith("http") ? "_blank" : "_self"}
+              rel={
+                social.href.startsWith("http")
+                  ? "noopener noreferrer"
+                  : undefined
+              }
+              title={social.linkTitle}
+              class="notebook-socials__icon"
+            >
+              <social.icon />
+              <span class="sr-only">{social.linkTitle}</span>
+            </a>
+          ))}
+        </div>
       </div>
     )
   }
 
-  <div class="collage-item collage-chips" aria-hidden="true">
-    <span></span>
-    <span></span>
-    <span></span>
-    <span></span>
+  <div class="notebook-arrow" data-draggable aria-hidden="true">
+    <svg viewBox="0 0 90 70">
+      <path
+        d="M8 58c18-6 34-22 48-40"
+        fill="none"
+        stroke="currentColor"
+        stroke-width="3.4"
+        stroke-linecap="round"></path>
+      <path
+        d="M44 14c8 2 16 6 22 12l-16 2 8-16"
+        fill="none"
+        stroke="currentColor"
+        stroke-width="3.4"
+        stroke-linecap="round"
+        stroke-linejoin="round"></path>
+    </svg>
   </div>
 </section>
 
-<script>
-  const reduceMotion = () =>
-    window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-
-  let abort: AbortController | null = null;
-
-  function setupCollageParallax() {
-    abort?.abort();
-    const board = document.querySelector<HTMLElement>("[data-collage-board]");
-    if (!board || reduceMotion()) return;
-
-    abort = new AbortController();
-    const { signal } = abort;
-
-    const onMove = (event: PointerEvent) => {
-      const rect = board.getBoundingClientRect();
-      const x = (event.clientX - rect.left) / rect.width - 0.5;
-      const y = (event.clientY - rect.top) / rect.height - 0.5;
-      board.style.setProperty("--mx", x.toFixed(3));
-      board.style.setProperty("--my", y.toFixed(3));
-    };
-
-    const reset = () => {
-      board.style.setProperty("--mx", "0");
-      board.style.setProperty("--my", "0");
-    };
-
-    board.addEventListener("pointermove", onMove, { signal });
-    board.addEventListener("pointerleave", reset, { signal });
-  }
-
-  document.addEventListener("astro:page-load", setupCollageParallax);
-  document.addEventListener("astro:before-swap", () => abort?.abort());
-</script>
+<CollageDrag client:load />

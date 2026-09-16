@@ -122,6 +122,13 @@ export default defineConfig({
         styles: ["normal", "italic"],
         fallbacks: ["serif"],
       },
+      {
+        provider: fontProviders.fontsource(),
+        name: "Fredoka",
+        cssVariable: "--font-fredoka",
+        weights: [500, 600, 700],
+        fallbacks: ["sans-serif"],
+      },
     ],
   },
 
