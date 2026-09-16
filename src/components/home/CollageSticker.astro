@@ -1,0 +1,55 @@
+---
+import { Image } from "astro:assets";
+import type { ImageMetadata } from "astro";
+
+interface Props {
+  src: ImageMetadata;
+  width: number;
+  class?: string;
+  alt?: string;
+  rot?: string;
+  href?: string;
+  title?: string;
+  sizes?: string;
+}
+
+const {
+  src,
+  width,
+  class: className,
+  alt = "",
+  rot,
+  href,
+  title,
+  sizes,
+} = Astro.props;
+
+const isLink = Boolean(href);
+const Tag = isLink ? "a" : "div";
+const linkAttrs = isLink
+  ? {
+      href,
+      title,
+      target: href?.startsWith("http") ? "_blank" : undefined,
+      rel: href?.startsWith("http") ? "noopener noreferrer" : undefined,
+    }
+  : {};
+---
+
+<Tag
+  class:list={["collage-sticker", className]}
+  data-draggable
+  style={rot ? `--rot: ${rot}` : undefined}
+  aria-hidden={isLink || alt ? undefined : "true"}
+  {...linkAttrs}
+>
+  <Image
+    src={src}
+    alt={alt}
+    width={width}
+    sizes={sizes}
+    fit="contain"
+    draggable="false"
+  />
+  <slot />
+</Tag>

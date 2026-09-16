@@ -3,6 +3,10 @@
 
 @custom-variant dark (&:where([data-theme=dark], [data-theme=dark] *));
 
+/*
+  Production ground (live doooit.me): solid --background.
+  Hero stickers are PNGs in collage.css and do not tint the page.
+*/
 :root,
 html[data-theme="light"] {
   --background: #fffdfd;
@@ -21,11 +25,11 @@ html[data-theme="dark"] {
 }
 
 body {
-  /* Fallback inside var() keeps this declaration valid if --font-poppins
-     is briefly unset during a view-transition head swap. */
+  /* Fallback inside var() keeps this valid if font vars are briefly
+     unset during a view-transition head swap. */
   font-family:
-    -apple-system, var(--font-poppins, ui-sans-serif), Arial, Helvetica,
-    sans-serif;
+    var(--font-bricolage, ui-sans-serif), "PingFang SC", "Hiragino Sans GB",
+    "Noto Sans SC", "Microsoft YaHei", system-ui, sans-serif;
 }
 
 @theme inline {
@@ -34,6 +38,15 @@ body {
   --color-accent: var(--accent);
   --color-muted: var(--muted);
   --color-border: var(--border);
+  --font-sans:
+    var(--font-bricolage, ui-sans-serif), "PingFang SC", "Hiragino Sans GB",
+    "Noto Sans SC", "Microsoft YaHei", system-ui, sans-serif;
+  --font-display:
+    var(--font-fraunces, ui-serif), "Songti SC", "Noto Serif SC", "STSong",
+    "SimSun", serif;
+  --font-rounded:
+    var(--font-fredoka, ui-rounded), "PingFang SC", "Hiragino Sans GB",
+    "Noto Sans SC", "Microsoft YaHei", sans-serif;
 }
 
 @layer base {
@@ -48,7 +61,7 @@ body {
     @apply overflow-y-scroll;
   }
   body {
-    @apply flex min-h-svh flex-col bg-background text-foreground selection:bg-accent/75 selection:text-background;
+    @apply flex min-h-svh flex-col bg-background font-sans text-foreground selection:bg-accent/75 selection:text-background;
   }
   a,
   button {

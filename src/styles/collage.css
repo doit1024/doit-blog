@@ -1,0 +1,199 @@
+/* Homepage v2 stickers only. Page ground uses production --background. */
+
+@property --tilt {
+  syntax: "<angle>";
+  inherits: false;
+  initial-value: 0deg;
+}
+
+@property --lift {
+  syntax: "<length>";
+  inherits: false;
+  initial-value: 0px;
+}
+
+@property --grow {
+  syntax: "<number>";
+  inherits: false;
+  initial-value: 1;
+}
+
+[data-layout="index"] {
+  overflow: visible;
+}
+
+.collage-hero {
+  position: relative;
+  z-index: 50;
+  overflow: visible;
+  display: block;
+  width: 100%;
+  min-height: 0;
+  max-width: 72.222rem;
+  aspect-ratio: 16 / 9;
+  margin-inline: auto;
+  padding: 0;
+}
+
+.collage-hero [data-draggable] {
+  --dx: 0px;
+  --dy: 0px;
+  --rot: 0deg;
+  --tilt: 0deg;
+  --lift: 0px;
+  --grow: 1;
+  position: absolute;
+  z-index: 2;
+  margin: 0;
+  opacity: 1;
+  touch-action: none;
+  cursor: grab;
+  user-select: none;
+  transform: translate3d(var(--dx), var(--dy), 0) translateY(var(--lift))
+    rotate(calc(var(--rot) + var(--tilt))) scale(var(--grow));
+  filter: drop-shadow(1px 2px 3px rgb(40 18 28 / 0.14));
+  transition:
+    filter 180ms ease,
+    --tilt 180ms ease,
+    --lift 180ms ease,
+    --grow 180ms ease;
+}
+
+.collage-hero [data-draggable]:hover,
+.collage-hero [data-draggable]:focus-visible,
+.collage-hero [data-draggable].is-lifted {
+  --tilt: 2.5deg;
+  --lift: -3px;
+  --grow: 1.015;
+  filter: drop-shadow(1px 4px 6px rgb(40 18 28 / 0.2));
+}
+
+.collage-hero [data-draggable].is-dragging {
+  cursor: grabbing;
+  --tilt: 3deg;
+  --lift: -4px;
+  --grow: 1.02;
+  filter: drop-shadow(2px 5px 7px rgb(40 18 28 / 0.24));
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .collage-hero [data-draggable] {
+    transition: filter 180ms ease;
+  }
+
+  .collage-hero [data-draggable]:hover,
+  .collage-hero [data-draggable]:focus-visible,
+  .collage-hero [data-draggable].is-lifted,
+  .collage-hero [data-draggable].is-dragging {
+    --tilt: 0deg;
+    --lift: 0px;
+    --grow: 1;
+  }
+}
+
+.collage-hero img {
+  display: block;
+  width: 100%;
+  height: auto;
+  opacity: 1;
+  pointer-events: none;
+  -webkit-user-drag: none;
+  object-fit: contain;
+}
+
+/* Mock defaults: hardcoded % of hero. Drag writes --dx/--dy after load. */
+.collage-logo {
+  top: 19%;
+  left: 23.75%;
+  z-index: 6;
+  width: 48.75%;
+  --rot: -4deg;
+}
+
+.collage-quote {
+  top: 46%;
+  left: 26.375%;
+  z-index: 5;
+  width: 34.5%;
+  --rot: 1.6deg;
+}
+
+.collage-bear {
+  top: 35.5%;
+  right: 13.25%;
+  z-index: 7;
+  width: 33%;
+  --rot: 4deg;
+}
+
+.collage-bear img {
+  transform: scaleY(1.04);
+  transform-origin: center;
+}
+
+.collage-socials {
+  left: 27.875%;
+  bottom: 15%;
+  z-index: 6;
+  width: 23.25%;
+  --rot: -3deg;
+}
+
+.collage-socials__hotspots {
+  position: absolute;
+  inset: 0;
+}
+
+.collage-hotspot {
+  position: absolute;
+  top: 22%;
+  height: 58%;
+  pointer-events: auto;
+  cursor: pointer;
+  border-radius: 22%;
+}
+
+.collage-hotspot--github {
+  left: 12%;
+  width: 23%;
+}
+
+.collage-hotspot--mail {
+  left: 37.5%;
+  width: 24%;
+}
+
+.collage-hotspot--rss {
+  left: 65%;
+  width: 23%;
+}
+
+.collage-hearts {
+  top: 28%;
+  right: 15.875%;
+  bottom: auto;
+  left: auto;
+  z-index: 4;
+  width: 6.375%;
+}
+
+.collage-sparkle {
+  top: 45%;
+  right: auto;
+  left: 15.875%;
+  z-index: 4;
+  width: 11.25%;
+}
+
+.collage-arrow {
+  right: 13.625%;
+  bottom: 16%;
+  z-index: 5;
+  width: 9%;
+  --rot: 4deg;
+}
+
+.collage-arrow img {
+  transform: scaleY(1.35);
+  transform-origin: center;
+}

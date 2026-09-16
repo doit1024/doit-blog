@@ -1,0 +1,126 @@
+---
+import { Image } from "astro:assets";
+import CollageDrag from "./CollageDrag";
+import CollageSticker from "./CollageSticker.astro";
+import { SOCIALS } from "@/constants";
+
+import logoDoit from "@/assets/collage/v2/logo-doit.png";
+import quoteTorn from "@/assets/collage/v2/quote-torn.png";
+import socialIconsBar from "@/assets/collage/v2/social-icons-bar.png";
+import bearSticker from "@/assets/collage/v2/bear-sticker.png";
+import heartsPair from "@/assets/collage/v2/hearts-pair.png";
+import heartSparkle from "@/assets/collage/v2/heart-sparkle.png";
+import arrowLoop from "@/assets/collage/v2/arrow-loop.png";
+
+const github = SOCIALS.find(social => social.name === "GitHub");
+const mail = SOCIALS.find(social => social.name === "Mail");
+const rss = SOCIALS.find(social => social.name === "Rss");
+---
+
+<section
+  id="hero"
+  class="collage-hero"
+  data-collage-board
+  aria-labelledby="collage-title"
+>
+  <h1 id="collage-title" class="collage-logo" data-draggable>
+    <Image
+      src={logoDoit}
+      alt="doit 杜伊特"
+      width={1920}
+      sizes="(min-width: 1156px) 563px, 48.75vw"
+      fit="contain"
+      draggable="false"
+    />
+  </h1>
+
+  <div class="collage-socials" data-draggable>
+    <Image
+      src={socialIconsBar}
+      alt=""
+      width={900}
+      sizes="(min-width: 1156px) 269px, 23.25vw"
+      fit="contain"
+      draggable="false"
+    />
+    <nav class="collage-socials__hotspots" aria-label="社交链接">
+      {
+        github && (
+          <a
+            class="collage-hotspot collage-hotspot--github"
+            href={github.href}
+            title={github.linkTitle}
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            <span class="sr-only">{github.linkTitle}</span>
+          </a>
+        )
+      }
+      {
+        mail && (
+          <a
+            class="collage-hotspot collage-hotspot--mail"
+            href={mail.href}
+            title={mail.linkTitle}
+          >
+            <span class="sr-only">{mail.linkTitle}</span>
+          </a>
+        )
+      }
+      {
+        rss && (
+          <a
+            class="collage-hotspot collage-hotspot--rss"
+            href={rss.href}
+            title={rss.linkTitle}
+          >
+            <span class="sr-only">{rss.linkTitle}</span>
+          </a>
+        )
+      }
+    </nav>
+  </div>
+
+  <figure class="collage-bear" data-draggable>
+    <img
+      src={bearSticker.src}
+      alt="一只举手的线稿小熊贴纸"
+      width={bearSticker.width}
+      height={bearSticker.height}
+      draggable="false"
+    />
+  </figure>
+  <figure class="collage-quote" data-draggable>
+    <Image
+      src={quoteTorn}
+      alt="To see the world, things dangerous to come to, to see behind walls, to draw closer, to find each other and to feel. That is the purpose of life."
+      width={1600}
+      sizes="(min-width: 1156px) 399px, 34.5vw"
+      fit="contain"
+      draggable="false"
+    />
+  </figure>
+  <CollageSticker
+    class="collage-hearts"
+    src={heartsPair}
+    width={360}
+    sizes="(min-width: 1156px) 74px, 6.375vw"
+    rot="-12deg"
+  />
+  <CollageSticker
+    class="collage-sparkle"
+    src={heartSparkle}
+    width={420}
+    sizes="(min-width: 1156px) 130px, 11.25vw"
+    rot="8deg"
+  />
+  <CollageSticker
+    class="collage-arrow"
+    src={arrowLoop}
+    width={420}
+    sizes="(min-width: 1156px) 104px, 9vw"
+  />
+</section>
+
+<CollageDrag client:only="react" />
