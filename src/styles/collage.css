@@ -179,13 +179,14 @@
     padding: 1.6rem 1rem 2.6rem;
   }
 
-  .collage-logo,
-  .collage-quote,
-  .collage-socials,
-  .collage-bear,
-  .collage-hearts,
-  .collage-sparkle,
-  .collage-arrow {
+  /* Beat .collage-hero [data-draggable] { position: relative } */
+  .collage-hero [data-draggable].collage-logo,
+  .collage-hero [data-draggable].collage-quote,
+  .collage-hero [data-draggable].collage-socials,
+  .collage-hero [data-draggable].collage-bear,
+  .collage-hero [data-draggable].collage-hearts,
+  .collage-hero [data-draggable].collage-sparkle,
+  .collage-hero [data-draggable].collage-arrow {
     position: absolute;
     margin: 0;
   }
