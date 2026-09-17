@@ -6,6 +6,7 @@
 
 ### 变更
 
+- **长文 Notion**：构建时用官方 API 拉 `Status=Published` 的页，转 Markdown 并入现有 `/posts`（标签 / 归档 / RSS / Pagefind / giscus）；图转存现有 R2 + WebP Cloud；Notion 失败或未配 token 则跳过该源，不挡整站；git MDX 长期保留（[#26](https://github.com/doit1024/doit-blog/pull/26)）
 - **小声哔哔 `/bb`**：改为构建时静态生成（SSG）。`astro build` 用现有 `notion-client` 公开接口拉取 Notion 并烘焙 HTML，运行时不再请求 Notion、不再依赖 Worker SSR。Notion 更新后需触发 Cloudflare Workers Builds Deploy Hook 重建，见 [docs/bb-static-rebuild.md](docs/bb-static-rebuild.md)
 
 ### 优化
@@ -25,6 +26,7 @@
 
 ### 新增
 
+- **长文 Notion**：Published 行进入现有 `/posts` 管道。约定见 [docs/notion-posts.md](docs/notion-posts.md)（[#26](https://github.com/doit1024/doit-blog/pull/26)）
 - **小声哔哔 `/bb`**：在 Cloudflare Worker 上恢复全文 SSR 渲染 Notion 内容
 - **站点**：新增 `/changelog` 更新日志页（近期提交 + 本文件），导航增加「日志」
 
@@ -32,3 +34,4 @@
 
 - 上游 AstroPaper 的完整历史仍在 git 中；本文件主要记录 doit-blog 自身改动。
 - `/bb` 相关文件：`src/pages/bb.astro`、`src/utils/notion.js`、`src/components/MicroBlog.astro`、`docs/bb-static-rebuild.md`
+- 长文 Notion 相关文件：`src/loaders/blog.ts`、`src/utils/notion-posts/`、`docs/notion-posts.md`
