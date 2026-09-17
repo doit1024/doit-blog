@@ -79,6 +79,12 @@ function parseChangelog(md: string): ChangelogBlock[] {
   return blocks;
 }
 
+function displayH2(text: string): string {
+  return text
+    .replace(/^未发布(?=（|$)/, "最新")
+    .replace(/^Unreleased\b/i, "最新");
+}
+
 function formatInline(text: string): string {
   const escaped = text
     .replace(/&/g, "&amp;")
@@ -108,7 +114,7 @@ const changelogBlocks = parseChangelog(changelogMd);
               return (
                 <h3
                   class="mt-6 border-b border-border pb-2 text-lg font-semibold first:mt-0"
-                  set:html={formatInline(block.text)}
+                  set:html={formatInline(displayH2(block.text))}
                 />
               );
             }
