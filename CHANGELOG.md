@@ -2,7 +2,7 @@
 
 记录本站（doit-blog）的产品改动。
 
-## 未发布（2026-09-09）
+## 未发布（2026-09-17）
 
 ### 变更
 
@@ -26,12 +26,14 @@
 
 ### 新增
 
+- **更新日志**：打开 PR 时自动把主要改动写入 CHANGELOG 并提交回分支（[#28](https://github.com/doit1024/doit-blog/pull/28)）
 - **长文 Notion**：Published 行进入现有 `/posts` 管道。约定见 [docs/notion-posts.md](docs/notion-posts.md)（[#26](https://github.com/doit1024/doit-blog/pull/26)）
 - **小声哔哔 `/bb`**：在 Cloudflare Worker 上恢复全文 SSR 渲染 Notion 内容
 - **站点**：新增 `/changelog` 更新日志页（近期提交 + 本文件），导航增加「日志」
 
 ### 说明
 
+- 合入 PR 前由 GitHub Action 根据标题与说明自动写入本文件（`.github/workflows/changelog.yml`）。不需要记日志时给 PR 打 `skip-changelog`。
 - 上游 AstroPaper 的完整历史仍在 git 中；本文件主要记录 doit-blog 自身改动。
 - `/bb` 相关文件：`src/pages/bb.astro`、`src/utils/notion.js`、`src/components/MicroBlog.astro`、`docs/bb-static-rebuild.md`
 - 长文 Notion 相关文件：`src/loaders/blog.ts`、`src/utils/notion-posts/`、`docs/notion-posts.md`
