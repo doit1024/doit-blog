@@ -1,0 +1,76 @@
+name: Changelog
+
+permissions:
+  contents: write
+
+on:
+  pull_request:
+    types:
+      - opened
+      - edited
+      - synchronize
+      - reopened
+      - ready_for_review
+
+concurrency:
+  group: changelog-${{ github.event.pull_request.number }}
+  cancel-in-progress: true
+
+jobs:
+  update:
+    name: Update CHANGELOG.md
+    if: github.event.pull_request.head.repo.full_name == github.repository
+    runs-on: ubuntu-latest
+    timeout-minutes: 3
+
+    steps:
+      - name: "☁️ Checkout PR branch"
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.head_ref }}
+          fetch-depth: 0
+
+      - name: "🔎 Detect existing CHANGELOG edits"
+        id: meta
+        run: |
+          git fetch origin "${{ github.base_ref }}"
+          if git diff --name-only "origin/${{ github.base_ref }}...HEAD" \
+            | grep -qx "CHANGELOG.md"; then
+            echo "changelog_in_diff=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "changelog_in_diff=false" >> "$GITHUB_OUTPUT"
+          fi
+          authors="$(
+            git log --format='%an' \
+              "origin/${{ github.base_ref }}...HEAD" -- CHANGELOG.md \
+              | sort -u | paste -sd, -
+          )"
+          echo "changelog_authors=${authors}" >> "$GITHUB_OUTPUT"
+
+      - name: Use Node.js 20
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: "📝 Update CHANGELOG.md from PR"
+        env:
+          PR_NUMBER: ${{ github.event.pull_request.number }}
+          PR_TITLE: ${{ github.event.pull_request.title }}
+          PR_BODY: ${{ github.event.pull_request.body }}
+          PR_URL: ${{ github.event.pull_request.html_url }}
+          PR_LABELS: ${{ join(github.event.pull_request.labels.*.name, ',') }}
+          CHANGELOG_IN_DIFF: ${{ steps.meta.outputs.changelog_in_diff }}
+          CHANGELOG_AUTHORS: ${{ steps.meta.outputs.changelog_authors }}
+        run: node scripts/update-changelog.mjs
+
+      - name: "📤 Commit CHANGELOG.md to the PR branch"
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add CHANGELOG.md
+          if git diff --cached --quiet; then
+            echo "CHANGELOG.md unchanged"
+            exit 0
+          fi
+          git commit -m "docs(changelog): 记录 #${{ github.event.pull_request.number }}"
+          git push

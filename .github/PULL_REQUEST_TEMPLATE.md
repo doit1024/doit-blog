@@ -1,5 +1,8 @@
 ## Description
 
+<!-- CHANGELOG.md is updated automatically from the PR title and this description. Put the main changes here (a short paragraph or a bullet list). Use the skip-changelog label to opt out. -->
+<!-- CHANGELOG.md 会按标题和本说明自动更新，不必手改。不需要记日志时打 skip-changelog 标签。 -->
+
 <!-- A clear and concise description of what the pull request does. Include any relevant motivation and background. -->
 
 ## Types of changes
