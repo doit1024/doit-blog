@@ -17,6 +17,8 @@
 
 ### 修复
 
+- **文章页**：返回图标与「返回」文字垂直对齐（[#29](https://github.com/doit1024/doit-blog/pull/29)）
+- **更新日志**：二级标题改为「最新（日期）」，不再显示「未发布」（[#29](https://github.com/doit1024/doit-blog/pull/29)）
 - **小声哔哔 `/bb`**：Notion `*.notion.site` 接口返回 403 时，自动切换到可用的 API 地址（[#14](https://github.com/doit1024/doit-blog/pull/14)）
 - **小声哔哔 `/bb`**：没有内容时展示空状态提示（[#14](https://github.com/doit1024/doit-blog/pull/14)）
 - **小声哔哔 `/bb`**：Notion 数据短缓存约 3 分钟（内存 + Cloudflare Cache），页面 HTML 边缘缓存 `s-maxage=180`（[#14](https://github.com/doit1024/doit-blog/pull/14)）
