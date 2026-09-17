@@ -1,5 +1,17 @@
 /* Homepage v2 stickers only. Page ground uses production --background. */
 
+@property --dx {
+  syntax: "<length>";
+  inherits: false;
+  initial-value: 0px;
+}
+
+@property --dy {
+  syntax: "<length>";
+  inherits: false;
+  initial-value: 0px;
+}
+
 @property --tilt {
   syntax: "<angle>";
   inherits: false;
@@ -30,7 +42,8 @@
   width: 100%;
   min-height: 0;
   max-width: 72.222rem;
-  aspect-ratio: 16 / 9;
+  /* Hug the sticker cluster; positions below are the 16/9 mock cropped. */
+  aspect-ratio: 12 / 5;
   margin-inline: auto;
   padding: 0;
 }
@@ -76,8 +89,22 @@
   filter: drop-shadow(2px 5px 7px rgb(40 18 28 / 0.24));
 }
 
+.collage-hero [data-draggable].is-returning {
+  transition:
+    filter 180ms ease,
+    --tilt 180ms ease,
+    --lift 180ms ease,
+    --grow 180ms ease,
+    --dx 700ms cubic-bezier(0.22, 1, 0.36, 1),
+    --dy 700ms cubic-bezier(0.22, 1, 0.36, 1);
+}
+
 @media (prefers-reduced-motion: reduce) {
   .collage-hero [data-draggable] {
+    transition: filter 180ms ease;
+  }
+
+  .collage-hero [data-draggable].is-returning {
     transition: filter 180ms ease;
   }
 
@@ -101,9 +128,9 @@
   object-fit: contain;
 }
 
-/* Mock defaults: hardcoded % of hero. Drag writes --dx/--dy after load. */
+/* Mock defaults: 16/9 artboard cropped to 12/5. Drag writes --dx/--dy. */
 .collage-logo {
-  top: 19%;
+  top: 5%;
   left: 23.75%;
   z-index: 6;
   width: 48.75%;
@@ -111,7 +138,7 @@
 }
 
 .collage-quote {
-  top: 46%;
+  top: 41.5%;
   left: 26.375%;
   z-index: 5;
   width: 34.5%;
@@ -119,7 +146,7 @@
 }
 
 .collage-bear {
-  top: 35.5%;
+  top: 27.5%;
   right: 13.25%;
   z-index: 7;
   width: 33%;
@@ -133,7 +160,7 @@
 
 .collage-socials {
   left: 27.875%;
-  bottom: 15%;
+  bottom: 6%;
   z-index: 6;
   width: 23.25%;
   --rot: -3deg;
@@ -169,7 +196,7 @@
 }
 
 .collage-hearts {
-  top: 28%;
+  top: 17.25%;
   right: 15.875%;
   bottom: auto;
   left: auto;
@@ -178,7 +205,7 @@
 }
 
 .collage-sparkle {
-  top: 45%;
+  top: 40.25%;
   right: auto;
   left: 15.875%;
   z-index: 4;
@@ -187,7 +214,7 @@
 
 .collage-arrow {
   right: 13.625%;
-  bottom: 16%;
+  bottom: 7.25%;
   z-index: 5;
   width: 9%;
   --rot: 4deg;
