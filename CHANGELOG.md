@@ -33,6 +33,7 @@
 
 ### 说明
 
+- 合入 PR 前由 GitHub Action 根据标题与说明自动写入本文件（`.github/workflows/changelog.yml`）。不需要记日志时给 PR 打 `skip-changelog`。
 - 上游 AstroPaper 的完整历史仍在 git 中；本文件主要记录 doit-blog 自身改动。
 - `/bb` 相关文件：`src/pages/bb.astro`、`src/utils/notion.js`、`src/components/MicroBlog.astro`、`docs/bb-static-rebuild.md`
 - 长文 Notion 相关文件：`src/loaders/blog.ts`、`src/utils/notion-posts/`、`docs/notion-posts.md`

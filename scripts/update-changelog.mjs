@@ -120,9 +120,15 @@ export function extractBodyBullets(body) {
     /##\s*Description\s*\n([\s\S]*?)(?=\n##\s|$)/i
   );
   const text = descMatch ? descMatch[1] : withoutComments;
+  const lines = text.split("\n").map(line => line.trimEnd());
+  const firstContent = lines.find(line => line.trim());
+  if (!firstContent) return [];
+  // Prose first → keep a single title-based entry. Only treat a
+  // description as "main changes" when it opens with a bullet list.
+  if (!/^\s*[-*]\s+(?!\[[ xX]\])/.test(firstContent)) return [];
+
   const bullets = [];
-  for (const raw of text.split("\n")) {
-    const line = raw.trimEnd();
+  for (const line of lines) {
     const match = line.match(/^\s*[-*]\s+(?!\[[ xX]\])(.+)$/);
     if (!match) continue;
     const item = sanitizeInline(match[1]);
@@ -484,6 +490,22 @@ export function runSelfTest() {
     today: "2026-09-17",
   });
   assert(!again.changed, "identical rerun should be unchanged");
+
+  const proseThenList = applyChangelogUpdate(sample, {
+    prNumber: 77,
+    title: "feat(changelog): 标题才是主改动",
+    body: "## Description\n\n一段说明。\n\n- 实现细节不要进 changelog\n",
+    prUrl: "https://github.com/doit1024/doit-blog/pull/77",
+    today: "2026-09-17",
+  });
+  assert(
+    proseThenList.markdown.includes("**更新日志**：标题才是主改动（[#77]"),
+    "prose description uses the title"
+  );
+  assert(
+    !proseThenList.markdown.includes("实现细节不要进 changelog"),
+    "trailing implementation list is ignored"
+  );
 
   const upsert = applyChangelogUpdate(feat.markdown, {
     prNumber: 99,
