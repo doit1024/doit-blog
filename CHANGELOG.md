@@ -26,10 +26,7 @@
 
 ### 新增
 
-- **更新日志**：约定来自 `cz.yaml` 的 Conventional Commits：`feat` → 新增、`fix` → 修复、`perf` → 优化，其余进变更（[#28](https://github.com/doit1024/doit-blog/pull/28)）
-- **更新日志**：条目格式与现有日志一致：`**范围**：说明（[#N](url)）`（[#28](https://github.com/doit1024/doit-blog/pull/28)）
-- **更新日志**：若 PR 已手改 CHANGELOG 且尚未带上本 PR 编号，Action 不会覆盖（[#28](https://github.com/doit1024/doit-blog/pull/28)）
-- **更新日志**：站点设计与 Notion 长文管线未改；`/changelog` 仍读根目录 `CHANGELOG.md`（[#28](https://github.com/doit1024/doit-blog/pull/28)）
+- **更新日志**：打开 PR 时自动把主要改动写入 CHANGELOG 并提交回分支（[#28](https://github.com/doit1024/doit-blog/pull/28)）
 - **长文 Notion**：Published 行进入现有 `/posts` 管道。约定见 [docs/notion-posts.md](docs/notion-posts.md)（[#26](https://github.com/doit1024/doit-blog/pull/26)）
 - **小声哔哔 `/bb`**：在 Cloudflare Worker 上恢复全文 SSR 渲染 Notion 内容
 - **站点**：新增 `/changelog` 更新日志页（近期提交 + 本文件），导航增加「日志」
