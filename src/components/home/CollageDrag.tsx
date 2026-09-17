@@ -1,6 +1,8 @@
 import { useEffect } from "react";
 
 const THRESHOLD = 6;
+const IDLE_MS = 3000;
+const RETURN_MS = 700;
 
 function readOffset(el: HTMLElement) {
   return {
@@ -17,10 +19,68 @@ export default function CollageDrag() {
     const items = [...board.querySelectorAll<HTMLElement>("[data-draggable]")];
     const cleanups: Array<() => void> = [];
     let topLayer = 30;
+    let idleTimer: number | null = null;
+    let returnTimer: number | null = null;
+    let returning = false;
 
     const bringToFront = (item: HTMLElement) => {
       topLayer += 1;
       item.style.zIndex = String(topLayer);
+    };
+
+    const clearTimer = (id: number | null) => {
+      if (id != null) window.clearTimeout(id);
+    };
+
+    const clearIdle = () => {
+      clearTimer(idleTimer);
+      idleTimer = null;
+    };
+
+    const freezeCurrentOffsets = () => {
+      const captured = items.map(item => {
+        const styles = getComputedStyle(item);
+        return {
+          item,
+          x: styles.getPropertyValue("--dx").trim() || "0px",
+          y: styles.getPropertyValue("--dy").trim() || "0px",
+        };
+      });
+      for (const { item, x, y } of captured) {
+        item.classList.remove("is-returning");
+        item.style.setProperty("--dx", x);
+        item.style.setProperty("--dy", y);
+      }
+      returning = false;
+      clearTimer(returnTimer);
+      returnTimer = null;
+    };
+
+    const snapBack = () => {
+      idleTimer = null;
+      const moved = items.some(item => {
+        const offset = readOffset(item);
+        return offset.x !== 0 || offset.y !== 0;
+      });
+      if (!moved) return;
+
+      returning = true;
+      for (const item of items) {
+        item.classList.add("is-returning");
+        item.style.setProperty("--dx", "0px");
+        item.style.setProperty("--dy", "0px");
+      }
+      clearTimer(returnTimer);
+      returnTimer = window.setTimeout(() => {
+        returnTimer = null;
+        returning = false;
+        for (const item of items) item.classList.remove("is-returning");
+      }, RETURN_MS + 50);
+    };
+
+    const scheduleIdle = () => {
+      clearIdle();
+      idleTimer = window.setTimeout(snapBack, IDLE_MS);
     };
 
     for (const item of items) {
@@ -44,6 +104,8 @@ export default function CollageDrag() {
         if (event.button !== 0) return;
         pointerId = event.pointerId;
         item.setPointerCapture(event.pointerId);
+        clearIdle();
+        if (returning) freezeCurrentOffsets();
         const offset = readOffset(item);
         originX = offset.x;
         originY = offset.y;
@@ -78,6 +140,7 @@ export default function CollageDrag() {
         if (!under || !item.contains(under)) {
           item.classList.remove("is-lifted");
         }
+        scheduleIdle();
       };
 
       const onClick = (event: MouseEvent) => {
@@ -113,6 +176,8 @@ export default function CollageDrag() {
     }
 
     return () => {
+      clearIdle();
+      clearTimer(returnTimer);
       for (const stop of cleanups) stop();
     };
   }, []);
