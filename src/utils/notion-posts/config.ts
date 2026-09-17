@@ -1,0 +1,58 @@
+import { R2_ORIGIN, WEBP_CLOUD_ORIGIN } from "@/utils/assets";
+
+export type R2Config = {
+  accountId: string;
+  accessKeyId: string;
+  secretAccessKey: string;
+  bucket: string;
+  publicBase: string;
+};
+
+export type NotionPostsConfig = {
+  token: string | undefined;
+  databaseId: string | undefined;
+  r2: R2Config | undefined;
+  webpOrigin: string;
+};
+
+function emptyToUndef(value: string | undefined): string | undefined {
+  const trimmed = value?.trim();
+  return trimmed ? trimmed : undefined;
+}
+
+export function readNotionPostsConfig(
+  env: NodeJS.ProcessEnv = process.env
+): NotionPostsConfig {
+  const token = emptyToUndef(env.NOTION_TOKEN);
+  const databaseId = emptyToUndef(env.NOTION_DATABASE_ID);
+
+  const accountId = emptyToUndef(env.R2_ACCOUNT_ID);
+  const accessKeyId = emptyToUndef(env.R2_ACCESS_KEY_ID);
+  const secretAccessKey = emptyToUndef(env.R2_SECRET_ACCESS_KEY);
+  const bucket = emptyToUndef(env.R2_BUCKET_NAME);
+  const publicBase = emptyToUndef(env.R2_PUBLIC_BASE) ?? R2_ORIGIN;
+
+  const r2 =
+    accountId && accessKeyId && secretAccessKey && bucket
+      ? {
+          accountId,
+          accessKeyId,
+          secretAccessKey,
+          bucket,
+          publicBase: publicBase.replace(/\/$/, ""),
+        }
+      : undefined;
+
+  return {
+    token,
+    databaseId,
+    r2,
+    webpOrigin: WEBP_CLOUD_ORIGIN.replace(/\/$/, ""),
+  };
+}
+
+export function hasNotionSource(config: NotionPostsConfig): boolean {
+  return Boolean(config.token && config.databaseId);
+}
+
+export const ENGLISH_KEBAB_SLUG = /^[a-z0-9]+(?:-[a-z0-9]+)*$/;

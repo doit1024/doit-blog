@@ -32,6 +32,8 @@ Cloudflare Workers Builds 需要：
 
 不要把 Deploy Hook URL 写进仓库。
 
+长文 Notion 库复用 **同一条** Deploy Hook；约定见 [docs/notion-posts.md](./notion-posts.md)。
+
 ## Notion 更新后如何自动重建
 
 静态页不会在访客请求时刷新。数据库有新内容后，需要再跑一次构建。

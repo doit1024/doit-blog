@@ -4,6 +4,10 @@
 
 ## 未发布（2026-09-09）
 
+### 新增
+
+- **长文 Notion**：Published 行在构建时经官方 API 转 Markdown，并入现有 `/posts`（标签 / 归档 / RSS / Pagefind / giscus）。git MDX 保留。图转存 R2 + WebP Cloud。Notion 失败则跳过该源，不挡整站。约定见 [docs/notion-posts.md](docs/notion-posts.md)
+
 ### 变更
 
 - **小声哔哔 `/bb`**：改为构建时静态生成（SSG）。`astro build` 用现有 `notion-client` 公开接口拉取 Notion 并烘焙 HTML，运行时不再请求 Notion、不再依赖 Worker SSR。Notion 更新后需触发 Cloudflare Workers Builds Deploy Hook 重建，见 [docs/bb-static-rebuild.md](docs/bb-static-rebuild.md)
