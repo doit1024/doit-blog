@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 /**
- * Insert or refresh this PR's bullets in CHANGELOG.md (未发布).
+ * Insert or refresh this PR's bullets in CHANGELOG.md (最新).
  *
  * Matches the existing doit-blog style:
  *   - **范围**：说明（[#N](url)）
@@ -11,6 +11,10 @@ import fs from "node:fs";
 import path from "node:path";
 
 const SECTION_ORDER = ["变更", "优化", "修复", "新增", "说明"];
+
+/** Current bucket for untagged changes. Legacy Keep-a-Changelog "Unreleased"/"未发布" still parse. */
+const CURRENT_H2 = "最新";
+const H2_RE = /^## (?:最新|未发布|Unreleased)(?:[（(]([^）)]*)[）)])?\s*$/im;
 
 const TYPE_TO_SECTION = {
   feat: "新增",
@@ -183,8 +187,7 @@ export function buildBullets({ title, body, prNumber, prUrl }) {
 
 function parseChangelog(md) {
   const text = String(md ?? "").replace(/\r\n/g, "\n");
-  const h2Re = /^## 未发布(?:（([^）]*)）)?\s*$/m;
-  const match = text.match(h2Re);
+  const match = text.match(H2_RE);
 
   if (!match) {
     const prelude = text.replace(/\s*$/, "\n\n");
@@ -273,7 +276,7 @@ function ensureSection(sections, name) {
 }
 
 function serializeChangelog({ prelude, date, sections, rest }) {
-  const heading = date ? `## 未发布（${date}）` : "## 未发布";
+  const heading = date ? `## ${CURRENT_H2}（${date}）` : `## ${CURRENT_H2}`;
   const chunks = [prelude.replace(/\s*$/, "\n\n") + heading, ""];
 
   for (const section of sections) {
@@ -432,7 +435,7 @@ export function runSelfTest() {
 
 记录本站（doit-blog）的产品改动。
 
-## 未发布（2026-09-09）
+## 最新（2026-09-09）
 
 ### 变更
 
@@ -458,18 +461,22 @@ export function runSelfTest() {
   const feat = applyChangelogUpdate(sample, {
     prNumber: 99,
     title: "feat(changelog): 合入前自动写入 CHANGELOG",
-    body: "## Description\n\n- 打开 PR 时根据标题写入未发布条目\n- 可用 skip-changelog 跳过\n",
+    body: "## Description\n\n- 打开 PR 时根据标题写入最新条目\n- 可用 skip-changelog 跳过\n",
     prUrl: "https://github.com/doit1024/doit-blog/pull/99",
     today: "2026-09-17",
   });
   assert(feat.changed, "feat should change changelog");
   assert(
-    feat.markdown.includes("## 未发布（2026-09-17）"),
+    feat.markdown.includes("## 最新（2026-09-17）"),
     "date should update"
   );
   assert(
+    !feat.markdown.includes("未发布"),
+    "must not write 未发布"
+  );
+  assert(
     feat.markdown.includes(
-      "- **更新日志**：打开 PR 时根据标题写入未发布条目（[#99](https://github.com/doit1024/doit-blog/pull/99)）"
+      "- **更新日志**：打开 PR 时根据标题写入最新条目（[#99](https://github.com/doit1024/doit-blog/pull/99)）"
     ),
     "first body bullet"
   );
@@ -482,10 +489,30 @@ export function runSelfTest() {
   const siteIdx = feat.markdown.indexOf("**站点**");
   assert(addedIdx < featIdx && featIdx < siteIdx, "prepend under 新增");
 
+  const fromLegacy = applyChangelogUpdate(
+    sample.replace("## 最新（2026-09-09）", "## 未发布（2026-09-09）"),
+    {
+      prNumber: 88,
+      title: "fix(posts): 对齐返回按钮",
+      body: "",
+      prUrl: "https://github.com/doit1024/doit-blog/pull/88",
+      today: "2026-09-17",
+    }
+  );
+  assert(fromLegacy.changed, "legacy 未发布 heading should be rewritten");
+  assert(
+    fromLegacy.markdown.includes("## 最新（2026-09-17）"),
+    "legacy heading becomes 最新"
+  );
+  assert(
+    !fromLegacy.markdown.includes("未发布"),
+    "legacy 未发布 must be gone after update"
+  );
+
   const again = applyChangelogUpdate(feat.markdown, {
     prNumber: 99,
     title: "feat(changelog): 合入前自动写入 CHANGELOG",
-    body: "## Description\n\n- 打开 PR 时根据标题写入未发布条目\n- 可用 skip-changelog 跳过\n",
+    body: "## Description\n\n- 打开 PR 时根据标题写入最新条目\n- 可用 skip-changelog 跳过\n",
     prUrl: "https://github.com/doit1024/doit-blog/pull/99",
     today: "2026-09-17",
   });

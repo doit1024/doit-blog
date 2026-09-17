@@ -2,7 +2,7 @@
 
 记录本站（doit-blog）的产品改动。
 
-## 未发布（2026-09-17）
+## 最新（2026-09-17）
 
 ### 变更
 
@@ -17,6 +17,9 @@
 
 ### 修复
 
+- **站点**：文章详情页「返回」图标与文字用 `inline-flex` + `items-center` 垂直对齐（并略做光学对齐），不改版面（[#29](https://github.com/doit1024/doit-blog/pull/29)）
+- **站点**：更新日志二级标题由「未发布」改为「最新（日期）」：本站改动多半在打 tag 前就已上线，「未发布」读起来别扭（[#29](https://github.com/doit1024/doit-blog/pull/29)）
+- **站点**：自动 changelog 生成器同步改为写入「最新」，仍能识别旧的「未发布」/Unreleased，避免下次 Action 写回去（[#29](https://github.com/doit1024/doit-blog/pull/29)）
 - **小声哔哔 `/bb`**：Notion `*.notion.site` 接口返回 403 时，自动切换到可用的 API 地址（[#14](https://github.com/doit1024/doit-blog/pull/14)）
 - **小声哔哔 `/bb`**：没有内容时展示空状态提示（[#14](https://github.com/doit1024/doit-blog/pull/14)）
 - **小声哔哔 `/bb`**：Notion 数据短缓存约 3 分钟（内存 + Cloudflare Cache），页面 HTML 边缘缓存 `s-maxage=180`（[#14](https://github.com/doit1024/doit-blog/pull/14)）
