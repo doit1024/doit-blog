@@ -36,6 +36,18 @@
   initial-value: 0deg;
 }
 
+@property --hint-rot {
+  syntax: "<angle>";
+  inherits: false;
+  initial-value: 0deg;
+}
+
+@property --hint-lift {
+  syntax: "<length>";
+  inherits: false;
+  initial-value: 0px;
+}
+
 [data-layout="index"] {
   overflow: visible;
 }
@@ -63,6 +75,8 @@
   --lift: 0px;
   --grow: 1;
   --nudge: 0deg;
+  --hint-rot: 0deg;
+  --hint-lift: 0px;
   position: absolute;
   z-index: 2;
   margin: 0;
@@ -71,7 +85,9 @@
   cursor: grab;
   user-select: none;
   transform: translate3d(var(--dx), var(--dy), 0) translateY(var(--lift))
-    rotate(calc(var(--rot) + var(--tilt) + var(--nudge))) scale(var(--grow));
+    translateY(var(--hint-lift))
+    rotate(calc(var(--rot) + var(--tilt) + var(--nudge) + var(--hint-rot)))
+    scale(var(--grow));
   filter: drop-shadow(1px 2px 3px rgb(40 18 28 / 0.14));
   transition:
     filter 180ms ease,
@@ -124,6 +140,8 @@
     --lift: 0px;
     --grow: 1;
     --nudge: 0deg;
+    --hint-rot: 0deg;
+    --hint-lift: 0px;
   }
 }
 
@@ -237,53 +255,55 @@
 /* Discoverability: bear intro + periodic float/tilt. Stops after first drag. */
 .collage-hero.is-hinting .collage-bear {
   animation:
-    collage-bear-intro 1.2s cubic-bezier(0.22, 1, 0.36, 1) both,
-    collage-bear-idle 4.6s ease-in-out 1.5s infinite;
+    collage-bear-intro 1.25s cubic-bezier(0.22, 1, 0.36, 1) both,
+    collage-bear-idle 4.4s ease-in-out 1.5s infinite;
 }
 
 .collage-hero.is-hinting .collage-bear:hover,
 .collage-hero.is-hinting .collage-bear.is-lifted,
 .collage-hero.is-hinting .collage-bear.is-dragging {
   animation: none;
+  --hint-rot: 0deg;
+  --hint-lift: 0px;
 }
 
 @keyframes collage-bear-intro {
   0% {
-    --nudge: 0deg;
-    --lift: 0px;
+    --hint-rot: 0deg;
+    --hint-lift: 0px;
   }
-  28% {
-    --nudge: -7deg;
-    --lift: -11px;
+  30% {
+    --hint-rot: -8deg;
+    --hint-lift: -14px;
   }
-  58% {
-    --nudge: 5deg;
-    --lift: -4px;
+  62% {
+    --hint-rot: 6deg;
+    --hint-lift: -5px;
   }
   100% {
-    --nudge: 0deg;
-    --lift: 0px;
+    --hint-rot: 0deg;
+    --hint-lift: 0px;
   }
 }
 
 @keyframes collage-bear-idle {
   0%,
-  68%,
+  64%,
   100% {
-    --nudge: 0deg;
-    --lift: 0px;
+    --hint-rot: 0deg;
+    --hint-lift: 0px;
   }
-  76% {
-    --nudge: -6deg;
-    --lift: -9px;
+  74% {
+    --hint-rot: -7deg;
+    --hint-lift: -12px;
   }
   84% {
-    --nudge: 4deg;
-    --lift: -3px;
+    --hint-rot: 5deg;
+    --hint-lift: -4px;
   }
   92% {
-    --nudge: -2deg;
-    --lift: -6px;
+    --hint-rot: -2deg;
+    --hint-lift: -8px;
   }
 }
 

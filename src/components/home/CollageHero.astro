@@ -19,7 +19,7 @@ const rss = SOCIALS.find(social => social.name === "Rss");
 
 <section
   id="hero"
-  class="collage-hero"
+  class="collage-hero is-hinting"
   data-collage-board
   aria-labelledby="collage-title"
   aria-describedby="collage-drag-hint"
@@ -130,6 +130,7 @@ const rss = SOCIALS.find(social => social.name === "Rss");
         /* skip */
       } else if (localStorage.getItem("doit-collage-dragged") === "1") {
         board.classList.add("has-dragged");
+        board.classList.remove("is-hinting");
       } else {
         board.classList.add("is-hinting");
       }
