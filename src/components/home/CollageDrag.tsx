@@ -3,6 +3,7 @@ import { useEffect } from "react";
 const THRESHOLD = 6;
 const IDLE_MS = 3000;
 const RETURN_MS = 700;
+const HINT_KEY = "doit-collage-dragged";
 
 function readOffset(el: HTMLElement) {
   return {
@@ -22,6 +23,17 @@ export default function CollageDrag() {
     let idleTimer: number | null = null;
     let returnTimer: number | null = null;
     let returning = false;
+
+    try {
+      if (localStorage.getItem(HINT_KEY) === "1") {
+        board.classList.add("has-dragged");
+        board.classList.remove("is-hinting");
+      } else {
+        board.classList.add("is-hinting");
+      }
+    } catch {
+      board.classList.add("is-hinting");
+    }
 
     const bringToFront = (item: HTMLElement) => {
       topLayer += 1;
@@ -83,6 +95,17 @@ export default function CollageDrag() {
       idleTimer = window.setTimeout(snapBack, IDLE_MS);
     };
 
+    const dismissHint = () => {
+      if (board.classList.contains("has-dragged")) return;
+      board.classList.remove("is-hinting");
+      board.classList.add("has-dragged");
+      try {
+        localStorage.setItem(HINT_KEY, "1");
+      } catch {
+        /* private mode */
+      }
+    };
+
     for (const item of items) {
       let pointerId: number | null = null;
       let startX = 0;
@@ -122,6 +145,7 @@ export default function CollageDrag() {
         const dy = event.clientY - startY;
         if (!dragging && Math.hypot(dx, dy) < THRESHOLD) return;
         dragging = true;
+        dismissHint();
         item.classList.add("is-dragging");
         item.style.setProperty("--dx", `${originX + dx}px`);
         item.style.setProperty("--dy", `${originY + dy}px`);

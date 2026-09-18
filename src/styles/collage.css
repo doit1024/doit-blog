@@ -30,6 +30,12 @@
   initial-value: 1;
 }
 
+@property --nudge {
+  syntax: "<angle>";
+  inherits: false;
+  initial-value: 0deg;
+}
+
 [data-layout="index"] {
   overflow: visible;
 }
@@ -55,6 +61,7 @@
   --tilt: 0deg;
   --lift: 0px;
   --grow: 1;
+  --nudge: 0deg;
   position: absolute;
   z-index: 2;
   margin: 0;
@@ -63,7 +70,7 @@
   cursor: grab;
   user-select: none;
   transform: translate3d(var(--dx), var(--dy), 0) translateY(var(--lift))
-    rotate(calc(var(--rot) + var(--tilt))) scale(var(--grow));
+    rotate(calc(var(--rot) + var(--tilt) + var(--nudge))) scale(var(--grow));
   filter: drop-shadow(1px 2px 3px rgb(40 18 28 / 0.14));
   transition:
     filter 180ms ease,
@@ -115,6 +122,7 @@
     --tilt: 0deg;
     --lift: 0px;
     --grow: 1;
+    --nudge: 0deg;
   }
 }
 
@@ -223,4 +231,98 @@
 .collage-arrow img {
   transform: scaleY(1.35);
   transform-origin: center;
+}
+
+/* Discoverability: tiny cue + idle nudge. Hidden after first real drag. */
+.collage-drag-cue {
+  position: absolute;
+  right: 22%;
+  bottom: 11%;
+  z-index: 20;
+  margin: 0;
+  padding: 0.18em 0.58em 0.22em;
+  border: 1.5px solid var(--accent);
+  border-radius: 999px;
+  background: color-mix(in srgb, var(--background) 90%, var(--muted));
+  color: var(--accent);
+  font-family:
+    var(--font-rounded, ui-rounded), "PingFang SC", "Hiragino Sans GB",
+    "Noto Sans SC", sans-serif;
+  font-size: clamp(0.68rem, 1.35vw, 0.82rem);
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  line-height: 1.2;
+  white-space: nowrap;
+  rotate: -9deg;
+  pointer-events: none;
+  user-select: none;
+  box-shadow: 1px 2px 3px rgb(40 18 28 / 0.1);
+  transition:
+    opacity 220ms ease,
+    visibility 220ms ease;
+}
+
+.collage-hero.has-dragged .collage-drag-cue {
+  opacity: 0;
+  visibility: hidden;
+}
+
+.collage-hero.is-hinting .collage-drag-cue {
+  animation: collage-cue-pulse 2.6s ease-in-out infinite;
+}
+
+.collage-hero.is-hinting .collage-arrow {
+  animation: collage-arrow-nudge 5s ease-in-out infinite;
+}
+
+.collage-hero.is-hinting .collage-arrow:hover,
+.collage-hero.is-hinting .collage-arrow.is-lifted,
+.collage-hero.is-hinting .collage-arrow.is-dragging {
+  animation: none;
+}
+
+@keyframes collage-cue-pulse {
+  0%,
+  100% {
+    opacity: 0.82;
+  }
+  50% {
+    opacity: 1;
+  }
+}
+
+@keyframes collage-arrow-nudge {
+  0%,
+  10%,
+  100% {
+    --nudge: 0deg;
+    --lift: 0px;
+  }
+  3% {
+    --nudge: 11deg;
+    --lift: -5px;
+  }
+  6% {
+    --nudge: -4deg;
+    --lift: 0px;
+  }
+  8% {
+    --nudge: 3deg;
+    --lift: -2px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .collage-hero.is-hinting .collage-drag-cue,
+  .collage-hero.is-hinting .collage-arrow {
+    animation: none;
+  }
+}
+
+@media (max-width: 40rem) {
+  .collage-drag-cue {
+    right: 6%;
+    bottom: 7%;
+    font-size: 0.68rem;
+  }
 }

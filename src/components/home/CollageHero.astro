@@ -22,6 +22,7 @@ const rss = SOCIALS.find(social => social.name === "Rss");
   class="collage-hero"
   data-collage-board
   aria-labelledby="collage-title"
+  aria-describedby="collage-drag-hint"
 >
   <h1 id="collage-title" class="collage-logo" data-draggable>
     <Image
@@ -121,6 +122,22 @@ const rss = SOCIALS.find(social => social.name === "Rss");
     width={420}
     sizes="(min-width: 1156px) 104px, 9vw"
   />
+  <p class="collage-drag-cue" data-collage-cue aria-hidden="true">拖一拖</p>
+  <p id="collage-drag-hint" class="sr-only">贴纸可以拖动，松手后会自己回去。</p>
+  <script is:inline>
+    try {
+      const board = document.getElementById("hero");
+      if (!board) {
+        /* skip */
+      } else if (localStorage.getItem("doit-collage-dragged") === "1") {
+        board.classList.add("has-dragged");
+      } else {
+        board.classList.add("is-hinting");
+      }
+    } catch {
+      document.getElementById("hero")?.classList.add("is-hinting");
+    }
+  </script>
 </section>
 
 <CollageDrag client:only="react" />
