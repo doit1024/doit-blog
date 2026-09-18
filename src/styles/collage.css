@@ -52,6 +52,7 @@
   aspect-ratio: 12 / 5;
   margin-inline: auto;
   padding: 0;
+  cursor: grab;
 }
 
 .collage-hero [data-draggable] {
@@ -236,8 +237,8 @@
 /* Discoverability: tiny cue + idle nudge. Hidden after first real drag. */
 .collage-drag-cue {
   position: absolute;
-  right: 22%;
-  bottom: 11%;
+  right: 3.5%;
+  bottom: 19%;
   z-index: 20;
   margin: 0;
   padding: 0.18em 0.58em 0.22em;
@@ -321,8 +322,8 @@
 
 @media (max-width: 40rem) {
   .collage-drag-cue {
-    right: 6%;
-    bottom: 7%;
+    right: 2%;
+    bottom: 8%;
     font-size: 0.68rem;
   }
 }
