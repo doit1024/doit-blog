@@ -1,7 +1,7 @@
 import { useEffect } from "react";
 
 const THRESHOLD = 6;
-const IDLE_MS = 3000;
+const IDLE_MS = 2000;
 const RETURN_MS = 700;
 const HINT_KEY = "doit-collage-dragged";
 
