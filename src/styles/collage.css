@@ -30,6 +30,24 @@
   initial-value: 1;
 }
 
+@property --nudge {
+  syntax: "<angle>";
+  inherits: false;
+  initial-value: 0deg;
+}
+
+@property --hint-rot {
+  syntax: "<angle>";
+  inherits: false;
+  initial-value: 0deg;
+}
+
+@property --hint-lift {
+  syntax: "<length>";
+  inherits: false;
+  initial-value: 0px;
+}
+
 [data-layout="index"] {
   overflow: visible;
 }
@@ -46,6 +64,7 @@
   aspect-ratio: 12 / 5;
   margin-inline: auto;
   padding: 0;
+  cursor: grab;
 }
 
 .collage-hero [data-draggable] {
@@ -55,6 +74,9 @@
   --tilt: 0deg;
   --lift: 0px;
   --grow: 1;
+  --nudge: 0deg;
+  --hint-rot: 0deg;
+  --hint-lift: 0px;
   position: absolute;
   z-index: 2;
   margin: 0;
@@ -63,7 +85,9 @@
   cursor: grab;
   user-select: none;
   transform: translate3d(var(--dx), var(--dy), 0) translateY(var(--lift))
-    rotate(calc(var(--rot) + var(--tilt))) scale(var(--grow));
+    translateY(var(--hint-lift))
+    rotate(calc(var(--rot) + var(--tilt) + var(--nudge) + var(--hint-rot)))
+    scale(var(--grow));
   filter: drop-shadow(1px 2px 3px rgb(40 18 28 / 0.14));
   transition:
     filter 180ms ease,
@@ -115,6 +139,9 @@
     --tilt: 0deg;
     --lift: 0px;
     --grow: 1;
+    --nudge: 0deg;
+    --hint-rot: 0deg;
+    --hint-lift: 0px;
   }
 }
 
@@ -223,4 +250,53 @@
 .collage-arrow img {
   transform: scaleY(1.35);
   transform-origin: center;
+}
+
+/* Discoverability: bear intro + periodic float/tilt. Stops after first drag. */
+.collage-hero.is-hinting .collage-bear {
+  animation: collage-bear-hint 5.2s ease-in-out infinite;
+}
+
+.collage-hero.is-hinting .collage-bear:hover,
+.collage-hero.is-hinting .collage-bear.is-lifted,
+.collage-hero.is-hinting .collage-bear.is-dragging {
+  animation: none;
+  --hint-rot: 0deg;
+  --hint-lift: 0px;
+}
+
+@keyframes collage-bear-hint {
+  0%,
+  22%,
+  70%,
+  100% {
+    --hint-rot: 0deg;
+    --hint-lift: 0px;
+  }
+  8% {
+    --hint-rot: -8deg;
+    --hint-lift: -14px;
+  }
+  14% {
+    --hint-rot: 6deg;
+    --hint-lift: -5px;
+  }
+  78% {
+    --hint-rot: -7deg;
+    --hint-lift: -12px;
+  }
+  86% {
+    --hint-rot: 5deg;
+    --hint-lift: -4px;
+  }
+  92% {
+    --hint-rot: -2deg;
+    --hint-lift: -8px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .collage-hero.is-hinting .collage-bear {
+    animation: none;
+  }
 }

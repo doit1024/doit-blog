@@ -2,7 +2,7 @@
 
 记录本站（doit-blog）的产品改动。
 
-## 最新（2026-09-17）
+## 最新（2026-09-18）
 
 ### 变更
 
@@ -29,6 +29,7 @@
 
 ### 新增
 
+- **首页**：小熊开场轻转轻浮提示可拖，第一次拖过后停掉（[#30](https://github.com/doit1024/doit-blog/pull/30)）
 - **更新日志**：打开 PR 时自动把主要改动写入 CHANGELOG 并提交回分支（[#28](https://github.com/doit1024/doit-blog/pull/28)）
 - **长文 Notion**：Published 行进入现有 `/posts` 管道。约定见 [docs/notion-posts.md](docs/notion-posts.md)（[#26](https://github.com/doit1024/doit-blog/pull/26)）
 - **小声哔哔 `/bb`**：在 Cloudflare Worker 上恢复全文 SSR 渲染 Notion 内容
