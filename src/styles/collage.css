@@ -254,9 +254,7 @@
 
 /* Discoverability: bear intro + periodic float/tilt. Stops after first drag. */
 .collage-hero.is-hinting .collage-bear {
-  animation:
-    collage-bear-intro 1.25s cubic-bezier(0.22, 1, 0.36, 1) both,
-    collage-bear-idle 4.4s ease-in-out 1.5s infinite;
+  animation: collage-bear-hint 5.2s ease-in-out infinite;
 }
 
 .collage-hero.is-hinting .collage-bear:hover,
@@ -267,37 +265,27 @@
   --hint-lift: 0px;
 }
 
-@keyframes collage-bear-intro {
-  0% {
+@keyframes collage-bear-hint {
+  0%,
+  22%,
+  70%,
+  100% {
     --hint-rot: 0deg;
     --hint-lift: 0px;
   }
-  30% {
+  8% {
     --hint-rot: -8deg;
     --hint-lift: -14px;
   }
-  62% {
+  14% {
     --hint-rot: 6deg;
     --hint-lift: -5px;
   }
-  100% {
-    --hint-rot: 0deg;
-    --hint-lift: 0px;
-  }
-}
-
-@keyframes collage-bear-idle {
-  0%,
-  64%,
-  100% {
-    --hint-rot: 0deg;
-    --hint-lift: 0px;
-  }
-  74% {
+  78% {
     --hint-rot: -7deg;
     --hint-lift: -12px;
   }
-  84% {
+  86% {
     --hint-rot: 5deg;
     --hint-lift: -4px;
   }
