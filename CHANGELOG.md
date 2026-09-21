@@ -2,7 +2,7 @@
 
 记录本站（doit-blog）的产品改动。
 
-## 最新（2026-09-18）
+## 最新（2026-09-21）
 
 ### 变更
 
@@ -29,6 +29,7 @@
 
 ### 新增
 
+- **首页**：拼贴和最新文章之间加三条在做的（[#31](https://github.com/doit1024/doit-blog/pull/31)）
 - **首页**：小熊开场轻转轻浮提示可拖，第一次拖过后停掉（[#30](https://github.com/doit1024/doit-blog/pull/30)）
 - **更新日志**：打开 PR 时自动把主要改动写入 CHANGELOG 并提交回分支（[#28](https://github.com/doit1024/doit-blog/pull/28)）
 - **长文 Notion**：Published 行进入现有 `/posts` 管道。约定见 [docs/notion-posts.md](docs/notion-posts.md)（[#26](https://github.com/doit1024/doit-blog/pull/26)）
