@@ -79,6 +79,10 @@ All blog posts are stored in `src/data/blog` directory.
 
 When the Notion database changes, trigger a [Cloudflare Workers Builds Deploy Hook](https://developers.cloudflare.com/workers/ci-cd/builds/deploy-hooks/) (or push to `main`). Steps, optional `BB_ALLOW_EMPTY`, and Make/Zapier/n8n wiring: **[docs/bb-static-rebuild.md](docs/bb-static-rebuild.md)** (中文).
 
+## 读看听玩 `/library`
+
+`/library` is a static poster wall. `astro build` reads the private Notion database with `NOTION_TOKEN` and `NOTION_MEDIA_DATABASE_ID` (same official API and Deploy Hook as long-form posts). Missing env skips the page instead of failing the site. Details: **[docs/library.md](docs/library.md)** (中文).
+
 ## 📖 Documentation
 
 Documentation can be read in two formats\_ _markdown_ & _blog post_.

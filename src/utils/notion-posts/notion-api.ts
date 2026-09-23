@@ -23,6 +23,7 @@ async function notionFetch<T>(
     method?: string;
     body?: unknown;
     search?: Record<string, string>;
+    version?: string;
   } = {}
 ): Promise<T> {
   const url = new URL(`${NOTION_API}${path}`);
@@ -36,7 +37,7 @@ async function notionFetch<T>(
       method: init.method ?? "GET",
       headers: {
         Authorization: `Bearer ${token}`,
-        "Notion-Version": NOTION_VERSION,
+        "Notion-Version": init.version ?? NOTION_VERSION,
         "Content-Type": "application/json",
       },
       body: init.body === undefined ? undefined : JSON.stringify(init.body),
@@ -91,6 +92,62 @@ export async function queryPublishedPages(
   } while (cursor);
 
   return pages;
+}
+
+const MEDIA_SOURCE_VERSION = "2025-09-03";
+
+async function queryPaged(
+  token: string,
+  path: string,
+  version: string
+): Promise<NotionPage[]> {
+  const pages: NotionPage[] = [];
+  let cursor: string | undefined;
+
+  do {
+    const body: Record<string, unknown> = { page_size: 100 };
+    if (cursor) body.start_cursor = cursor;
+
+    const json = await notionFetch<ListResponse<NotionPage>>(token, path, {
+      method: "POST",
+      body,
+      version,
+    });
+    for (const page of json.results ?? []) {
+      if (page.object && page.object !== "page") continue;
+      pages.push(page);
+    }
+    cursor = json.has_more ? (json.next_cursor ?? undefined) : undefined;
+  } while (cursor);
+
+  return pages;
+}
+
+/**
+ * Query the 读看听玩 data source. `NOTION_MEDIA_DATABASE_ID` is the data
+ * source id. If that 404s, retry the legacy database query so a database id
+ * still works.
+ */
+export async function queryMediaPages(
+  token: string,
+  dataSourceId: string
+): Promise<NotionPage[]> {
+  const id = encodeURIComponent(dataSourceId);
+  try {
+    return await queryPaged(
+      token,
+      `/data_sources/${id}/query`,
+      MEDIA_SOURCE_VERSION
+    );
+  } catch (error) {
+    const message = error instanceof Error ? error.message : String(error);
+    if (
+      !/404|object_not_found|validation_error|invalid_request_url/.test(message)
+    ) {
+      throw error;
+    }
+    return await queryPaged(token, `/databases/${id}/query`, NOTION_VERSION);
+  }
 }
 
 async function listChildren(

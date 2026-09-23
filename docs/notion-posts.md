@@ -115,4 +115,4 @@ pnpm run build
 
 构建日志应有 `notion-posts: no NOTION_TOKEN... skip` 或 `notion-posts: N Published page(s)` / `loaded /posts/<slug>`。
 
-GitHub Actions 的 `pnpm run build` **不要**注入 token，避免 fork PR 泄漏。无 token 时 Notion 源自动跳过，CI 只构建 git 文章 + `/bb` 公开 collection。
+GitHub Actions 的 `pnpm run build` **不要**注入 token，避免 fork PR 泄漏。无 token 时 Notion 源自动跳过，CI 只构建 git 文章 + `/bb` 公开 collection。`/library` 同样跳过，见 [docs/library.md](./library.md)。

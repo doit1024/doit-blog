@@ -1,0 +1,122 @@
+---
+import { getCollection } from "astro:content";
+import Layout from "@/layouts/Layout.astro";
+import Header from "@/components/Header.astro";
+import Footer from "@/components/Footer.astro";
+import LibraryCard from "@/components/library/LibraryCard.astro";
+import { SITE } from "@/config";
+import { compareMedia, MEDIA_TYPES } from "@/utils/media-library/types";
+import "@/styles/library.css";
+
+export const prerender = true;
+
+const filters = [
+  { id: "all", label: "全部" },
+  ...MEDIA_TYPES.map(type => ({ id: type, label: type })),
+  { id: "dropped", label: "弃坑" },
+];
+
+const items = (await getCollection("media"))
+  .map(entry => ({ id: entry.id, ...entry.data }))
+  .filter(item => item.title)
+  .sort(compareMedia);
+---
+
+<Layout
+  title={`读看听玩 | ${SITE.title}`}
+  description="书、电影、电视剧、综艺、音乐和游戏。"
+>
+  <Header />
+  <main id="main-content" class="library">
+    <div class="library-head">
+      <h1>读看听玩</h1>
+      <p>看过、听过、在玩的东西。</p>
+    </div>
+
+    {
+      items.length > 0 && (
+        <div class="library-filters" role="toolbar" aria-label="按类型筛选">
+          {filters.map(filter => (
+            <button
+              type="button"
+              data-filter={filter.id}
+              aria-pressed={filter.id === "all" ? "true" : "false"}
+            >
+              {filter.label}
+            </button>
+          ))}
+        </div>
+      )
+    }
+
+    {
+      items.length === 0 ? (
+        <p class="library-empty">暂时没有条目。</p>
+      ) : (
+        <div data-library>
+          <ul class="library-grid">
+            {items.map(item => (
+              <LibraryCard item={item} />
+            ))}
+          </ul>
+          <p class="library-empty" data-library-empty hidden>
+            这个分类里还没有条目。
+          </p>
+        </div>
+      )
+    }
+  </main>
+  <Footer />
+</Layout>
+
+<script>
+  function bootLibrary() {
+    const root = document.querySelector<HTMLElement>("[data-library]");
+    if (!root || root.dataset.bound === "1") return;
+    root.dataset.bound = "1";
+
+    const cards = [...root.querySelectorAll<HTMLElement>("[data-media-card]")];
+    const empty = root.querySelector<HTMLElement>("[data-library-empty]");
+    const buttons = [
+      ...document.querySelectorAll<HTMLButtonElement>(
+        ".library-filters [data-filter]"
+      ),
+    ];
+
+    const apply = (filter: string) => {
+      let visible = 0;
+      for (const card of cards) {
+        const type = card.dataset.type ?? "";
+        const dropped = card.dataset.dropped === "1";
+        const show =
+          filter === "dropped"
+            ? dropped
+            : !dropped && (filter === "all" || type === filter);
+        card.hidden = !show;
+        if (show) visible += 1;
+      }
+      if (empty) empty.hidden = visible !== 0;
+    };
+
+    for (const button of buttons) {
+      button.addEventListener("click", () => {
+        const filter = button.dataset.filter ?? "all";
+        for (const peer of buttons) {
+          peer.setAttribute("aria-pressed", peer === button ? "true" : "false");
+        }
+        apply(filter);
+      });
+    }
+
+    for (const img of root.querySelectorAll<HTMLImageElement>("img")) {
+      const mark = () => img.closest("[data-poster]")?.classList.add("is-text");
+      img.addEventListener("error", mark);
+      if (img.complete && img.naturalWidth === 0) mark();
+    }
+
+    apply("all");
+  }
+
+  bootLibrary();
+  document.addEventListener("astro:page-load", bootLibrary);
+</script>

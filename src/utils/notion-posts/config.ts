@@ -11,6 +11,7 @@ export type R2Config = {
 export type NotionPostsConfig = {
   token: string | undefined;
   databaseId: string | undefined;
+  mediaDatabaseId: string | undefined;
   r2: R2Config | undefined;
   webpOrigin: string;
 };
@@ -25,6 +26,7 @@ export function readNotionPostsConfig(
 ): NotionPostsConfig {
   const token = emptyToUndef(env.NOTION_TOKEN);
   const databaseId = emptyToUndef(env.NOTION_DATABASE_ID);
+  const mediaDatabaseId = emptyToUndef(env.NOTION_MEDIA_DATABASE_ID);
 
   const accountId = emptyToUndef(env.R2_ACCOUNT_ID);
   const accessKeyId = emptyToUndef(env.R2_ACCESS_KEY_ID);
@@ -46,6 +48,7 @@ export function readNotionPostsConfig(
   return {
     token,
     databaseId,
+    mediaDatabaseId,
     r2,
     webpOrigin: WEBP_CLOUD_ORIGIN.replace(/\/$/, ""),
   };

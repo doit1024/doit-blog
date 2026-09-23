@@ -1,0 +1,67 @@
+---
+import { metaLine, type MediaItem } from "@/utils/media-library/types";
+
+interface Props {
+  item: MediaItem;
+}
+
+const { item } = Astro.props;
+const meta = metaLine(item.type, item.year);
+const label = meta ? `${item.title}，${meta}` : item.title;
+---
+
+<li
+  data-media-card
+  data-type={item.type ?? ""}
+  data-dropped={item.dropped ? "1" : "0"}
+  hidden={item.dropped}
+>
+  {
+    item.url ? (
+      <a
+        class="library-card"
+        href={item.url}
+        target="_blank"
+        rel="noopener noreferrer"
+        aria-label={label}
+        title={item.note || undefined}
+      >
+        <div class="poster" data-poster>
+          {item.cover && (
+            <img
+              src={item.cover}
+              alt=""
+              loading="lazy"
+              decoding="async"
+              referrerpolicy="no-referrer"
+            />
+          )}
+          <p class="fallback" aria-hidden="true">
+            <span>{item.title}</span>
+          </p>
+        </div>
+        <p class="library-name">{item.title}</p>
+        {meta && <p class="library-meta">{meta}</p>}
+      </a>
+    ) : (
+      <div class="library-card" title={item.note || undefined}>
+        <div class="poster" data-poster>
+          {item.cover && (
+            <img
+              src={item.cover}
+              alt=""
+              loading="lazy"
+              decoding="async"
+              referrerpolicy="no-referrer"
+            />
+          )}
+          <p class="fallback" aria-hidden="true">
+            <span>{item.title}</span>
+          </p>
+        </div>
+        <p class="library-name">{item.title}</p>
+        {meta && <p class="library-meta">{meta}</p>}
+      </div>
+    )
+  }
+</li>
