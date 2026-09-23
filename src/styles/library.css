@@ -2,10 +2,10 @@
   /library only. Card anatomy follows the poster wall (2:3, tight gutters,
   title + 类型 · 年份). The page stays on the site light ground #fffdfd,
   including when the rest of the site is in dark mode.
+  Column width is the site max-w-app (max-w-3xl), same as posts and the index.
 */
 html[data-theme="dark"]:has(.library),
 html:has(.library) {
-  --library-max: 92rem;
   --background: #fffdfd;
   --foreground: #222e36;
   --accent: #d3006a;
@@ -20,16 +20,7 @@ html:has(.library) body {
   color: #222e36;
 }
 
-html:has(.library) #nav-container,
-html:has(.library) header .max-w-app,
-html:has(.library) footer,
-html:has(.library) footer .max-w-app {
-  max-width: var(--library-max);
-}
-
 .library {
-  width: min(var(--library-max), calc(100% - 2rem));
-  margin-inline: auto;
   padding-bottom: 3.5rem;
 }
 
