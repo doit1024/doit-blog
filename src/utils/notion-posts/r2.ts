@@ -82,4 +82,9 @@ export function r2ObjectKey(slug: string, fileId: string, ext: string): string {
   return `posts/${safeSlug}/${safeId}${ext}`;
 }
 
+export function libraryObjectKey(pageId: string, ext: string): string {
+  const safeId = pageId.replace(/[^a-zA-Z0-9_-]/g, "");
+  return `library/${safeId}${ext}`;
+}
+
 export { extensionFrom };

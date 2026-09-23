@@ -1,0 +1,220 @@
+/*
+  /library only. Card anatomy follows the poster wall (2:3, tight gutters,
+  title + 类型 · 年份). The page stays on the site light ground #fffdfd,
+  including when the rest of the site is in dark mode.
+*/
+html[data-theme="dark"]:has(.library),
+html:has(.library) {
+  --library-max: 92rem;
+  --background: #fffdfd;
+  --foreground: #222e36;
+  --accent: #d3006a;
+  --muted: #f1bad4;
+  --border: #e3a9c6;
+  color-scheme: light;
+  background: #fffdfd;
+}
+
+html:has(.library) body {
+  background: #fffdfd;
+  color: #222e36;
+}
+
+html:has(.library) #nav-container,
+html:has(.library) header .max-w-app,
+html:has(.library) footer,
+html:has(.library) footer .max-w-app {
+  max-width: var(--library-max);
+}
+
+.library {
+  width: min(var(--library-max), calc(100% - 2rem));
+  margin-inline: auto;
+  padding-bottom: 3.5rem;
+}
+
+.library-head h1 {
+  margin: 0;
+  font-size: 1.5rem;
+  font-weight: 600;
+  letter-spacing: -0.01em;
+}
+
+@media (min-width: 40rem) {
+  .library-head h1 {
+    font-size: 1.875rem;
+  }
+}
+
+.library-head p {
+  margin: 0.45rem 0 0;
+  font-style: italic;
+  color: color-mix(in srgb, var(--foreground) 70%, transparent);
+}
+
+.library-filters {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.15rem 0.15rem;
+  margin: 1.15rem 0 1.2rem;
+  border-bottom: 1px solid
+    color-mix(in srgb, var(--foreground) 12%, transparent);
+}
+
+.library-filters button {
+  margin: 0;
+  border: 0;
+  background: transparent;
+  padding: 0.45rem 0.7rem 0.55rem;
+  font: inherit;
+  font-size: 0.92rem;
+  line-height: 1.2;
+  color: color-mix(in srgb, var(--foreground) 58%, transparent);
+}
+
+.library-filters button[aria-pressed="true"] {
+  color: var(--foreground);
+  box-shadow: inset 0 -2px 0 var(--accent);
+}
+
+.library-filters [data-filter="dropped"] {
+  margin-inline-start: auto;
+}
+
+.library-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(6.6rem, 1fr));
+  column-gap: 0.45rem;
+  row-gap: 1rem;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+@media (min-width: 40rem) {
+  .library-grid {
+    grid-template-columns: repeat(auto-fill, minmax(8.25rem, 1fr));
+    column-gap: 0.55rem;
+    row-gap: 1.15rem;
+  }
+}
+
+@media (min-width: 72rem) {
+  .library-grid {
+    grid-template-columns: repeat(auto-fill, minmax(9.6rem, 1fr));
+    column-gap: 0.65rem;
+    row-gap: 1.3rem;
+  }
+}
+
+.library-card {
+  display: block;
+  color: inherit;
+  text-decoration: none;
+}
+
+.library-card:hover {
+  color: inherit;
+}
+
+.poster {
+  position: relative;
+  aspect-ratio: 2 / 3;
+  overflow: hidden;
+  background: #efe8e1;
+}
+
+.poster img {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transform: scale(1);
+}
+
+.poster .fallback {
+  display: none;
+  position: absolute;
+  inset: 0;
+  align-items: flex-end;
+  padding: 0.65rem 0.55rem 0.7rem;
+  background: linear-gradient(180deg, #f6f3ef 0%, #e9e2da 100%);
+  color: #2a3136;
+  font-family: var(--font-display), "Songti SC", "Noto Serif SC", serif;
+  font-size: 0.92rem;
+  line-height: 1.25;
+  letter-spacing: -0.015em;
+}
+
+.poster .fallback span {
+  display: -webkit-box;
+  overflow: hidden;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 5;
+}
+
+.poster:not(:has(img)) .fallback,
+.poster.is-text .fallback {
+  display: flex;
+}
+
+.poster:not(:has(img)) {
+  box-shadow: inset 0 0 0 1px #e4ddd6;
+}
+
+.poster.is-text img {
+  display: none;
+}
+
+.poster.is-text {
+  box-shadow: inset 0 0 0 1px #e4ddd6;
+}
+
+.library-name {
+  margin: 0.38rem 0 0;
+  overflow: hidden;
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+  font-size: 0.75rem;
+  font-weight: 500;
+  line-height: 1.3;
+  letter-spacing: -0.01em;
+}
+
+.library-meta {
+  margin: 0.12rem 0 0;
+  font-size: 0.68rem;
+  line-height: 1.3;
+  color: color-mix(in srgb, var(--foreground) 52%, transparent);
+}
+
+.library-empty {
+  margin: 1.5rem 0 0;
+  color: color-mix(in srgb, var(--foreground) 68%, transparent);
+}
+
+@media (hover: hover) and (prefers-reduced-motion: no-preference) {
+  .poster img {
+    transition: transform 180ms ease;
+  }
+
+  .library-card:hover .poster img {
+    transform: scale(1.035);
+  }
+
+  .poster::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background: transparent;
+    pointer-events: none;
+    transition: background 180ms ease;
+  }
+
+  .library-card:hover .poster::after {
+    background: rgb(0 0 0 / 6%);
+  }
+}

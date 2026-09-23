@@ -1,6 +1,7 @@
 import { defineCollection, z } from "astro:content";
 import { SITE } from "@/config";
 import { blogLoader } from "@/loaders/blog";
+import { mediaLoader } from "@/loaders/media";
 
 export const BLOG_PATH = "src/data/blog";
 
@@ -23,4 +24,19 @@ const blog = defineCollection({
     }),
 });
 
-export const collections = { blog };
+const media = defineCollection({
+  loader: mediaLoader(),
+  schema: z.object({
+    title: z.string(),
+    type: z.string().nullable(),
+    year: z.string().nullable(),
+    date: z.string().nullable(),
+    status: z.string().nullable(),
+    dropped: z.boolean(),
+    cover: z.string().nullable(),
+    url: z.string().nullable(),
+    note: z.string().nullable(),
+  }),
+});
+
+export const collections = { blog, media };

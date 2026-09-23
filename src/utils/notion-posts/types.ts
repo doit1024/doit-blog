@@ -46,12 +46,19 @@ export type NotionProperty = {
   date?: { start?: string | null; end?: string | null } | null;
   checkbox?: boolean;
   files?: NotionFile[];
+  number?: number | null;
+  url?: string | null;
 };
 
 export type NotionPage = {
+  object?: string;
   id: string;
+  url?: string;
   created_time?: string;
   last_edited_time?: string;
+  archived?: boolean;
+  in_trash?: boolean;
+  cover?: NotionFile | null;
   properties?: Record<string, NotionProperty>;
 };
 
