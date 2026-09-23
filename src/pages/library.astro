@@ -1,9 +1,15 @@
 ---
 import { getCollection } from "astro:content";
 import Layout from "@/layouts/Layout.astro";
+import Main from "@/layouts/Main.astro";
 import Header from "@/components/Header.astro";
 import Footer from "@/components/Footer.astro";
 import LibraryCard from "@/components/library/LibraryCard.astro";
+import {
+  LIBRARY_PAGE_SIZE,
+  safeJson,
+  toLibraryEntry,
+} from "@/components/library/entries";
 import { SITE } from "@/config";
 import { compareMedia, MEDIA_TYPES } from "@/utils/media-library/types";
 import "@/styles/library.css";
@@ -20,6 +26,14 @@ const items = (await getCollection("media"))
   .map(entry => ({ id: entry.id, ...entry.data }))
   .filter(item => item.title)
   .sort(compareMedia);
+
+const catalog = items.map(toLibraryEntry);
+const initial = items.filter(item => !item.dropped).slice(0, LIBRARY_PAGE_SIZE);
+const hasMore = catalog.filter(item => !item.dropped).length > initial.length;
+const payloadJson = safeJson({
+  pageSize: LIBRARY_PAGE_SIZE,
+  items: catalog,
+});
 ---
 
 <Layout
@@ -27,95 +41,69 @@ const items = (await getCollection("media"))
   description="书、电影、电视剧、综艺、音乐和游戏。"
 >
   <Header />
-  <main id="main-content" class="library mx-auto w-full max-w-app px-4">
-    <div class="library-head">
-      <h1>读看听玩</h1>
-      <p>看过、听过、在玩的东西。</p>
-    </div>
+  <Main
+    pageTitle="读看听玩"
+    pageDesc="看过、听过、在玩的东西。"
+    showBreadcrumb={false}
+  >
+    <div class="library">
+      {
+        items.length > 0 && (
+          <div class="library-filters" role="toolbar" aria-label="按类型筛选">
+            {filters.map(filter => (
+              <button
+                type="button"
+                data-filter={filter.id}
+                aria-pressed={filter.id === "all" ? "true" : "false"}
+              >
+                {filter.label}
+              </button>
+            ))}
+          </div>
+        )
+      }
 
-    {
-      items.length > 0 && (
-        <div class="library-filters" role="toolbar" aria-label="按类型筛选">
-          {filters.map(filter => (
+      {
+        items.length === 0 ? (
+          <p class="library-empty">暂时没有条目。</p>
+        ) : (
+          <div data-library>
+            <ul class="library-grid" data-library-grid>
+              {initial.map(item => (
+                <LibraryCard item={item} />
+              ))}
+            </ul>
             <button
               type="button"
-              data-filter={filter.id}
-              aria-pressed={filter.id === "all" ? "true" : "false"}
+              class="library-more"
+              data-library-more
+              hidden={!hasMore}
             >
-              {filter.label}
+              加载更多
             </button>
-          ))}
-        </div>
-      )
-    }
-
-    {
-      items.length === 0 ? (
-        <p class="library-empty">暂时没有条目。</p>
-      ) : (
-        <div data-library>
-          <ul class="library-grid">
-            {items.map(item => (
-              <LibraryCard item={item} />
-            ))}
-          </ul>
-          <p class="library-empty" data-library-empty hidden>
-            这个分类里还没有条目。
-          </p>
-        </div>
-      )
-    }
-  </main>
+            <p
+              class="library-empty"
+              data-library-empty
+              hidden={initial.length !== 0}
+            >
+              这个分类里还没有条目。
+            </p>
+            <script
+              is:inline
+              type="application/json"
+              data-library-payload
+              set:html={payloadJson}
+            />
+          </div>
+        )
+      }
+    </div>
+  </Main>
   <Footer />
 </Layout>
 
 <script>
-  function bootLibrary() {
-    const root = document.querySelector<HTMLElement>("[data-library]");
-    if (!root || root.dataset.bound === "1") return;
-    root.dataset.bound = "1";
-
-    const cards = [...root.querySelectorAll<HTMLElement>("[data-media-card]")];
-    const empty = root.querySelector<HTMLElement>("[data-library-empty]");
-    const buttons = [
-      ...document.querySelectorAll<HTMLButtonElement>(
-        ".library-filters [data-filter]"
-      ),
-    ];
-
-    const apply = (filter: string) => {
-      let visible = 0;
-      for (const card of cards) {
-        const type = card.dataset.type ?? "";
-        const dropped = card.dataset.dropped === "1";
-        const show =
-          filter === "dropped"
-            ? dropped
-            : !dropped && (filter === "all" || type === filter);
-        card.hidden = !show;
-        if (show) visible += 1;
-      }
-      if (empty) empty.hidden = visible !== 0;
-    };
-
-    for (const button of buttons) {
-      button.addEventListener("click", () => {
-        const filter = button.dataset.filter ?? "all";
-        for (const peer of buttons) {
-          peer.setAttribute("aria-pressed", peer === button ? "true" : "false");
-        }
-        apply(filter);
-      });
-    }
-
-    for (const img of root.querySelectorAll<HTMLImageElement>("img")) {
-      const mark = () => img.closest("[data-poster]")?.classList.add("is-text");
-      img.addEventListener("error", mark);
-      if (img.complete && img.naturalWidth === 0) mark();
-    }
-
-    apply("all");
-  }
+  import { bootLibrary } from "@/components/library/client";
 
   bootLibrary();
   document.addEventListener("astro:page-load", bootLibrary);
