@@ -3,7 +3,7 @@ import Hr from "./Hr.astro";
 import IconX from "@/assets/icons/IconX.svg";
 import IconMoon from "@/assets/icons/IconMoon.svg";
 import IconSearch from "@/assets/icons/IconSearch.svg";
-import IconArchive from "@/assets/icons/IconArchive.svg";
+import IconChevronRight from "@/assets/icons/IconChevronRight.svg";
 import IconSunHigh from "@/assets/icons/IconSunHigh.svg";
 import IconMenuDeep from "@/assets/icons/IconMenuDeep.svg";
 import LinkButton from "./LinkButton.astro";
@@ -21,6 +21,14 @@ const isActive = (path: string) => {
 
   return currentPath === path || currentPathArray[0] === pathArray[0];
 };
+
+const moreLinks = [
+  { href: "/tags", label: "标签" },
+  { href: "/changelog", label: "日志" },
+  ...(SITE.showArchives ? [{ href: "/archives", label: "归档" }] : []),
+];
+
+const isMoreActive = moreLinks.some(link => isActive(link.href));
 ---
 
 <header>
@@ -80,15 +88,6 @@ const isActive = (path: string) => {
           </li>
           <li class="col-span-2">
             <a
-              href="/tags"
-              data-astro-prefetch="load"
-              class:list={{ "active-nav": isActive("/tags") }}
-            >
-              标签
-            </a>
-          </li>
-          <li class="col-span-2">
-            <a
               href="/bb"
               data-astro-prefetch="load"
               class:list={{ "active-nav": isActive("/bb") }}
@@ -114,36 +113,46 @@ const isActive = (path: string) => {
               关于
             </a>
           </li>
-          <li class="col-span-2">
-            <a
-              href="/changelog"
-              data-astro-prefetch="load"
-              class:list={{ "active-nav": isActive("/changelog") }}
+          <li id="more-nav" class="relative col-span-2">
+            <button
+              id="more-btn"
+              type="button"
+              class="inline-flex w-full items-center justify-center gap-0.5 px-4 py-3 text-center font-medium hover:text-accent sm:w-auto sm:px-2 sm:py-1"
+              aria-expanded="false"
+              aria-controls="more-menu"
             >
-              日志
-            </a>
+              <span class:list={[{ "active-nav": isMoreActive }]}>更多</span>
+              <span
+                class="more-chevron inline-flex rotate-90 transition-transform"
+                aria-hidden="true"
+              >
+                <IconChevronRight class="size-3.5 shrink-0" />
+              </span>
+            </button>
+            <ul
+              id="more-menu"
+              class="z-50 mt-1 hidden rounded-md border border-border bg-background py-1 sm:absolute sm:start-0 sm:top-full sm:mt-2 sm:min-w-28 sm:shadow-sm"
+              hidden
+            >
+              {
+                moreLinks.map(link => (
+                  <li>
+                    <a
+                      href={link.href}
+                      data-astro-prefetch="load"
+                      class:list={[
+                        "block px-4 py-2 text-center font-medium whitespace-nowrap hover:text-accent sm:px-3",
+                        { "active-nav": isActive(link.href) },
+                      ]}
+                      aria-current={isActive(link.href) ? "page" : undefined}
+                    >
+                      {link.label}
+                    </a>
+                  </li>
+                ))
+              }
+            </ul>
           </li>
-          {
-            SITE.showArchives && (
-              <li class="col-span-2">
-                <LinkButton
-                  href="/archives"
-                  prefetch="load"
-                  class:list={[
-                    "focus-outline flex justify-center p-3 sm:p-1",
-                    {
-                      "active-nav [&>svg]:stroke-accent": isActive("/archives"),
-                    },
-                  ]}
-                  ariaLabel="archives"
-                  title="Archives"
-                >
-                  <IconArchive class="hidden sm:inline-block" />
-                  <span class="sm:sr-only">归档</span>
-                </LinkButton>
-              </li>
-            )
-          }
           <li class="col-span-1 flex items-center justify-center">
             <LinkButton
               href="/search"
@@ -182,7 +191,35 @@ const isActive = (path: string) => {
   <Hr />
 </header>
 
+<style>
+  #more-btn[aria-expanded="true"] .more-chevron {
+    rotate: 270deg;
+  }
+</style>
+
 <script>
+  function closeMoreMenu(restoreFocus = false) {
+    const moreBtn = document.querySelector("#more-btn");
+    const moreMenu = document.querySelector("#more-menu");
+    if (!moreBtn || !moreMenu) return;
+
+    const wasOpen = moreBtn.getAttribute("aria-expanded") === "true";
+    moreBtn.setAttribute("aria-expanded", "false");
+    moreMenu.classList.add("hidden");
+    moreMenu.setAttribute("hidden", "");
+    if (restoreFocus && wasOpen) moreBtn.focus();
+  }
+
+  function openMoreMenu() {
+    const moreBtn = document.querySelector("#more-btn");
+    const moreMenu = document.querySelector("#more-menu");
+    if (!moreBtn || !moreMenu) return;
+
+    moreBtn.setAttribute("aria-expanded", "true");
+    moreMenu.classList.remove("hidden");
+    moreMenu.removeAttribute("hidden");
+  }
+
   function toggleNav() {
     const menuBtn = document.querySelector("#menu-btn");
     const menuItems = document.querySelector("#menu-items");
@@ -190,6 +227,8 @@ const isActive = (path: string) => {
     const closeIcon = document.querySelector("#close-icon");
 
     if (!menuBtn || !menuItems || !menuIcon || !closeIcon) return;
+    if (menuBtn.dataset.bound === "true") return;
+    menuBtn.dataset.bound = "true";
 
     menuBtn.addEventListener("click", () => {
       const openMenu = menuBtn.getAttribute("aria-expanded") === "true";
@@ -200,11 +239,86 @@ const isActive = (path: string) => {
       menuItems.classList.toggle("hidden");
       menuIcon.classList.toggle("hidden");
       closeIcon.classList.toggle("hidden");
+      if (openMenu) closeMoreMenu();
     });
   }
 
-  toggleNav();
+  function bindMoreMenu() {
+    const moreNav = document.querySelector("#more-nav");
+    const moreBtn = document.querySelector("#more-btn");
+    const moreMenu = document.querySelector("#more-menu");
+    if (!moreNav || !moreBtn || !moreMenu) return;
+    if (moreBtn.dataset.bound === "true") return;
+    moreBtn.dataset.bound = "true";
+
+    const items = () => [...moreMenu.querySelectorAll("a")];
+
+    moreBtn.addEventListener("click", () => {
+      const open = moreBtn.getAttribute("aria-expanded") === "true";
+      if (open) closeMoreMenu();
+      else openMoreMenu();
+    });
+
+    moreNav.addEventListener("keydown", event => {
+      if (!(event instanceof KeyboardEvent)) return;
+      const links = items();
+      const open = moreBtn.getAttribute("aria-expanded") === "true";
+
+      if (event.key === "ArrowDown" || event.key === "ArrowUp") {
+        if (!links.length) return;
+        event.preventDefault();
+        if (!open) {
+          openMoreMenu();
+          const target =
+            event.key === "ArrowDown" ? links[0] : links[links.length - 1];
+          target.focus();
+          return;
+        }
+
+        const index = links.indexOf(document.activeElement);
+        if (event.key === "ArrowDown") {
+          links[(index + 1) % links.length].focus();
+          return;
+        }
+        if (index <= 0) moreBtn.focus();
+        else links[index - 1].focus();
+      }
+    });
+
+    moreNav.addEventListener("focusout", () => {
+      requestAnimationFrame(() => {
+        const active = document.activeElement;
+        if (active instanceof Node && moreNav.contains(active)) return;
+        closeMoreMenu();
+      });
+    });
+  }
+
+  function bindHeaderDismiss() {
+    if (document.documentElement.dataset.moreMenuBound === "true") return;
+    document.documentElement.dataset.moreMenuBound = "true";
+
+    document.addEventListener("click", event => {
+      const moreNav = document.querySelector("#more-nav");
+      if (!moreNav || !(event.target instanceof Node)) return;
+      if (moreNav.contains(event.target)) return;
+      closeMoreMenu();
+    });
+
+    document.addEventListener("keydown", event => {
+      if (event.key !== "Escape") return;
+      closeMoreMenu(true);
+    });
+  }
+
+  function initHeader() {
+    toggleNav();
+    bindMoreMenu();
+    bindHeaderDismiss();
+  }
+
+  initHeader();
 
   // Runs on view transitions navigation
-  document.addEventListener("astro:after-swap", toggleNav);
+  document.addEventListener("astro:after-swap", initHeader);
 </script>
