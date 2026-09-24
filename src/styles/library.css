@@ -335,13 +335,24 @@ html:has(.library) body {
 .library-dialog-stars {
   position: relative;
   display: inline-flex;
+  flex-direction: row;
+  flex-wrap: nowrap;
   align-items: center;
-  gap: 0.14rem;
   color: var(--accent);
+}
+
+.library-dialog-stars-row {
+  display: inline-flex;
+  flex-direction: row;
+  flex-wrap: nowrap;
+  align-items: center;
+  gap: 0.12rem;
+  white-space: nowrap;
 }
 
 .library-star {
   display: block;
+  flex: 0 0 auto;
   width: 1.05rem;
   height: 1.05rem;
   overflow: visible;
