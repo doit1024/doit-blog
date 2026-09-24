@@ -38,6 +38,7 @@ const thumbBox = libraryCoverBox(LIBRARY_COVER_THUMB_MAX_WIDTH);
     data-note={item.note ?? ""}
     data-rating={item.rating == null ? "" : String(item.rating)}
     data-created={item.created ?? ""}
+    data-hours={item.playHours == null ? "" : String(item.playHours)}
   >
     <div class="poster" data-poster>
       {

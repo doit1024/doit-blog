@@ -42,7 +42,21 @@ export type MediaItem = {
   rating: number | null;
   /** Notion page created_time. */
   created: string | null;
+  /** Notion「游戏时长（小时）」. Absent when the property is empty. */
+  playHours: number | null;
 };
+
+/** Hours for a 游戏 row. Empty, non-finite, and negative values stay hidden. */
+export function formatPlayHours(
+  hours: number | null | undefined
+): string | null {
+  if (typeof hours !== "number" || !Number.isFinite(hours) || hours < 0) {
+    return null;
+  }
+  const rounded = Math.round(hours * 100) / 100;
+  const text = rounded.toFixed(2).replace(/0+$/, "").replace(/\.$/, "");
+  return `${text} 小时`;
+}
 
 export function yearFromDate(value: string | null | undefined): string | null {
   if (!value) return null;

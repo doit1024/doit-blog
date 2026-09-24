@@ -17,6 +17,7 @@ export type LibraryEntry = {
   meta: string;
   rating: number | null;
   created: string | null;
+  playHours: number | null;
 };
 
 export function toLibraryEntry(item: MediaItem): LibraryEntry {
@@ -31,6 +32,7 @@ export function toLibraryEntry(item: MediaItem): LibraryEntry {
     meta: metaLine(type, item.year),
     rating: item.rating,
     created: item.created,
+    playHours: item.playHours,
   };
 }
 

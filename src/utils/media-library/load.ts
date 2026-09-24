@@ -124,6 +124,7 @@ function loadPreview(
       note: item.note ?? null,
       rating: optionalRating(item.rating),
       created: optionalString(item.created),
+      playHours: optionalRating(item.playHours),
     }));
     items.sort(compareMedia);
     logger.info(

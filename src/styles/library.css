@@ -327,6 +327,18 @@ html:has(.library) body {
   color: color-mix(in srgb, #222e36 52%, transparent);
 }
 
+.library-dialog-hours {
+  margin: 0.7rem 0 0;
+  font-size: 0.95rem;
+  line-height: 1.4;
+  font-variant-numeric: tabular-nums;
+}
+
+.library-dialog-hours-label {
+  margin-inline-end: 0.45rem;
+  color: color-mix(in srgb, #222e36 52%, transparent);
+}
+
 .library-dialog-rating {
   margin: 0.85rem 0 0;
 }

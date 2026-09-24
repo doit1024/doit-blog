@@ -21,7 +21,7 @@ function plain(property: NotionProperty | undefined): string {
   return "";
 }
 
-function ratingOf(property: NotionProperty | undefined): number | null {
+function numberOf(property: NotionProperty | undefined): number | null {
   const value = property?.number;
   if (typeof value !== "number" || !Number.isFinite(value)) return null;
   return value;
@@ -66,8 +66,9 @@ export function pageToMediaItem(
   const date = prop(page, "日期")?.date?.start ?? null;
   const url = prop(page, "链接")?.url?.trim() || null;
   const note = plain(prop(page, "短评")) || null;
-  const rating = ratingOf(prop(page, "评分"));
+  const rating = numberOf(prop(page, "评分"));
   const created = createdOf(page);
+  const playHours = numberOf(prop(page, "游戏时长（小时）"));
 
   return {
     id: page.id,
@@ -81,5 +82,6 @@ export function pageToMediaItem(
     note,
     rating,
     created,
+    playHours,
   };
 }
