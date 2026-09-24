@@ -55,7 +55,7 @@ Slug 和 git 文章撞车时 **git 优先**，Notion 那篇会被跳过并打构
 | `R2_BUCKET_NAME` | 否 | 现有站点图床 bucket（`asset.doooit.me` 背后那个） |
 | `R2_PUBLIC_BASE` | 否 | 可选，默认 `https://asset.doooit.me` |
 
-图会上传到 `posts/<slug>/<blockId>.<ext>`，正文写成 WebP Cloud：`https://d28ebb3.webp.li/posts/<slug>/...`。禁止热链 `notion.so`。读看听玩封面走同一域名的 `library/<pageId>.<ext>`，存的 URL 不带尺寸；页面渲染时再加 `max_width` 和 `quality=60`，见 [docs/library.md](./library.md)。原点常量在 `src/utils/assets.ts`（`WEBP_CLOUD_ORIGIN`）。
+图会上传到 `posts/<slug>/<blockId>.<ext>`，正文写成 WebP Cloud：`https://d28ebb3.webp.li/posts/<slug>/...`。禁止热链 `notion.so`。读看听玩封面走同一域名的 `library/<pageId>.<ext>`，存的 URL 不带尺寸；页面渲染时再加 `max_width` 和 `quality=60`，见 [docs/library.md](./library.md)。长文 MDX / Markdown 存的也是不带 query 的 proxy 地址，`CaptionImage` 和 rehype 在渲染时加上 `width=640/960/1280`（灯箱 1280），**不要**把 `data-src` 指回 `asset.doooit.me`。原点常量在 `src/utils/assets.ts`（`WEBP_CLOUD_ORIGIN`）。转存 R2 时长边超过 1600 会先压一档，避免 origin 十几 MB。
 
 没有 R2 时：文本仍发布，Notion 托管的图会被跳过（构建警告）。不要把过期的 Notion 文件 URL 写进 HTML。
 
@@ -80,6 +80,17 @@ Slug 和 git 文章撞车时 **git 优先**，Notion 那篇会被跳过并打构
 ### 2. R2
 
 用现有 `asset.doooit.me` bucket。在 Cloudflare R2 管里创建一个 **Object Read & Write** 的 API token，填 `R2_*`。WebP Cloud 已指向该 bucket 的话，新 key `posts/...` 会自动出 WebP。
+
+已在 R2 里的 `gallery/DSC_*.jpg` 相机原图（十几 MB）代码改不到。部署后在 Dashboard 外预热带 `width` 的 URL，例如：
+
+```bash
+curl -fsSL -A Mozilla https://blog.doooit.me/posts/wakayama-travel/ \
+  | grep -oE 'https://d28ebb3\.webp\.li/[^"[:space:]]+' \
+  | sort -u \
+  | xargs -n 1 -P 2 -I{} curl -fsSL -o /dev/null --retry 2 --retry-delay 2 -A post-preheat {} || true
+```
+
+不要预热不带 `width` 的原图，那会把免费 200MiB 缓存打满。
 
 ### 3. Deploy Hook（和 `/bb` 同一条）
 

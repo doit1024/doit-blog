@@ -4,6 +4,7 @@ import sitemap from "@astrojs/sitemap";
 import remarkToc from "remark-toc";
 import remarkCollapse from "remark-collapse";
 import rehypeFigureTitle from "rehype-figure-title";
+import { rehypeWebpImages } from "./src/utils/rehype-webp-images";
 import {
   transformerNotationDiff,
   transformerNotationHighlight,
@@ -42,7 +43,10 @@ export default defineConfig({
       remarkToc,
       [remarkCollapse, { test: "Table of contents", summary: "打开目录" }],
     ],
-    rehypePlugins: [[rehypeFigureTitle, { className: "figure-image" }]],
+    rehypePlugins: [
+      [rehypeFigureTitle, { className: "figure-image" }],
+      rehypeWebpImages,
+    ],
     shikiConfig: {
       // For more themes, visit https://shiki.style/themes
       themes: { light: "github-light", dark: "dark-plus" },
@@ -85,6 +89,7 @@ export default defineConfig({
         "worker_threads",
         "module",
         "node:fs/promises",
+        "sharp",
       ],
     },
   },

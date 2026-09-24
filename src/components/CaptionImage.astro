@@ -4,21 +4,47 @@ import {
   type LocalImageProps,
   type RemoteImageProps,
 } from "astro:assets";
-import { getOriginImage } from "@/utils/assets";
+import { postImageAttrs } from "@/utils/assets";
 
 export interface Props {
   imageProps: LocalImageProps | RemoteImageProps;
   caption: string;
   class?: string;
+  /** First in-article photo. The rest stay lazy. */
+  eager?: boolean;
 }
 
-const { imageProps, caption, class: className = "" } = Astro.props;
+const {
+  imageProps,
+  caption,
+  class: className = "",
+  eager = false,
+} = Astro.props;
+const rawSrc = imageProps.src;
+const isRemote = typeof rawSrc === "string";
+const remote = isRemote ? postImageAttrs(rawSrc) : null;
+const width = Number(imageProps.width) || undefined;
+const height = Number(imageProps.height) || undefined;
+const alt = imageProps.alt ?? "";
 ---
 
-<figure
-  class:list={["figure-image", className]}
-  data-src={getOriginImage(imageProps.src as string)}
->
-  <Image {...imageProps} />
+<figure class:list={["figure-image", className]} data-src={remote?.lightboxSrc}>
+  {
+    remote ? (
+      <img
+        src={remote.src}
+        srcset={remote.srcset}
+        sizes={remote.sizes}
+        alt={alt}
+        width={width}
+        height={height}
+        loading={eager ? "eager" : "lazy"}
+        decoding="async"
+        fetchpriority={eager ? "high" : "auto"}
+      />
+    ) : (
+      <Image {...imageProps} />
+    )
+  }
   {caption && <figcaption>▲{caption}</figcaption>}
 </figure>

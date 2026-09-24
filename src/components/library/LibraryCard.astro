@@ -1,5 +1,6 @@
 ---
 import {
+  LIBRARY_COVER_SIZES,
   LIBRARY_COVER_THUMB_MAX_WIDTH,
   libraryCoverBox,
   libraryThumbCover,
@@ -48,6 +49,7 @@ const thumbBox = libraryCoverBox(LIBRARY_COVER_THUMB_MAX_WIDTH);
             alt=""
             width={thumbBox.width}
             height={thumbBox.height}
+            sizes={LIBRARY_COVER_SIZES}
             loading={eager ? "eager" : "lazy"}
             decoding="async"
             fetchpriority={fetchPriority}

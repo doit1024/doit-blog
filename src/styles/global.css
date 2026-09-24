@@ -91,6 +91,10 @@ body {
   scroll-margin-block: 1rem;
 }
 
+.figure-image img {
+  @apply mx-auto h-auto w-full;
+}
+
 .figure-image figcaption {
   @apply text-center;
 }

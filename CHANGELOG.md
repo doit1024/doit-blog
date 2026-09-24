@@ -19,6 +19,7 @@
 
 ### 修复
 
+- **images**：修复库页裂图和文章慢加载（[#39](https://github.com/doit1024/doit-blog/pull/39)）
 - **library**：把类型「电视剧」改名为「剧集」（[#37](https://github.com/doit1024/doit-blog/pull/37)）
 - **library**：把 /library 收回到和其他页面一样的内容宽度（[#33](https://github.com/doit1024/doit-blog/pull/33)）
 - **站点**：文章详情页「返回」图标与文字用 `inline-flex` + `items-center` 垂直对齐（并略做光学对齐），不改版面（[#29](https://github.com/doit1024/doit-blog/pull/29)）
