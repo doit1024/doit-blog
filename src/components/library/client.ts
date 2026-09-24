@@ -1,4 +1,11 @@
 import {
+  LIBRARY_COVER_MODAL_MAX_WIDTH,
+  LIBRARY_COVER_THUMB_MAX_WIDTH,
+  libraryCoverBox,
+  libraryModalCover,
+  libraryThumbCover,
+} from "@/components/library/covers";
+import {
   entryMatches,
   LIBRARY_PAGE_SIZE,
   type LibraryEntry,
@@ -31,10 +38,36 @@ function readPayload(root: HTMLElement): Payload | null {
   }
 }
 
-function bindImage(img: HTMLImageElement) {
+function bindImage(img: HTMLImageElement, fallbackSrc?: string) {
   const mark = () => img.closest("[data-poster]")?.classList.add("is-text");
-  img.addEventListener("error", mark);
-  if (img.complete && img.naturalWidth === 0) mark();
+  const useFallback = () => {
+    if (!fallbackSrc || img.dataset.coverFallback === "1") return false;
+    if (img.src === fallbackSrc) return false;
+    img.dataset.coverFallback = "1";
+    img.src = fallbackSrc;
+    return true;
+  };
+  img.addEventListener("error", () => {
+    if (useFallback()) return;
+    mark();
+  });
+  if (img.complete && img.naturalWidth === 0 && !useFallback()) mark();
+}
+
+function paintCover(
+  img: HTMLImageElement,
+  src: string,
+  maxWidth: number,
+  fallbackSrc?: string
+) {
+  const box = libraryCoverBox(maxWidth);
+  img.src = src;
+  img.alt = "";
+  img.width = box.width;
+  img.height = box.height;
+  img.decoding = "async";
+  img.referrerPolicy = "no-referrer";
+  bindImage(img, fallbackSrc);
 }
 
 function createCard(entry: LibraryEntry): HTMLLIElement {
@@ -61,12 +94,12 @@ function createCard(entry: LibraryEntry): HTMLLIElement {
 
   if (entry.cover) {
     const img = document.createElement("img");
-    img.src = entry.cover;
-    img.alt = "";
     img.loading = "lazy";
-    img.decoding = "async";
-    img.referrerPolicy = "no-referrer";
-    bindImage(img);
+    paintCover(
+      img,
+      libraryThumbCover(entry.cover),
+      LIBRARY_COVER_THUMB_MAX_WIDTH
+    );
     poster.append(img);
   }
 
@@ -234,11 +267,14 @@ function renderPoster(poster: HTMLElement, fields: DialogFields) {
   poster.replaceChildren();
   if (fields.cover) {
     const img = document.createElement("img");
-    img.src = fields.cover;
-    img.alt = "";
-    img.decoding = "async";
-    img.referrerPolicy = "no-referrer";
-    bindImage(img);
+    const src = libraryModalCover(fields.cover);
+    const thumb = libraryThumbCover(fields.cover);
+    paintCover(
+      img,
+      src,
+      LIBRARY_COVER_MODAL_MAX_WIDTH,
+      src === thumb ? undefined : thumb
+    );
     poster.append(img);
   }
   const fallback = document.createElement("p");
