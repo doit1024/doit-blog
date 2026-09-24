@@ -91,6 +91,14 @@ async function resolveCover(
   }
 }
 
+function optionalString(value: unknown): string | null {
+  return typeof value === "string" && value.trim() ? value : null;
+}
+
+function optionalRating(value: unknown): number | null {
+  return typeof value === "number" && Number.isFinite(value) ? value : null;
+}
+
 function isMediaItem(value: unknown): value is MediaItem {
   if (!value || typeof value !== "object") return false;
   const item = value as Partial<MediaItem>;
@@ -115,6 +123,8 @@ function loadPreview(
       cover: item.cover ?? null,
       url: item.url ?? null,
       note: item.note ?? null,
+      rating: optionalRating(item.rating),
+      created: optionalString(item.created),
     }));
     items.sort(compareMedia);
     logger.info(

@@ -20,6 +20,10 @@ export type MediaItem = {
   cover: string | null;
   url: string | null;
   note: string | null;
+  /** Notion「评分」. Absent when the property is empty. */
+  rating: number | null;
+  /** Notion page created_time. */
+  created: string | null;
 };
 
 export function yearFromDate(value: string | null | undefined): string | null {

@@ -94,6 +94,54 @@ const payloadJson = safeJson({
               data-library-payload
               set:html={payloadJson}
             />
+            <dialog
+              class="library-dialog"
+              data-library-dialog
+              aria-modal="true"
+              aria-labelledby="library-dialog-title"
+              tabindex="-1"
+            >
+              <div class="library-dialog-sheet">
+                <button
+                  type="button"
+                  class="library-dialog-close"
+                  data-library-dialog-close
+                >
+                  关闭
+                </button>
+                <div class="library-dialog-layout">
+                  <div
+                    class="poster library-dialog-poster"
+                    data-dialog-poster
+                    data-poster
+                  ></div>
+                  <div class="library-dialog-copy">
+                    <h2 id="library-dialog-title" data-dialog-title />
+                    <p class="library-dialog-meta" data-dialog-meta hidden />
+                    <p class="library-dialog-rating" data-dialog-rating hidden>
+                      <span class="library-dialog-kicker">评分</span>
+                      <strong data-dialog-rating-value />
+                    </p>
+                    <p class="library-dialog-note" data-dialog-note />
+                    <a
+                      class="library-dialog-link"
+                      data-dialog-link
+                      hidden
+                      target="_blank"
+                      rel="noopener noreferrer"
+                    />
+                    <p
+                      class="library-dialog-created"
+                      data-dialog-created
+                      hidden
+                    >
+                      创建于
+                      <time data-dialog-created-value />
+                    </p>
+                  </div>
+                </div>
+              </div>
+            </dialog>
           </div>
         )
       }

@@ -36,6 +36,8 @@ const media = defineCollection({
     cover: z.string().nullable(),
     url: z.string().nullable(),
     note: z.string().nullable(),
+    rating: z.number().nullable().default(null),
+    created: z.string().nullable().default(null),
   }),
 });
 

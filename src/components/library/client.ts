@@ -42,18 +42,18 @@ function createCard(entry: LibraryEntry): HTMLLIElement {
   li.dataset.type = entry.type;
   li.dataset.dropped = entry.dropped ? "1" : "0";
 
-  const label = entry.meta ? `${entry.title}，${entry.meta}` : entry.title;
-  const card = entry.url
-    ? document.createElement("a")
-    : document.createElement("div");
+  const card = document.createElement("button");
+  card.type = "button";
   card.className = "library-card";
-  if (entry.note) card.title = entry.note;
-  if (card instanceof HTMLAnchorElement && entry.url) {
-    card.href = entry.url;
-    card.target = "_blank";
-    card.rel = "noopener noreferrer";
-    card.setAttribute("aria-label", label);
-  }
+  card.dataset.libraryOpen = "";
+  card.dataset.mediaId = entry.id;
+  card.dataset.title = entry.title;
+  card.dataset.meta = entry.meta;
+  card.dataset.cover = entry.cover ?? "";
+  card.dataset.url = entry.url ?? "";
+  card.dataset.note = entry.note;
+  card.dataset.rating = entry.rating == null ? "" : String(entry.rating);
+  card.dataset.created = entry.created ?? "";
 
   const poster = document.createElement("div");
   poster.className = "poster";
@@ -90,8 +90,241 @@ function createCard(entry: LibraryEntry): HTMLLIElement {
     card.append(meta);
   }
 
+  const action = document.createElement("span");
+  action.className = "library-card-action";
+  action.textContent = "查看详情";
+  card.append(action);
+
   li.append(card);
   return li;
+}
+
+type DialogFields = {
+  title: string;
+  meta: string;
+  cover: string | null;
+  url: string | null;
+  note: string;
+  rating: number | null;
+  created: string | null;
+};
+
+function readRating(raw: string | undefined): number | null {
+  if (!raw) return null;
+  const value = Number(raw);
+  return Number.isFinite(value) ? value : null;
+}
+
+function safeHttpUrl(value: string | null | undefined): string | null {
+  if (!value) return null;
+  try {
+    const url = new URL(value);
+    if (url.protocol !== "http:" && url.protocol !== "https:") return null;
+    return url.href;
+  } catch {
+    return null;
+  }
+}
+
+function safeCover(value: string | null | undefined): string | null {
+  if (!value) return null;
+  if (value.startsWith("/")) return value;
+  return safeHttpUrl(value);
+}
+
+function fieldsFromTrigger(trigger: HTMLElement): DialogFields {
+  return {
+    title: trigger.dataset.title ?? "",
+    meta: trigger.dataset.meta ?? "",
+    cover: safeCover(trigger.dataset.cover),
+    url: safeHttpUrl(trigger.dataset.url),
+    note: trigger.dataset.note ?? "",
+    rating: readRating(trigger.dataset.rating),
+    created: trigger.dataset.created?.trim() || null,
+  };
+}
+
+function formatRating(value: number): string {
+  return String(value);
+}
+
+function formatCreated(value: string): string | null {
+  const date = new Date(value);
+  if (Number.isNaN(date.getTime())) return null;
+  const hasTime = /T\d{2}:\d{2}/.test(value);
+  return new Intl.DateTimeFormat("zh-CN", {
+    timeZone: "Asia/Shanghai",
+    year: "numeric",
+    month: "long",
+    day: "numeric",
+    ...(hasTime
+      ? {
+          hour: "2-digit" as const,
+          minute: "2-digit" as const,
+          hourCycle: "h23" as const,
+        }
+      : {}),
+  }).format(date);
+}
+
+function linkLabel(url: string): string {
+  try {
+    if (new URL(url).hostname.endsWith("douban.com")) return "在豆瓣查看";
+  } catch {
+    /* keep the generic label */
+  }
+  return "打开链接";
+}
+
+function focusableIn(dialog: HTMLElement): HTMLElement[] {
+  return [
+    ...dialog.querySelectorAll<HTMLElement>(
+      "a[href], button:not([disabled]), input, textarea, select, [tabindex]"
+    ),
+  ].filter(el => el.tabIndex >= 0 && !el.closest("[hidden]"));
+}
+
+function renderPoster(poster: HTMLElement, fields: DialogFields) {
+  poster.classList.remove("is-text");
+  poster.replaceChildren();
+  if (fields.cover) {
+    const img = document.createElement("img");
+    img.src = fields.cover;
+    img.alt = "";
+    img.decoding = "async";
+    img.referrerPolicy = "no-referrer";
+    bindImage(img);
+    poster.append(img);
+  }
+  const fallback = document.createElement("p");
+  fallback.className = "fallback";
+  fallback.setAttribute("aria-hidden", "true");
+  const span = document.createElement("span");
+  span.textContent = fields.title;
+  fallback.append(span);
+  poster.append(fallback);
+}
+
+function bindModal(root: HTMLElement) {
+  if (root.dataset.modal === "1") return;
+  const dialog = root.querySelector<HTMLDialogElement>(
+    "dialog[data-library-dialog]"
+  );
+  if (!dialog) return;
+  root.dataset.modal = "1";
+
+  const title = dialog.querySelector<HTMLElement>("[data-dialog-title]");
+  const meta = dialog.querySelector<HTMLElement>("[data-dialog-meta]");
+  const rating = dialog.querySelector<HTMLElement>("[data-dialog-rating]");
+  const ratingValue = dialog.querySelector<HTMLElement>(
+    "[data-dialog-rating-value]"
+  );
+  const note = dialog.querySelector<HTMLElement>("[data-dialog-note]");
+  const link = dialog.querySelector<HTMLAnchorElement>("[data-dialog-link]");
+  const created = dialog.querySelector<HTMLElement>("[data-dialog-created]");
+  const createdValue = dialog.querySelector<HTMLTimeElement>(
+    "[data-dialog-created-value]"
+  );
+  const poster = dialog.querySelector<HTMLElement>("[data-dialog-poster]");
+  const closeButton = dialog.querySelector<HTMLButtonElement>(
+    "[data-library-dialog-close]"
+  );
+
+  let lastFocus: HTMLElement | null = null;
+
+  const fill = (fields: DialogFields) => {
+    if (title) title.textContent = fields.title;
+    if (meta) {
+      meta.textContent = fields.meta;
+      meta.hidden = !fields.meta;
+    }
+    if (rating && ratingValue) {
+      const text = fields.rating == null ? "" : formatRating(fields.rating);
+      ratingValue.textContent = text;
+      rating.hidden = text === "";
+    }
+    if (note) {
+      const text = fields.note.trim();
+      note.textContent = text || "还没有短评。";
+      note.classList.toggle("is-empty", !text);
+    }
+    if (link) {
+      if (fields.url) {
+        link.href = fields.url;
+        link.textContent = linkLabel(fields.url);
+        link.hidden = false;
+      } else {
+        link.hidden = true;
+        link.removeAttribute("href");
+        link.textContent = "";
+      }
+    }
+    if (created && createdValue) {
+      const text = fields.created ? formatCreated(fields.created) : null;
+      if (text && fields.created) {
+        createdValue.textContent = text;
+        createdValue.dateTime = fields.created;
+        created.hidden = false;
+      } else {
+        created.hidden = true;
+        createdValue.textContent = "";
+        createdValue.removeAttribute("datetime");
+      }
+    }
+    if (poster) renderPoster(poster, fields);
+  };
+
+  const open = (trigger: HTMLElement) => {
+    fill(fieldsFromTrigger(trigger));
+    lastFocus = trigger;
+    if (!dialog.open) dialog.showModal();
+    dialog.focus({ preventScroll: true });
+  };
+
+  root.addEventListener("click", event => {
+    const target = event.target;
+    if (!(target instanceof Element)) return;
+    const trigger = target.closest<HTMLElement>("[data-library-open]");
+    if (!trigger || !root.contains(trigger)) return;
+    open(trigger);
+  });
+
+  closeButton?.addEventListener("click", () => dialog.close());
+
+  dialog.addEventListener("click", event => {
+    if (event.target === dialog) dialog.close();
+  });
+
+  dialog.addEventListener("close", () => {
+    const back = lastFocus;
+    lastFocus = null;
+    if (back?.isConnected) back.focus({ preventScroll: true });
+  });
+
+  dialog.addEventListener("keydown", event => {
+    if (event.key !== "Tab") return;
+    const items = focusableIn(dialog);
+    if (items.length === 0) {
+      event.preventDefault();
+      dialog.focus({ preventScroll: true });
+      return;
+    }
+    const first = items[0];
+    const last = items[items.length - 1];
+    const active = document.activeElement;
+    const outside = !(active instanceof Node) || !dialog.contains(active);
+    if (event.shiftKey) {
+      if (outside || active === first || active === dialog) {
+        event.preventDefault();
+        last.focus();
+      }
+      return;
+    }
+    if (outside || active === last || active === dialog) {
+      event.preventDefault();
+      first.focus();
+    }
+  });
 }
 
 function bindDomOnly(root: HTMLElement) {
@@ -140,6 +373,7 @@ export function bootLibrary() {
   const root = document.querySelector<HTMLElement>("[data-library]");
   if (!root || root.dataset.bound === "1") return;
   root.dataset.bound = "1";
+  bindModal(root);
 
   const grid = root.querySelector<HTMLElement>("[data-library-grid]");
   const payload = readPayload(root);

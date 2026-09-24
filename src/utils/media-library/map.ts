@@ -21,6 +21,17 @@ function plain(property: NotionProperty | undefined): string {
   return "";
 }
 
+function ratingOf(property: NotionProperty | undefined): number | null {
+  const value = property?.number;
+  if (typeof value !== "number" || !Number.isFinite(value)) return null;
+  return value;
+}
+
+function createdOf(page: NotionPage): string | null {
+  const value = page.created_time?.trim();
+  return value || null;
+}
+
 function titleOf(page: NotionPage): string {
   const named = plain(prop(page, "标题"));
   if (named) return named;
@@ -55,6 +66,8 @@ export function pageToMediaItem(
   const date = prop(page, "日期")?.date?.start ?? null;
   const url = prop(page, "链接")?.url?.trim() || null;
   const note = plain(prop(page, "短评")) || null;
+  const rating = ratingOf(prop(page, "评分"));
+  const created = createdOf(page);
 
   return {
     id: page.id,
@@ -67,5 +80,7 @@ export function pageToMediaItem(
     cover,
     url,
     note,
+    rating,
+    created,
   };
 }
