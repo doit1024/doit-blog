@@ -1,4 +1,9 @@
-import { metaLine, type MediaItem } from "@/utils/media-library/types";
+import {
+  canonicalMediaType,
+  mediaTypesMatch,
+  metaLine,
+  type MediaItem,
+} from "@/utils/media-library/types";
 
 export const LIBRARY_PAGE_SIZE = 30;
 
@@ -15,21 +20,22 @@ export type LibraryEntry = {
 };
 
 export function toLibraryEntry(item: MediaItem): LibraryEntry {
+  const type = canonicalMediaType(item.type);
   return {
     id: item.id,
     title: item.title,
-    type: item.type ?? "",
+    type: type ?? "",
     cover: item.cover,
     url: item.url,
     note: item.note ?? "",
-    meta: metaLine(item.type, item.year),
+    meta: metaLine(type, item.year),
     rating: item.rating,
     created: item.created,
   };
 }
 
 export function entryMatches(entry: LibraryEntry, filter: string): boolean {
-  return filter === "all" || entry.type === filter;
+  return filter === "all" || mediaTypesMatch(entry.type, filter);
 }
 
 export function safeJson(value: unknown): string {

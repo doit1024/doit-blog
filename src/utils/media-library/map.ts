@@ -6,7 +6,7 @@ import type {
   NotionProperty,
 } from "@/utils/notion-posts/types";
 
-import { yearFromDate, type MediaItem } from "./types";
+import { canonicalMediaType, yearFromDate, type MediaItem } from "./types";
 
 function prop(page: NotionPage, name: string): NotionProperty | undefined {
   return page.properties?.[name];
@@ -61,7 +61,7 @@ export function pageToMediaItem(
   const title = titleOf(page);
   if (!title) return null;
 
-  const type = prop(page, "类型")?.select?.name?.trim() || null;
+  const type = canonicalMediaType(prop(page, "类型")?.select?.name);
   const status = prop(page, "状态")?.select?.name?.trim() || null;
   const date = prop(page, "日期")?.date?.start ?? null;
   const url = prop(page, "链接")?.url?.trim() || null;

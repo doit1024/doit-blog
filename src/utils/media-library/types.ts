@@ -1,11 +1,32 @@
 export const MEDIA_TYPES = [
   "书",
   "电影",
-  "电视剧",
+  "剧集",
   "综艺",
   "音乐",
   "游戏",
 ] as const;
+
+/** Notion 选项已从「电视剧」改名为「剧集」。旧行和预览 JSON 仍可能写旧名。 */
+const MEDIA_TYPE_ALIASES: Record<string, (typeof MEDIA_TYPES)[number]> = {
+  电视剧: "剧集",
+};
+
+export function canonicalMediaType(
+  type: string | null | undefined
+): string | null {
+  if (type == null) return null;
+  const trimmed = type.trim();
+  if (!trimmed) return null;
+  return MEDIA_TYPE_ALIASES[trimmed] ?? trimmed;
+}
+
+export function mediaTypesMatch(
+  itemType: string | null | undefined,
+  filter: string
+): boolean {
+  return (canonicalMediaType(itemType) ?? "") === filter;
+}
 
 export type MediaItem = {
   id: string;

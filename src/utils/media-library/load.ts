@@ -20,7 +20,7 @@ import {
 import type { NotionFile } from "@/utils/notion-posts/types";
 
 import { coverFileOf, pageToMediaItem } from "./map";
-import { compareMedia, type MediaItem } from "./types";
+import { canonicalMediaType, compareMedia, type MediaItem } from "./types";
 
 export type MediaLogger = {
   info: (message: string) => void;
@@ -115,7 +115,7 @@ function loadPreview(
     const items = raw.filter(isMediaItem).map(item => ({
       id: item.id,
       title: item.title,
-      type: item.type ?? null,
+      type: canonicalMediaType(item.type),
       year: item.year ?? null,
       date: item.date ?? null,
       status: item.status ?? null,

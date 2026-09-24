@@ -11,6 +11,7 @@ import {
   type LibraryEntry,
 } from "@/components/library/entries";
 import { STAR_TOTAL, starDisplay } from "@/components/library/stars";
+import { mediaTypesMatch } from "@/utils/media-library/types";
 
 type Payload = {
   pageSize: number;
@@ -436,7 +437,7 @@ function bindDomOnly(root: HTMLElement) {
     let visible = 0;
     for (const card of cards) {
       const type = card.dataset.type ?? "";
-      const show = filter === "all" || type === filter;
+      const show = filter === "all" || mediaTypesMatch(type, filter);
       card.hidden = !show;
       if (show) visible += 1;
     }
