@@ -1,12 +1,22 @@
 ---
+import {
+  LIBRARY_COVER_THUMB_MAX_WIDTH,
+  libraryCoverBox,
+  libraryThumbCover,
+} from "@/components/library/covers";
 import { metaLine, type MediaItem } from "@/utils/media-library/types";
 
 interface Props {
   item: MediaItem;
+  /** First row of the initial paint. The rest stay lazy. */
+  eager?: boolean;
+  fetchPriority?: "high" | "low" | "auto";
 }
 
-const { item } = Astro.props;
+const { item, eager = false, fetchPriority } = Astro.props;
 const meta = metaLine(item.type, item.year);
+const thumb = item.cover ? libraryThumbCover(item.cover) : null;
+const thumbBox = libraryCoverBox(LIBRARY_COVER_THUMB_MAX_WIDTH);
 ---
 
 <li data-media-card data-type={item.type ?? ""}>
@@ -25,12 +35,15 @@ const meta = metaLine(item.type, item.year);
   >
     <div class="poster" data-poster>
       {
-        item.cover && (
+        thumb && (
           <img
-            src={item.cover}
+            src={thumb}
             alt=""
-            loading="lazy"
+            width={thumbBox.width}
+            height={thumbBox.height}
+            loading={eager ? "eager" : "lazy"}
             decoding="async"
+            fetchpriority={fetchPriority}
             referrerpolicy="no-referrer"
           />
         )

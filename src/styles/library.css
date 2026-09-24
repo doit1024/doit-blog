@@ -50,6 +50,8 @@ html:has(.library) body {
   box-shadow: inset 0 -2px 0 var(--accent);
 }
 
+/* Column width tops out near 11rem inside max-w-3xl.
+   Thumb requests are ~2× that: LIBRARY_COVER_THUMB_MAX_WIDTH. */
 .library-grid {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(6.6rem, 1fr));
@@ -292,6 +294,7 @@ html:has(.library) body {
   align-items: start;
 }
 
+/* 7.5rem here, 11.25rem from 40rem. Request is LIBRARY_COVER_MODAL_MAX_WIDTH. */
 .library-dialog-poster {
   width: 7.5rem;
   justify-self: start;

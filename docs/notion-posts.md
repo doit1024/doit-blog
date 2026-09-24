@@ -55,7 +55,7 @@ Slug 和 git 文章撞车时 **git 优先**，Notion 那篇会被跳过并打构
 | `R2_BUCKET_NAME` | 否 | 现有站点图床 bucket（`asset.doooit.me` 背后那个） |
 | `R2_PUBLIC_BASE` | 否 | 可选，默认 `https://asset.doooit.me` |
 
-图会上传到 `posts/<slug>/<blockId>.<ext>`，正文写成 WebP Cloud：`https://d28ebb3.webp.li/posts/<slug>/...`。禁止热链 `notion.so`。
+图会上传到 `posts/<slug>/<blockId>.<ext>`，正文写成 WebP Cloud：`https://d28ebb3.webp.li/posts/<slug>/...`。禁止热链 `notion.so`。读看听玩封面走同一域名的 `library/<pageId>.<ext>`，存的 URL 不带尺寸；页面渲染时再加 `max_width`，见 [docs/library.md](./library.md)。原点常量在 `src/utils/assets.ts`（`WEBP_CLOUD_ORIGIN`）。
 
 没有 R2 时：文本仍发布，Notion 托管的图会被跳过（构建警告）。不要把过期的 Notion 文件 URL 写进 HTML。
 

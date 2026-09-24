@@ -68,8 +68,12 @@ const payloadJson = safeJson({
         ) : (
           <div data-library>
             <ul class="library-grid" data-library-grid>
-              {initial.map(item => (
-                <LibraryCard item={item} />
+              {initial.map((item, index) => (
+                <LibraryCard
+                  item={item}
+                  eager={index < 4}
+                  fetchPriority={index === 0 ? "high" : undefined}
+                />
               ))}
             </ul>
             <button
