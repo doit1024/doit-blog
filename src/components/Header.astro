@@ -198,8 +198,13 @@ const isMoreActive = moreLinks.some(link => isActive(link.href));
 </style>
 
 <script>
+  function queryButton(selector: string) {
+    const el = document.querySelector(selector);
+    return el instanceof HTMLButtonElement ? el : null;
+  }
+
   function closeMoreMenu(restoreFocus = false) {
-    const moreBtn = document.querySelector("#more-btn");
+    const moreBtn = queryButton("#more-btn");
     const moreMenu = document.querySelector("#more-menu");
     if (!moreBtn || !moreMenu) return;
 
@@ -211,7 +216,7 @@ const isMoreActive = moreLinks.some(link => isActive(link.href));
   }
 
   function openMoreMenu() {
-    const moreBtn = document.querySelector("#more-btn");
+    const moreBtn = queryButton("#more-btn");
     const moreMenu = document.querySelector("#more-menu");
     if (!moreBtn || !moreMenu) return;
 
@@ -221,7 +226,7 @@ const isMoreActive = moreLinks.some(link => isActive(link.href));
   }
 
   function toggleNav() {
-    const menuBtn = document.querySelector("#menu-btn");
+    const menuBtn = queryButton("#menu-btn");
     const menuItems = document.querySelector("#menu-items");
     const menuIcon = document.querySelector("#menu-icon");
     const closeIcon = document.querySelector("#close-icon");
@@ -245,13 +250,16 @@ const isMoreActive = moreLinks.some(link => isActive(link.href));
 
   function bindMoreMenu() {
     const moreNav = document.querySelector("#more-nav");
-    const moreBtn = document.querySelector("#more-btn");
+    const moreBtn = queryButton("#more-btn");
     const moreMenu = document.querySelector("#more-menu");
     if (!moreNav || !moreBtn || !moreMenu) return;
     if (moreBtn.dataset.bound === "true") return;
     moreBtn.dataset.bound = "true";
 
-    const items = () => [...moreMenu.querySelectorAll("a")];
+    const items = () =>
+      [...moreMenu.querySelectorAll("a")].filter(
+        (link): link is HTMLAnchorElement => link instanceof HTMLAnchorElement
+      );
 
     moreBtn.addEventListener("click", () => {
       const open = moreBtn.getAttribute("aria-expanded") === "true";
@@ -275,13 +283,15 @@ const isMoreActive = moreLinks.some(link => isActive(link.href));
           return;
         }
 
-        const index = links.indexOf(document.activeElement);
+        const active = document.activeElement;
+        const index =
+          active instanceof HTMLAnchorElement ? links.indexOf(active) : -1;
         if (event.key === "ArrowDown") {
-          links[(index + 1) % links.length].focus();
+          links[(index + 1) % links.length]?.focus();
           return;
         }
         if (index <= 0) moreBtn.focus();
-        else links[index - 1].focus();
+        else links[index - 1]?.focus();
       }
     });
 

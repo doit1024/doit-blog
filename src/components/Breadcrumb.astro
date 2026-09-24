@@ -5,7 +5,9 @@ const titlePathMap: Record<string, string> = {
   about: "关于",
   archives: "归档",
 };
-const pathTitleMap = Object.fromEntries(Object.entries(titlePathMap).map(([key, value]) => [value, key]))
+const pathTitleMap = Object.fromEntries(
+  Object.entries(titlePathMap).map(([key, value]) => [value, key])
+);
 // Remove current url path and remove trailing slash if exists
 const currentUrlPath = Astro.url.pathname.replace(/\/+$/, "");
 
@@ -21,19 +23,13 @@ if (titlePathMap[breadcrumbList[0]]) {
 // if breadcrumb is Home > Posts > 1 <etc>
 // replace Posts with Posts (page number)
 if (breadcrumbList[0] === "文章" && !isNaN(Number(breadcrumbList[1]))) {
-  breadcrumbList.splice(
-    1,
-    1,
-  );
+  breadcrumbList.splice(1, 1);
 }
 
 // if breadcrumb is Home > Tags > [tag] > [page] <etc>
 // replace [tag] > [page] with [tag] (page number)
 if (breadcrumbList[0] === "标签" && !isNaN(Number(breadcrumbList[2]))) {
-  breadcrumbList.splice(
-    2,
-    1,
-  );
+  breadcrumbList.splice(2, 1);
 }
 ---
 
@@ -59,7 +55,10 @@ if (breadcrumbList[0] === "标签" && !isNaN(Number(breadcrumbList[2]))) {
           </li>
         ) : (
           <li>
-            <a href={`/${pathTitleMap[breadcrumb]}/`} class="capitalize opacity-70">
+            <a
+              href={`/${pathTitleMap[breadcrumb]}/`}
+              class="capitalize opacity-70"
+            >
               {breadcrumb}
             </a>
             <span aria-hidden="true">&raquo;</span>

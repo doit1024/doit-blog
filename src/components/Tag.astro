@@ -19,8 +19,11 @@ const { tag, tagName, size = "sm" } = Astro.props;
     href={`/tags/${tag}/`}
     transition:name={tag}
     class:list={[
-      "block pe-2 group-hover:text-accent focus-visible:p-1 ",
-      { "text-sm group-hover:-translate-y-0.5": size === "sm", "text-lg group-hover:-translate-y-1": size === "lg" },
+      "block pe-2 group-hover:text-accent focus-visible:p-1",
+      {
+        "text-sm group-hover:-translate-y-0.5": size === "sm",
+        "text-lg group-hover:-translate-y-1": size === "lg",
+      },
     ]}
   >
     # {tagName}

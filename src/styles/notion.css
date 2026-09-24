@@ -1,5 +1,5 @@
 @reference "@/styles/global.css";
-@import 'react-notion-x/src/styles.css';
+@import "react-notion-x/src/styles.css";
 
 .notion-page {
   padding: 0;

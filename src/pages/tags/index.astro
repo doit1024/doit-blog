@@ -15,7 +15,10 @@ let tags = getUniqueTags(posts);
 
 <Layout title={`标签 | ${SITE.title}`}>
   <Header />
-  <Main pageTitle="标签" pageDesc={`文章中使用到的标签，共 ${tags.length} 个。`}>
+  <Main
+    pageTitle="标签"
+    pageDesc={`文章中使用到的标签，共 ${tags.length} 个。`}
+  >
     <ul>
       {tags.map(({ tag, tagName }) => <Tag {tag} {tagName} size="lg" />)}
     </ul>
