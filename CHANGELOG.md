@@ -2,7 +2,7 @@
 
 记录本站（doit-blog）的产品改动。
 
-## 最新（2026-09-23）
+## 最新（2026-09-24）
 
 ### 变更
 
@@ -31,6 +31,7 @@
 
 ### 新增
 
+- **页头**：把标签、日志、归档收进「更多」（[#35](https://github.com/doit1024/doit-blog/pull/35)）
 - **读看听玩 `/library`**：构建时用官方 Notion API 拉取私有库「读看听玩」，浅色 2:3 海报墙，类型可在页内筛选。约定见 [docs/library.md](docs/library.md)
 - **首页**：小熊开场轻转轻浮提示可拖，第一次拖过后停掉（[#30](https://github.com/doit1024/doit-blog/pull/30)）
 - **更新日志**：打开 PR 时自动把主要改动写入 CHANGELOG 并提交回分支（[#28](https://github.com/doit1024/doit-blog/pull/28)）
