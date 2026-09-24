@@ -57,12 +57,12 @@
 
 ### 封面尺寸（WebP Cloud）
 
-网格一次要拉很多张 2:3 海报。原图常常是一千多像素宽，直接用存储地址会下完整张优化图。渲染时只给 `https://d28ebb3.webp.li/...` 加上 [`max_width`](https://docs.webp.se/webp-cloud/feature/)（`src/utils/assets.ts` 的 `withWebpCloudMaxWidth`）。外链不加参数。
+网格一次要拉很多张 2:3 海报。原图常常是一千多像素宽，直接用存储地址会下完整张优化图。渲染时只给 `https://d28ebb3.webp.li/...` 加上 [`max_width`](https://docs.webp.se/webp-cloud/feature/) 和 `quality=60`（`src/utils/assets.ts` 的 `withWebpCloudMaxWidth`）。外链不加参数。
 
 | 用途 | 参数 | 常量 |
 | --- | --- | --- |
-| 网格缩略图 | `?max_width=360` | `LIBRARY_COVER_THUMB_MAX_WIDTH` |
-| 详情弹层 | `?max_width=540` | `LIBRARY_COVER_MODAL_MAX_WIDTH` |
+| 网格缩略图 | `?max_width=360&quality=60` | `LIBRARY_COVER_THUMB_MAX_WIDTH`，`LIBRARY_COVER_QUALITY` |
+| 详情弹层 | `?max_width=540&quality=60` | `LIBRARY_COVER_MODAL_MAX_WIDTH`，同一档 quality |
 
 常量在 `src/components/library/covers.ts`。改 `.library-grid` / `.library-dialog-poster` 的 CSS 宽度时一起改。
 
@@ -72,14 +72,14 @@
 - 弹层海报 CSS 最大是 `11.25rem`（180px）。请求 540（大约 3 倍 CSS 宽），比缩略图大，仍然封顶。再大一档并不稳：同一张 1600×2285 的海报，`max_width=600` 和 `720` 会 504，缓存也写不进去；`540` 可以 Hit。
 - 只用 `max_width`。同时传 `width` 和 `height` 会做 attention crop。版式用 CSS `object-fit: cover` 把图裁成 2:3，原图比例留着。
 - `max_width` 不会放大小图：本来就窄于上限的封面字节数不变。
-- 不在 URL 上写 `quality`。画质跟长文共用 Dashboard 里的那一档，避免多一条缓存键。
+- 网格和弹层都带 `quality=60`（覆盖 Dashboard，范围 10–100）。只作用在封面 URL 上，长文图仍走 Dashboard。`quality` 和 `max_width` 一起组成缓存键。
 - `<img>` 带 2:3 的 `width` / `height`（360×540、540×810），`alt` 留空（标题在卡片文字里）。网格默认 `loading="lazy"`；首屏前 4 张 `eager`，第一张 `fetchpriority="high"`。弹层不懒加载。弹层地址若加载失败，会再要一次缩略图，仍失败才落到文字卡。
 
 ### Dashboard（代码改不到）
 
 在 WebP Cloud 的 Proxy 编辑页，不在这个仓库里：
 
-- **Quality**（10–100，100 是无损）：封面请求不带 `?quality=`，用的就是这里的值，和长文图同一档。海报不需要无损。如果现在是 100，可以改到 75–85，体积会再小一些；改完服务会清这个 Proxy 的缓存，长文图也会一起变。只为了 `/library` 不必改。
+- **Quality**（10–100，100 是无损）：库封面在 URL 里写 `quality=60`，不跟这里走。改这一档会清掉整个 Proxy 的缓存，并改变长文图；`/library` 封面不受影响。
 - **Adaptive Resize**（按 User-Agent 把过宽的图缩到桌面/手机上限，默认桌面 1600、手机 800）：库的 `max_width` 已经更小，不依赖这项。打开之后，这个 Proxy 上**所有**图都会被封顶，包括长文。桌面宽度请保持至少 1600（正文栏大约 736px，2 倍屏需要这么宽）。不要把手机宽度收成卡片那么窄。
 
 ### 缓存
@@ -94,12 +94,12 @@ curl -fsSL -A Mozilla https://doooit.me/library \
   | sed 's/?.*//' \
   | sort -u \
   | xargs -n 1 -P 2 -I{} sh -c '
-      curl -fsSL -o /dev/null --retry 2 --retry-delay 2 -A library-preheat "$1?max_width=360" || true
-      curl -fsSL -o /dev/null --retry 2 --retry-delay 2 -A library-preheat "$1?max_width=540" || true
+      curl -fsSL -o /dev/null --retry 2 --retry-delay 2 -A library-preheat "$1?max_width=360&quality=60" || true
+      curl -fsSL -o /dev/null --retry 2 --retry-delay 2 -A library-preheat "$1?max_width=540&quality=60" || true
     ' _ {}
 ```
 
-只关心首屏时，把 `max_width=360` 打在 HTML 里前 30 张 `<img>` 上即可。
+只关心首屏时，把 `max_width=360&quality=60` 打在 HTML 里前 30 张 `<img>` 上即可。
 
 ### 失败策略
 

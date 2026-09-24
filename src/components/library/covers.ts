@@ -15,6 +15,9 @@ export const LIBRARY_COVER_THUMB_MAX_WIDTH = 360;
  */
 export const LIBRARY_COVER_MODAL_MAX_WIDTH = 540;
 
+/** Overrides the proxy dashboard quality for library covers only. */
+export const LIBRARY_COVER_QUALITY = 60;
+
 /** 2:3 box, matching `.poster { aspect-ratio: 2 / 3 }`. */
 export function libraryCoverBox(maxWidth: number): {
   width: number;
@@ -27,9 +30,17 @@ export function libraryCoverBox(maxWidth: number): {
 }
 
 export function libraryThumbCover(url: string): string {
-  return withWebpCloudMaxWidth(url, LIBRARY_COVER_THUMB_MAX_WIDTH);
+  return withWebpCloudMaxWidth(
+    url,
+    LIBRARY_COVER_THUMB_MAX_WIDTH,
+    LIBRARY_COVER_QUALITY
+  );
 }
 
 export function libraryModalCover(url: string): string {
-  return withWebpCloudMaxWidth(url, LIBRARY_COVER_MODAL_MAX_WIDTH);
+  return withWebpCloudMaxWidth(
+    url,
+    LIBRARY_COVER_MODAL_MAX_WIDTH,
+    LIBRARY_COVER_QUALITY
+  );
 }
