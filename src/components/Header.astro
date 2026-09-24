@@ -31,7 +31,7 @@ const moreLinks = [
 const isMoreActive = moreLinks.some(link => isActive(link.href));
 ---
 
-<header>
+<header class="relative z-[60]">
   <!-- <a
     id="skip-to-content"
     href="#main-content"
@@ -131,7 +131,7 @@ const isMoreActive = moreLinks.some(link => isActive(link.href));
             </button>
             <ul
               id="more-menu"
-              class="z-50 mt-1 hidden rounded-md border border-border bg-background py-1 sm:absolute sm:start-0 sm:top-full sm:mt-2 sm:min-w-28 sm:shadow-sm"
+              class="z-[70] mt-1 hidden rounded-md border border-border bg-background py-1 sm:absolute sm:end-0 sm:top-full sm:mt-2 sm:w-max sm:shadow-sm"
               hidden
             >
               {
@@ -141,7 +141,7 @@ const isMoreActive = moreLinks.some(link => isActive(link.href));
                       href={link.href}
                       data-astro-prefetch="load"
                       class:list={[
-                        "block px-4 py-2 text-center font-medium whitespace-nowrap hover:text-accent sm:px-3",
+                        "block px-4 py-2 text-center font-medium whitespace-nowrap hover:text-accent sm:px-2",
                         { "active-nav": isActive(link.href) },
                       ]}
                       aria-current={isActive(link.href) ? "page" : undefined}
