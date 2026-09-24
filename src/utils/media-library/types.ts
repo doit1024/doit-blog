@@ -7,8 +7,6 @@ export const MEDIA_TYPES = [
   "游戏",
 ] as const;
 
-export const DROPPED_STATUS = "弃坑";
-
 export type MediaItem = {
   id: string;
   title: string;
@@ -16,7 +14,6 @@ export type MediaItem = {
   year: string | null;
   date: string | null;
   status: string | null;
-  dropped: boolean;
   cover: string | null;
   url: string | null;
   note: string | null;

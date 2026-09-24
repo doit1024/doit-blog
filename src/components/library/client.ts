@@ -41,7 +41,6 @@ function createCard(entry: LibraryEntry): HTMLLIElement {
   const li = document.createElement("li");
   li.dataset.mediaCard = "";
   li.dataset.type = entry.type;
-  li.dataset.dropped = entry.dropped ? "1" : "0";
 
   const card = document.createElement("button");
   card.type = "button";
@@ -401,11 +400,7 @@ function bindDomOnly(root: HTMLElement) {
     let visible = 0;
     for (const card of cards) {
       const type = card.dataset.type ?? "";
-      const dropped = card.dataset.dropped === "1";
-      const show =
-        filter === "dropped"
-          ? dropped
-          : !dropped && (filter === "all" || type === filter);
+      const show = filter === "all" || type === filter;
       card.hidden = !show;
       if (show) visible += 1;
     }

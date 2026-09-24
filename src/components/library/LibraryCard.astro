@@ -9,12 +9,7 @@ const { item } = Astro.props;
 const meta = metaLine(item.type, item.year);
 ---
 
-<li
-  data-media-card
-  data-type={item.type ?? ""}
-  data-dropped={item.dropped ? "1" : "0"}
-  hidden={item.dropped}
->
+<li data-media-card data-type={item.type ?? ""}>
   <button
     type="button"
     class="library-card"

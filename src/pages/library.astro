@@ -19,7 +19,6 @@ export const prerender = true;
 const filters = [
   { id: "all", label: "全部" },
   ...MEDIA_TYPES.map(type => ({ id: type, label: type })),
-  { id: "dropped", label: "弃坑" },
 ];
 
 const items = (await getCollection("media"))
@@ -28,8 +27,8 @@ const items = (await getCollection("media"))
   .sort(compareMedia);
 
 const catalog = items.map(toLibraryEntry);
-const initial = items.filter(item => !item.dropped).slice(0, LIBRARY_PAGE_SIZE);
-const hasMore = catalog.filter(item => !item.dropped).length > initial.length;
+const initial = items.slice(0, LIBRARY_PAGE_SIZE);
+const hasMore = catalog.length > initial.length;
 const payloadJson = safeJson({
   pageSize: LIBRARY_PAGE_SIZE,
   items: catalog,

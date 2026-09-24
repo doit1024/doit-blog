@@ -6,7 +6,6 @@ export type LibraryEntry = {
   id: string;
   title: string;
   type: string;
-  dropped: boolean;
   cover: string | null;
   url: string | null;
   note: string;
@@ -20,7 +19,6 @@ export function toLibraryEntry(item: MediaItem): LibraryEntry {
     id: item.id,
     title: item.title,
     type: item.type ?? "",
-    dropped: item.dropped,
     cover: item.cover,
     url: item.url,
     note: item.note ?? "",
@@ -30,10 +28,7 @@ export function toLibraryEntry(item: MediaItem): LibraryEntry {
   };
 }
 
-/** Same rules as the poster wall: 弃坑 only in its own tab. */
 export function entryMatches(entry: LibraryEntry, filter: string): boolean {
-  if (filter === "dropped") return entry.dropped;
-  if (entry.dropped) return false;
   return filter === "all" || entry.type === filter;
 }
 

@@ -119,7 +119,6 @@ function loadPreview(
       year: item.year ?? null,
       date: item.date ?? null,
       status: item.status ?? null,
-      dropped: Boolean(item.dropped),
       cover: item.cover ?? null,
       url: item.url ?? null,
       note: item.note ?? null,

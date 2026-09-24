@@ -6,7 +6,7 @@ import type {
   NotionProperty,
 } from "@/utils/notion-posts/types";
 
-import { DROPPED_STATUS, yearFromDate, type MediaItem } from "./types";
+import { yearFromDate, type MediaItem } from "./types";
 
 function prop(page: NotionPage, name: string): NotionProperty | undefined {
   return page.properties?.[name];
@@ -76,7 +76,6 @@ export function pageToMediaItem(
     year: yearFromDate(date),
     date,
     status,
-    dropped: status === DROPPED_STATUS,
     cover,
     url,
     note,
