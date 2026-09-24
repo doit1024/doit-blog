@@ -4,7 +4,11 @@ import {
   libraryCoverBox,
   libraryThumbCover,
 } from "@/components/library/covers";
-import { metaLine, type MediaItem } from "@/utils/media-library/types";
+import {
+  canonicalMediaType,
+  metaLine,
+  type MediaItem,
+} from "@/utils/media-library/types";
 
 interface Props {
   item: MediaItem;
@@ -14,24 +18,27 @@ interface Props {
 }
 
 const { item, eager = false, fetchPriority } = Astro.props;
-const meta = metaLine(item.type, item.year);
+const type = canonicalMediaType(item.type);
+const meta = metaLine(type, item.year);
 const thumb = item.cover ? libraryThumbCover(item.cover) : null;
 const thumbBox = libraryCoverBox(LIBRARY_COVER_THUMB_MAX_WIDTH);
 ---
 
-<li data-media-card data-type={item.type ?? ""}>
+<li data-media-card data-type={type ?? ""}>
   <button
     type="button"
     class="library-card"
     data-library-open
     data-media-id={item.id}
     data-title={item.title}
+    data-type={type ?? ""}
     data-meta={meta}
     data-cover={item.cover ?? ""}
     data-url={item.url ?? ""}
     data-note={item.note ?? ""}
     data-rating={item.rating == null ? "" : String(item.rating)}
     data-created={item.created ?? ""}
+    data-hours={item.playHours == null ? "" : String(item.playHours)}
   >
     <div class="poster" data-poster>
       {

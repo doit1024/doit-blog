@@ -6,7 +6,7 @@ import type {
   NotionProperty,
 } from "@/utils/notion-posts/types";
 
-import { yearFromDate, type MediaItem } from "./types";
+import { canonicalMediaType, yearFromDate, type MediaItem } from "./types";
 
 function prop(page: NotionPage, name: string): NotionProperty | undefined {
   return page.properties?.[name];
@@ -21,7 +21,7 @@ function plain(property: NotionProperty | undefined): string {
   return "";
 }
 
-function ratingOf(property: NotionProperty | undefined): number | null {
+function numberOf(property: NotionProperty | undefined): number | null {
   const value = property?.number;
   if (typeof value !== "number" || !Number.isFinite(value)) return null;
   return value;
@@ -61,13 +61,14 @@ export function pageToMediaItem(
   const title = titleOf(page);
   if (!title) return null;
 
-  const type = prop(page, "类型")?.select?.name?.trim() || null;
+  const type = canonicalMediaType(prop(page, "类型")?.select?.name);
   const status = prop(page, "状态")?.select?.name?.trim() || null;
   const date = prop(page, "日期")?.date?.start ?? null;
   const url = prop(page, "链接")?.url?.trim() || null;
   const note = plain(prop(page, "短评")) || null;
-  const rating = ratingOf(prop(page, "评分"));
+  const rating = numberOf(prop(page, "评分"));
   const created = createdOf(page);
+  const playHours = numberOf(prop(page, "游戏时长（小时）"));
 
   return {
     id: page.id,
@@ -81,5 +82,6 @@ export function pageToMediaItem(
     note,
     rating,
     created,
+    playHours,
   };
 }

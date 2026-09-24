@@ -37,6 +37,7 @@ const media = defineCollection({
     note: z.string().nullable(),
     rating: z.number().nullable().default(null),
     created: z.string().nullable().default(null),
+    playHours: z.number().nullable().default(null),
   }),
 });
 

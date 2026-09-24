@@ -1,11 +1,32 @@
 export const MEDIA_TYPES = [
   "书",
   "电影",
-  "电视剧",
+  "剧集",
   "综艺",
   "音乐",
   "游戏",
 ] as const;
+
+/** Notion 选项已从「电视剧」改名为「剧集」。旧行和预览 JSON 仍可能写旧名。 */
+const MEDIA_TYPE_ALIASES: Record<string, (typeof MEDIA_TYPES)[number]> = {
+  电视剧: "剧集",
+};
+
+export function canonicalMediaType(
+  type: string | null | undefined
+): string | null {
+  if (type == null) return null;
+  const trimmed = type.trim();
+  if (!trimmed) return null;
+  return MEDIA_TYPE_ALIASES[trimmed] ?? trimmed;
+}
+
+export function mediaTypesMatch(
+  itemType: string | null | undefined,
+  filter: string
+): boolean {
+  return (canonicalMediaType(itemType) ?? "") === filter;
+}
 
 export type MediaItem = {
   id: string;
@@ -21,7 +42,21 @@ export type MediaItem = {
   rating: number | null;
   /** Notion page created_time. */
   created: string | null;
+  /** Notion「游戏时长（小时）」. Absent when the property is empty. */
+  playHours: number | null;
 };
+
+/** Hours for a 游戏 row. Empty, non-finite, and negative values stay hidden. */
+export function formatPlayHours(
+  hours: number | null | undefined
+): string | null {
+  if (typeof hours !== "number" || !Number.isFinite(hours) || hours < 0) {
+    return null;
+  }
+  const rounded = Math.round(hours * 100) / 100;
+  const text = rounded.toFixed(2).replace(/0+$/, "").replace(/\.$/, "");
+  return `${text} 小时`;
+}
 
 export function yearFromDate(value: string | null | undefined): string | null {
   if (!value) return null;

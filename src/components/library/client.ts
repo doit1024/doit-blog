@@ -11,6 +11,7 @@ import {
   type LibraryEntry,
 } from "@/components/library/entries";
 import { STAR_TOTAL, starDisplay } from "@/components/library/stars";
+import { formatPlayHours, mediaTypesMatch } from "@/utils/media-library/types";
 
 type Payload = {
   pageSize: number;
@@ -85,8 +86,10 @@ function createCard(entry: LibraryEntry): HTMLLIElement {
   card.dataset.cover = entry.cover ?? "";
   card.dataset.url = entry.url ?? "";
   card.dataset.note = entry.note;
+  card.dataset.type = entry.type;
   card.dataset.rating = entry.rating == null ? "" : String(entry.rating);
   card.dataset.created = entry.created ?? "";
+  card.dataset.hours = entry.playHours == null ? "" : String(entry.playHours);
 
   const poster = document.createElement("div");
   poster.className = "poster";
@@ -134,15 +137,17 @@ function createCard(entry: LibraryEntry): HTMLLIElement {
 
 type DialogFields = {
   title: string;
+  type: string;
   meta: string;
   cover: string | null;
   url: string | null;
   note: string;
   rating: number | null;
   created: string | null;
+  playHours: number | null;
 };
 
-function readRating(raw: string | undefined): number | null {
+function readNumber(raw: string | undefined): number | null {
   if (!raw) return null;
   const value = Number(raw);
   return Number.isFinite(value) ? value : null;
@@ -168,12 +173,14 @@ function safeCover(value: string | null | undefined): string | null {
 function fieldsFromTrigger(trigger: HTMLElement): DialogFields {
   return {
     title: trigger.dataset.title ?? "",
+    type: trigger.dataset.type ?? "",
     meta: trigger.dataset.meta ?? "",
     cover: safeCover(trigger.dataset.cover),
     url: safeHttpUrl(trigger.dataset.url),
     note: trigger.dataset.note ?? "",
-    rating: readRating(trigger.dataset.rating),
+    rating: readNumber(trigger.dataset.rating),
     created: trigger.dataset.created?.trim() || null,
+    playHours: readNumber(trigger.dataset.hours),
   };
 }
 
@@ -296,6 +303,10 @@ function bindModal(root: HTMLElement) {
 
   const title = dialog.querySelector<HTMLElement>("[data-dialog-title]");
   const meta = dialog.querySelector<HTMLElement>("[data-dialog-meta]");
+  const hours = dialog.querySelector<HTMLElement>("[data-dialog-hours]");
+  const hoursValue = dialog.querySelector<HTMLElement>(
+    "[data-dialog-hours-value]"
+  );
   const rating = dialog.querySelector<HTMLElement>("[data-dialog-rating]");
   const stars = dialog.querySelector<HTMLElement>("[data-dialog-stars]");
   const ratingText = dialog.querySelector<HTMLElement>(
@@ -322,6 +333,17 @@ function bindModal(root: HTMLElement) {
     if (meta) {
       meta.textContent = fields.meta;
       meta.hidden = !fields.meta;
+    }
+    if (hours && hoursValue) {
+      const text =
+        fields.type === "游戏" ? formatPlayHours(fields.playHours) : null;
+      if (text) {
+        hoursValue.textContent = text;
+        hours.hidden = false;
+      } else {
+        hours.hidden = true;
+        hoursValue.textContent = "";
+      }
     }
     if (rating && stars && starsVisual) {
       const display = fields.rating == null ? null : starDisplay(fields.rating);
@@ -436,7 +458,7 @@ function bindDomOnly(root: HTMLElement) {
     let visible = 0;
     for (const card of cards) {
       const type = card.dataset.type ?? "";
-      const show = filter === "all" || type === filter;
+      const show = filter === "all" || mediaTypesMatch(type, filter);
       card.hidden = !show;
       if (show) visible += 1;
     }

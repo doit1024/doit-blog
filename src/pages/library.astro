@@ -37,7 +37,7 @@ const payloadJson = safeJson({
 
 <Layout
   title={`书影音游 | ${SITE.title}`}
-  description="书、电影、电视剧、综艺、音乐和游戏。"
+  description="书、电影、剧集、综艺、音乐和游戏。"
 >
   <Header />
   <Main
@@ -121,6 +121,10 @@ const payloadJson = safeJson({
                   <div class="library-dialog-copy">
                     <h2 id="library-dialog-title" data-dialog-title />
                     <p class="library-dialog-meta" data-dialog-meta hidden />
+                    <p class="library-dialog-hours" data-dialog-hours hidden>
+                      <span class="library-dialog-hours-label">游戏时长</span>
+                      <span data-dialog-hours-value />
+                    </p>
                     <p class="library-dialog-rating" data-dialog-rating hidden>
                       <span
                         class="library-dialog-stars"

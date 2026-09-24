@@ -13,6 +13,7 @@ const EMPTY_ROW = {
   note: null,
   rating: null,
   created: null,
+  playHours: null,
 };
 
 export function mediaLoader(): Loader {
@@ -60,6 +61,7 @@ export function mediaLoader(): Loader {
           note: item.note,
           rating: item.rating,
           created: item.created,
+          playHours: item.playHours,
         };
         const parsed = await parseData({ id: item.id, data });
         store.set({
