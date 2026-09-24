@@ -130,6 +130,7 @@ function loadPreview(
       rating: optionalRating(item.rating),
       created: optionalString(item.created),
       playHours: optionalRating(item.playHours),
+      artist: optionalString(item.artist),
     }));
     items.sort(compareMedia);
     logger.info(

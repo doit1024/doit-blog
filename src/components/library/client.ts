@@ -12,7 +12,12 @@ import {
   type LibraryEntry,
 } from "@/components/library/entries";
 import { STAR_TOTAL, starDisplay } from "@/components/library/stars";
-import { formatPlayHours, mediaTypesMatch } from "@/utils/media-library/types";
+import {
+  albumArtistLine,
+  DEFAULT_LIBRARY_FILTER,
+  formatPlayHours,
+  mediaTypesMatch,
+} from "@/utils/media-library/types";
 
 type Payload = {
   pageSize: number;
@@ -60,9 +65,10 @@ function paintCover(
   img: HTMLImageElement,
   src: string,
   maxWidth: number,
-  fallbackSrc?: string
+  fallbackSrc?: string,
+  square = false
 ) {
-  const box = libraryCoverBox(maxWidth);
+  const box = libraryCoverBox(maxWidth, square ? "square" : "poster");
   img.src = src;
   img.alt = "";
   img.width = box.width;
@@ -92,9 +98,11 @@ function createCard(entry: LibraryEntry): HTMLLIElement {
   card.dataset.rating = entry.rating == null ? "" : String(entry.rating);
   card.dataset.created = entry.created ?? "";
   card.dataset.hours = entry.playHours == null ? "" : String(entry.playHours);
+  card.dataset.artist = entry.artist ?? "";
 
+  const square = entry.type === "音乐";
   const poster = document.createElement("div");
-  poster.className = "poster";
+  poster.className = square ? "poster is-square" : "poster";
   poster.dataset.poster = "";
 
   if (entry.cover) {
@@ -103,7 +111,9 @@ function createCard(entry: LibraryEntry): HTMLLIElement {
     paintCover(
       img,
       libraryThumbCover(entry.cover),
-      LIBRARY_COVER_THUMB_MAX_WIDTH
+      LIBRARY_COVER_THUMB_MAX_WIDTH,
+      undefined,
+      square
     );
     poster.append(img);
   }
@@ -147,6 +157,7 @@ type DialogFields = {
   rating: number | null;
   created: string | null;
   playHours: number | null;
+  artist: string | null;
 };
 
 function readNumber(raw: string | undefined): number | null {
@@ -183,6 +194,7 @@ function fieldsFromTrigger(trigger: HTMLElement): DialogFields {
     rating: readNumber(trigger.dataset.rating),
     created: trigger.dataset.created?.trim() || null,
     playHours: readNumber(trigger.dataset.hours),
+    artist: trigger.dataset.artist?.trim() || null,
   };
 }
 
@@ -272,7 +284,9 @@ function focusableIn(dialog: HTMLElement): HTMLElement[] {
 }
 
 function renderPoster(poster: HTMLElement, fields: DialogFields) {
+  const square = fields.type === "音乐";
   poster.classList.remove("is-text");
+  poster.classList.toggle("is-square", square);
   poster.replaceChildren();
   if (fields.cover) {
     const img = document.createElement("img");
@@ -282,7 +296,8 @@ function renderPoster(poster: HTMLElement, fields: DialogFields) {
       img,
       src,
       LIBRARY_COVER_MODAL_MAX_WIDTH,
-      src === thumb ? undefined : thumb
+      src === thumb ? undefined : thumb,
+      square
     );
     poster.append(img);
   }
@@ -308,6 +323,10 @@ function bindModal(root: HTMLElement) {
   const hours = dialog.querySelector<HTMLElement>("[data-dialog-hours]");
   const hoursValue = dialog.querySelector<HTMLElement>(
     "[data-dialog-hours-value]"
+  );
+  const artist = dialog.querySelector<HTMLElement>("[data-dialog-artist]");
+  const artistValue = dialog.querySelector<HTMLElement>(
+    "[data-dialog-artist-value]"
   );
   const rating = dialog.querySelector<HTMLElement>("[data-dialog-rating]");
   const stars = dialog.querySelector<HTMLElement>("[data-dialog-stars]");
@@ -345,6 +364,16 @@ function bindModal(root: HTMLElement) {
       } else {
         hours.hidden = true;
         hoursValue.textContent = "";
+      }
+    }
+    if (artist && artistValue) {
+      const text = albumArtistLine(fields.type, fields.artist);
+      if (text) {
+        artistValue.textContent = text;
+        artist.hidden = false;
+      } else {
+        artist.hidden = true;
+        artistValue.textContent = "";
       }
     }
     if (rating && stars && starsVisual) {
@@ -460,7 +489,7 @@ function bindDomOnly(root: HTMLElement) {
     let visible = 0;
     for (const card of cards) {
       const type = card.dataset.type ?? "";
-      const show = filter === "all" || mediaTypesMatch(type, filter);
+      const show = mediaTypesMatch(type, filter);
       card.hidden = !show;
       if (show) visible += 1;
     }
@@ -469,7 +498,7 @@ function bindDomOnly(root: HTMLElement) {
 
   for (const button of buttons) {
     button.addEventListener("click", () => {
-      const filter = button.dataset.filter ?? "all";
+      const filter = button.dataset.filter ?? DEFAULT_LIBRARY_FILTER;
       for (const peer of buttons) {
         peer.setAttribute("aria-pressed", peer === button ? "true" : "false");
       }
@@ -480,7 +509,7 @@ function bindDomOnly(root: HTMLElement) {
   for (const img of root.querySelectorAll<HTMLImageElement>("img")) {
     bindImage(img);
   }
-  apply("all");
+  apply(DEFAULT_LIBRARY_FILTER);
 }
 
 export function bootLibrary() {
@@ -504,7 +533,7 @@ export function bootLibrary() {
     ),
   ];
 
-  let filter = "all";
+  let filter: string = DEFAULT_LIBRARY_FILTER;
   let shown = grid.querySelectorAll("[data-media-card]").length;
 
   const pool = () => payload.items.filter(item => entryMatches(item, filter));
@@ -534,7 +563,7 @@ export function bootLibrary() {
 
   for (const button of buttons) {
     button.addEventListener("click", () => {
-      const next = button.dataset.filter ?? "all";
+      const next = button.dataset.filter ?? DEFAULT_LIBRARY_FILTER;
       for (const peer of buttons) {
         peer.setAttribute("aria-pressed", peer === button ? "true" : "false");
       }

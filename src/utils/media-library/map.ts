@@ -69,6 +69,7 @@ export function pageToMediaItem(
   const rating = numberOf(prop(page, "评分"));
   const created = createdOf(page);
   const playHours = numberOf(prop(page, "游戏时长（小时）"));
+  const artist = plain(prop(page, "专辑艺人")) || null;
 
   return {
     id: page.id,
@@ -83,5 +84,6 @@ export function pageToMediaItem(
     rating,
     created,
     playHours,
+    artist,
   };
 }

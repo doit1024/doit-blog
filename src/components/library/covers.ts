@@ -21,14 +21,17 @@ export const LIBRARY_COVER_SIZES =
 /** Overrides the proxy dashboard quality for library covers only. */
 export const LIBRARY_COVER_QUALITY = 60;
 
-/** 2:3 box, matching `.poster { aspect-ratio: 2 / 3 }`. */
-export function libraryCoverBox(maxWidth: number): {
+/** Poster is 2:3. Music covers are square, matching `.poster.is-square`. */
+export function libraryCoverBox(
+  maxWidth: number,
+  ratio: "poster" | "square" = "poster"
+): {
   width: number;
   height: number;
 } {
   return {
     width: maxWidth,
-    height: Math.round((maxWidth * 3) / 2),
+    height: ratio === "square" ? maxWidth : Math.round((maxWidth * 3) / 2),
   };
 }
 

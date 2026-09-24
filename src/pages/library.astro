@@ -11,15 +11,17 @@ import {
   toLibraryEntry,
 } from "@/components/library/entries";
 import { SITE } from "@/config";
-import { compareMedia, MEDIA_TYPES } from "@/utils/media-library/types";
+import {
+  compareMedia,
+  DEFAULT_LIBRARY_FILTER,
+  LIBRARY_BROWSE_TYPES,
+  mediaTypesMatch,
+} from "@/utils/media-library/types";
 import "@/styles/library.css";
 
 export const prerender = true;
 
-const filters = [
-  { id: "all", label: "全部" },
-  ...MEDIA_TYPES.map(type => ({ id: type, label: type })),
-];
+const filters = LIBRARY_BROWSE_TYPES.map(type => ({ id: type, label: type }));
 
 const items = (await getCollection("media"))
   .map(entry => ({ id: entry.id, ...entry.data }))
@@ -27,8 +29,11 @@ const items = (await getCollection("media"))
   .sort(compareMedia);
 
 const catalog = items.map(toLibraryEntry);
-const initial = items.slice(0, LIBRARY_PAGE_SIZE);
-const hasMore = catalog.length > initial.length;
+const initialPool = items.filter(item =>
+  mediaTypesMatch(item.type, DEFAULT_LIBRARY_FILTER)
+);
+const initial = initialPool.slice(0, LIBRARY_PAGE_SIZE);
+const hasMore = initialPool.length > initial.length;
 const payloadJson = safeJson({
   pageSize: LIBRARY_PAGE_SIZE,
   items: catalog,
@@ -37,7 +42,7 @@ const payloadJson = safeJson({
 
 <Layout
   title={`书影音游 | ${SITE.title}`}
-  description="书、电影、剧集、综艺、音乐和游戏。"
+  description="书、电影、剧集、音乐和游戏。"
 >
   <Header />
   <Main
@@ -53,7 +58,9 @@ const payloadJson = safeJson({
               <button
                 type="button"
                 data-filter={filter.id}
-                aria-pressed={filter.id === "all" ? "true" : "false"}
+                aria-pressed={
+                  filter.id === DEFAULT_LIBRARY_FILTER ? "true" : "false"
+                }
               >
                 {filter.label}
               </button>
@@ -124,6 +131,10 @@ const payloadJson = safeJson({
                     <p class="library-dialog-hours" data-dialog-hours hidden>
                       <span class="library-dialog-hours-label">游戏时长</span>
                       <span data-dialog-hours-value />
+                    </p>
+                    <p class="library-dialog-artist" data-dialog-artist hidden>
+                      <span class="library-dialog-artist-label">专辑艺人</span>
+                      <span data-dialog-artist-value />
                     </p>
                     <p class="library-dialog-rating" data-dialog-rating hidden>
                       <span
