@@ -32,6 +32,7 @@ const rss = SOCIALS.find(social => social.name === "Rss");
       sizes="(min-width: 1156px) 563px, 48.75vw"
       fit="contain"
       draggable="false"
+      fetchpriority="high"
     />
   </h1>
 
@@ -84,11 +85,12 @@ const rss = SOCIALS.find(social => social.name === "Rss");
   </div>
 
   <figure class="collage-bear" data-draggable>
-    <img
-      src={bearSticker.src}
+    <Image
+      src={bearSticker}
       alt="一只举手的线稿小熊贴纸"
       width={bearSticker.width}
-      height={bearSticker.height}
+      sizes="(min-width: 1156px) 380px, 33vw"
+      fit="contain"
       draggable="false"
     />
   </figure>

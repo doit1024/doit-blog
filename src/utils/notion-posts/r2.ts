@@ -1,7 +1,11 @@
 import { AwsClient } from "aws4fetch";
+import sharp from "sharp";
 import type { R2Config } from "./config";
 
 const MAX_IMAGE_BYTES = 20 * 1024 * 1024;
+/** Longest edge written to R2. WebP Cloud still fetches the whole origin on miss. */
+const MAX_ORIGIN_EDGE = 1600;
+const SKIP_OPTIMIZE_BYTES = 400_000;
 
 const EXT_BY_TYPE: Record<string, string> = {
   "image/jpeg": ".jpg",
@@ -40,6 +44,59 @@ export async function downloadBinary(
     throw new Error(`image too large (${buffer.byteLength} bytes)`);
   }
   return { bytes: buffer, contentType };
+}
+
+const OPTIMIZE_TYPES = new Set([
+  "image/jpeg",
+  "image/jpg",
+  "image/png",
+  "image/webp",
+]);
+
+/**
+ * Shrink camera-sized uploads before they hit R2. WebP Cloud's Rapid mode
+ * downloads the origin in full on a cache miss; a 12MB JPEG hangs there.
+ */
+export async function optimizeForR2(
+  bytes: Uint8Array,
+  contentType: string
+): Promise<{ bytes: Uint8Array; contentType: string }> {
+  const type = contentType.split(";")[0]?.trim() ?? "";
+  if (!OPTIMIZE_TYPES.has(type)) return { bytes, contentType };
+
+  try {
+    const image = sharp(bytes, { failOn: "none" });
+    const meta = await image.metadata();
+    const width = meta.width ?? 0;
+    const height = meta.height ?? 0;
+    const alreadySmall =
+      width > 0 &&
+      height > 0 &&
+      width <= MAX_ORIGIN_EDGE &&
+      height <= MAX_ORIGIN_EDGE &&
+      bytes.byteLength <= SKIP_OPTIMIZE_BYTES;
+    if (alreadySmall) return { bytes, contentType };
+
+    let pipeline = image.rotate();
+    if (width > MAX_ORIGIN_EDGE || height > MAX_ORIGIN_EDGE) {
+      pipeline = pipeline.resize({
+        width: MAX_ORIGIN_EDGE,
+        height: MAX_ORIGIN_EDGE,
+        fit: "inside",
+        withoutEnlargement: true,
+      });
+    }
+
+    if (type === "image/png" && meta.hasAlpha) {
+      const out = await pipeline.png({ compressionLevel: 8 }).toBuffer();
+      return { bytes: new Uint8Array(out), contentType: "image/png" };
+    }
+
+    const out = await pipeline.jpeg({ quality: 82, mozjpeg: true }).toBuffer();
+    return { bytes: new Uint8Array(out), contentType: "image/jpeg" };
+  } catch {
+    return { bytes, contentType };
+  }
 }
 
 function toArrayBuffer(bytes: Uint8Array): ArrayBuffer {

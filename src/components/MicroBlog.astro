@@ -1,5 +1,5 @@
 ---
-import { NotionRenderer } from "react-notion-x";
+import { BbNotion } from "@/components/BbNotion";
 import type { ExtendedRecordMap } from "notion-types";
 import dayjs from "dayjs";
 
@@ -27,7 +27,7 @@ const canRender = Boolean(blockData?.block && pageBlock);
 <div class="rounded-lg border border-border p-6">
   {
     canRender ? (
-      <NotionRenderer recordMap={blockData} fullPage={false} darkMode={false} />
+      <BbNotion recordMap={blockData} />
     ) : (
       <p class="text-muted-foreground">这条内容暂时无法显示。</p>
     )

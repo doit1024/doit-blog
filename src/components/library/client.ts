@@ -1,5 +1,6 @@
 import {
   LIBRARY_COVER_MODAL_MAX_WIDTH,
+  LIBRARY_COVER_SIZES,
   LIBRARY_COVER_THUMB_MAX_WIDTH,
   libraryCoverBox,
   libraryModalCover,
@@ -66,6 +67,7 @@ function paintCover(
   img.alt = "";
   img.width = box.width;
   img.height = box.height;
+  img.sizes = LIBRARY_COVER_SIZES;
   img.decoding = "async";
   img.referrerPolicy = "no-referrer";
   bindImage(img, fallbackSrc);

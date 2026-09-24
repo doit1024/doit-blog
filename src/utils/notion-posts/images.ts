@@ -1,6 +1,12 @@
-import { R2_ORIGIN, WEBP_CLOUD_ORIGIN } from "@/utils/assets";
+import { R2_ORIGIN, toWebpCloudUrl, WEBP_CLOUD_ORIGIN } from "@/utils/assets";
 import type { NotionPostsConfig } from "./config";
-import { downloadBinary, extensionFrom, r2ObjectKey, uploadToR2 } from "./r2";
+import {
+  downloadBinary,
+  extensionFrom,
+  optimizeForR2,
+  r2ObjectKey,
+  uploadToR2,
+} from "./r2";
 import type { ImageResolver } from "./blocks-to-markdown";
 import type { NotionFile } from "./types";
 
@@ -34,19 +40,10 @@ export function isNotionHosted(url: string): boolean {
 }
 
 export function toWebpUrl(
-  config: NotionPostsConfig,
+  _config: NotionPostsConfig,
   publicUrl: string
 ): string {
-  if (publicUrl.startsWith(config.webpOrigin)) return publicUrl;
-  if (publicUrl.startsWith(R2_ORIGIN)) {
-    return publicUrl.replace(R2_ORIGIN, config.webpOrigin);
-  }
-  try {
-    const path = new URL(publicUrl).pathname;
-    return `${config.webpOrigin}${path}`;
-  } catch {
-    return publicUrl;
-  }
+  return toWebpCloudUrl(publicUrl);
 }
 
 export function fileDownloadUrl(file: NotionFile | null): string | undefined {
@@ -67,14 +64,18 @@ export async function syncImageToCdn(
     return args.url;
   }
 
-  const { bytes, contentType } = await downloadBinary(args.url);
+  const downloaded = await downloadBinary(args.url);
   if (
-    !contentType.startsWith("image/") &&
-    contentType !== "application/octet-stream"
+    !downloaded.contentType.startsWith("image/") &&
+    downloaded.contentType !== "application/octet-stream"
   ) {
     return null;
   }
 
+  const { bytes, contentType } = await optimizeForR2(
+    downloaded.bytes,
+    downloaded.contentType
+  );
   const ext = extensionFrom(contentType, args.url);
   const key = r2ObjectKey(args.slug, args.fileId, ext);
   await uploadToR2(config.r2, key, bytes, contentType);

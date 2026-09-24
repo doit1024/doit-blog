@@ -63,18 +63,19 @@
 | 用途 | 参数 | 常量 |
 | --- | --- | --- |
 | 网格缩略图 | `?max_width=360&quality=60` | `LIBRARY_COVER_THUMB_MAX_WIDTH`，`LIBRARY_COVER_QUALITY` |
-| 详情弹层 | `?max_width=540&quality=60` | `LIBRARY_COVER_MODAL_MAX_WIDTH`，同一档 quality |
+| 详情弹层 | 同一 URL（`max_width=360`） | `LIBRARY_COVER_MODAL_MAX_WIDTH`，同一档 quality |
 
 常量在 `src/components/library/covers.ts`。改 `.library-grid` / `.library-dialog-poster` 的 CSS 宽度时一起改。
 
 怎么定的：
 
 - 内容栏是 `max-w-3xl`（含 `px-4` 后内宽约 736px）。宽屏大约 4 列，单卡大约 **176px**。360 大约是 2 倍，够视网膜；手机上卡片更窄（大约 115px），360 也盖得住 3 倍屏。
-- 弹层海报 CSS 最大是 `11.25rem`（180px）。请求 540（大约 3 倍 CSS 宽），比缩略图大，仍然封顶。再大一档并不稳：同一张 1600×2285 的海报，`max_width=600` 和 `720` 会 504，缓存也写不进去；`540` 可以 Hit。
+- 弹层海报 CSS 最大是 `11.25rem`（180px）。网格和弹层都请求 `max_width=360`，这样点开卡片会命中已经拉过的那条缓存。`540` 以上是另一条缓存键，冷 Miss 时大海报会 504。
 - 只用 `max_width`。同时传 `width` 和 `height` 会做 attention crop。版式用 CSS `object-fit: cover` 把图裁成 2:3，原图比例留着。
 - `max_width` 不会放大小图：本来就窄于上限的封面字节数不变。
 - 网格和弹层都带 `quality=60`（覆盖 Dashboard，范围 10–100）。只作用在封面 URL 上，长文图仍走 Dashboard。`quality` 和 `max_width` 一起组成缓存键。
-- `<img>` 带 2:3 的 `width` / `height`（360×540、540×810），`alt` 留空（标题在卡片文字里）。网格默认 `loading="lazy"`；首屏前 4 张 `eager`，第一张 `fetchpriority="high"`。弹层不懒加载。弹层地址若加载失败，会再要一次缩略图，仍失败才落到文字卡。
+- `<img>` 带 2:3 的 `width` / `height`（360×540），`alt` 留空（标题在卡片文字里）。网格默认 `loading="lazy"`；首屏前 4 张 `eager`，第一张 `fetchpriority="high"`。弹层不懒加载。封面加载失败落到文字卡。
+- 构建转存 R2 时会把过宽的封面压到最长边 1600。WebP Cloud 冷 Miss 仍会去拉整份 origin；origin 太大时请求会挂死。
 
 ### Dashboard（代码改不到）
 
@@ -82,10 +83,12 @@
 
 - **Quality**（10–100，100 是无损）：库封面在 URL 里写 `quality=60`，不跟这里走。改这一档会清掉整个 Proxy 的缓存，并改变长文图；`/library` 封面不受影响。
 - **Adaptive Resize**（按 User-Agent 把过宽的图缩到桌面/手机上限，默认桌面 1600、手机 800）：库的 `max_width` 已经更小，不依赖这项。打开之后，这个 Proxy 上**所有**图都会被封顶，包括长文。桌面宽度请保持至少 1600（正文栏大约 736px，2 倍屏需要这么宽）。不要把手机宽度收成卡片那么窄。
+- **Consistency Mode**：冷 Miss 时先回 origin 再后台优化。现有 `gallery/DSC_*.jpg` 仍是千万像素相机原图（十几 MB），打开这项会让第一次请求直接下原图，更慢。长文 HTML 已带 `?width=640/960/1280`，请保持 Rapid，并在下面预热这些宽度。
+- **`asset.doooit.me` 源站**：浏览器不要直连。lightGallery 和 `<img>` 都走 `d28ebb3.webp.li`。若自定义域传体很慢，WebP Cloud 冷 Miss 也会挂；可在 R2 自定义域上看一下缓存/回源。
 
 ### 缓存
 
-见 [Cache](https://docs.webp.se/webp-cloud/cache/)。每个完整 URL（含 query）单独缓存。第一次是 Miss；Consistency 模式下冷请求可能先是 Filling，响应头 `x-webpcloud-cache`。之后同一 URL 是 Hit。缩略图和弹层是两条缓存。免费额度 200MiB，满了按 LRU 淘汰；缩略图远小于这个量。
+见 [Cache](https://docs.webp.se/webp-cloud/cache/)。每个完整 URL（含 query）单独缓存。第一次是 Miss；Consistency 模式下冷请求可能先是 Filling，响应头 `x-webpcloud-cache`。之后同一 URL 是 Hit。网格和弹层共用 `max_width=360`。免费额度 200MiB，满了按 LRU 淘汰。不要缓存未加 `width` / `max_width` 的相机原图，那会把额度打满、之后每张都 Miss。
 
 构建**不会**去预热。库里有六百多张封面。冷的 `max_width` 第一次是 Miss（大图可能先 Filling，要几秒），放进 `astro build` 会把构建拖慢；更大的宽度还会 504。部署后如果希望首访就是 Hit，可以在构建之外慢慢打一遍（失败忽略，可重试）：
 
@@ -96,7 +99,6 @@ curl -fsSL -A Mozilla https://doooit.me/library \
   | sort -u \
   | xargs -n 1 -P 2 -I{} sh -c '
       curl -fsSL -o /dev/null --retry 2 --retry-delay 2 -A library-preheat "$1?max_width=360&quality=60" || true
-      curl -fsSL -o /dev/null --retry 2 --retry-delay 2 -A library-preheat "$1?max_width=540&quality=60" || true
     ' _ {}
 ```
 

@@ -15,6 +15,7 @@ import {
   downloadBinary,
   extensionFrom,
   libraryObjectKey,
+  optimizeForR2,
   uploadToR2,
 } from "@/utils/notion-posts/r2";
 import type { NotionFile } from "@/utils/notion-posts/types";
@@ -71,15 +72,19 @@ async function resolveCover(
       return url;
     }
 
-    const { bytes, contentType } = await downloadBinary(url);
+    const downloaded = await downloadBinary(url);
     if (
-      !contentType.startsWith("image/") &&
-      contentType !== "application/octet-stream"
+      !downloaded.contentType.startsWith("image/") &&
+      downloaded.contentType !== "application/octet-stream"
     ) {
       stats.skipped += 1;
       return null;
     }
 
+    const { bytes, contentType } = await optimizeForR2(
+      downloaded.bytes,
+      downloaded.contentType
+    );
     const ext = extensionFrom(contentType, url);
     const key = libraryObjectKey(pageId, ext);
     await uploadToR2(config.r2, key, bytes, contentType);
