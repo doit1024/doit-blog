@@ -34,6 +34,7 @@ export function BbNotion({ recordMap }: { recordMap: ExtendedRecordMap }) {
       fullPage={false}
       darkMode={false}
       mapImageUrl={url => mapBbImageUrl(url ?? "")}
+      forceCustomImages
       components={{ Image: BbImage }}
     />
   );
