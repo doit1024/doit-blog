@@ -114,13 +114,19 @@ const payloadJson = safeJson({
                     class="poster library-dialog-poster"
                     data-dialog-poster
                     data-poster
-                  ></div>
+                  />
                   <div class="library-dialog-copy">
                     <h2 id="library-dialog-title" data-dialog-title />
                     <p class="library-dialog-meta" data-dialog-meta hidden />
                     <p class="library-dialog-rating" data-dialog-rating hidden>
-                      <span class="library-dialog-kicker">评分</span>
-                      <strong data-dialog-rating-value />
+                      <span
+                        class="library-dialog-stars"
+                        data-dialog-stars
+                        role="img"
+                      >
+                        <span class="library-sr" data-dialog-rating-text />
+                        <span data-dialog-stars-visual aria-hidden="true" />
+                      </span>
                     </p>
                     <p class="library-dialog-note" data-dialog-note />
                     <a

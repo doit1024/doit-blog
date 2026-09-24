@@ -3,6 +3,7 @@ import {
   LIBRARY_PAGE_SIZE,
   type LibraryEntry,
 } from "@/components/library/entries";
+import { STAR_TOTAL, starDisplay } from "@/components/library/stars";
 
 type Payload = {
   pageSize: number;
@@ -144,8 +145,53 @@ function fieldsFromTrigger(trigger: HTMLElement): DialogFields {
   };
 }
 
-function formatRating(value: number): string {
-  return String(value);
+const STAR_PATH =
+  "M12 17.27 18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z";
+
+function starPath(kind: "fill" | "outline"): SVGPathElement {
+  const path = document.createElementNS("http://www.w3.org/2000/svg", "path");
+  path.setAttribute("d", STAR_PATH);
+  path.setAttribute("class", kind === "fill" ? "is-fill" : "is-outline");
+  return path;
+}
+
+function starSvg(kind: "full" | "empty" | "half"): SVGSVGElement {
+  const svg = document.createElementNS("http://www.w3.org/2000/svg", "svg");
+  svg.setAttribute("viewBox", "0 0 24 24");
+  svg.setAttribute("aria-hidden", "true");
+  svg.classList.add("library-star", `is-${kind}`);
+
+  if (kind === "half") {
+    const defs = document.createElementNS("http://www.w3.org/2000/svg", "defs");
+    const clip = document.createElementNS(
+      "http://www.w3.org/2000/svg",
+      "clipPath"
+    );
+    clip.id = "library-star-half";
+    const rect = document.createElementNS("http://www.w3.org/2000/svg", "rect");
+    rect.setAttribute("x", "0");
+    rect.setAttribute("y", "0");
+    rect.setAttribute("width", "12");
+    rect.setAttribute("height", "24");
+    clip.append(rect);
+    defs.append(clip);
+    svg.append(defs, starPath("outline"));
+    const fill = starPath("fill");
+    fill.setAttribute("clip-path", "url(#library-star-half)");
+    svg.append(fill);
+    return svg;
+  }
+
+  svg.append(starPath(kind === "full" ? "fill" : "outline"));
+  return svg;
+}
+
+function paintStars(host: HTMLElement, filled: number, half: boolean) {
+  host.replaceChildren();
+  const empty = STAR_TOTAL - filled - (half ? 1 : 0);
+  for (let index = 0; index < filled; index += 1) host.append(starSvg("full"));
+  if (half) host.append(starSvg("half"));
+  for (let index = 0; index < empty; index += 1) host.append(starSvg("empty"));
 }
 
 function formatCreated(value: string): string | null {
@@ -216,8 +262,12 @@ function bindModal(root: HTMLElement) {
   const title = dialog.querySelector<HTMLElement>("[data-dialog-title]");
   const meta = dialog.querySelector<HTMLElement>("[data-dialog-meta]");
   const rating = dialog.querySelector<HTMLElement>("[data-dialog-rating]");
-  const ratingValue = dialog.querySelector<HTMLElement>(
-    "[data-dialog-rating-value]"
+  const stars = dialog.querySelector<HTMLElement>("[data-dialog-stars]");
+  const ratingText = dialog.querySelector<HTMLElement>(
+    "[data-dialog-rating-text]"
+  );
+  const starsVisual = dialog.querySelector<HTMLElement>(
+    "[data-dialog-stars-visual]"
   );
   const note = dialog.querySelector<HTMLElement>("[data-dialog-note]");
   const link = dialog.querySelector<HTMLAnchorElement>("[data-dialog-link]");
@@ -238,10 +288,19 @@ function bindModal(root: HTMLElement) {
       meta.textContent = fields.meta;
       meta.hidden = !fields.meta;
     }
-    if (rating && ratingValue) {
-      const text = fields.rating == null ? "" : formatRating(fields.rating);
-      ratingValue.textContent = text;
-      rating.hidden = text === "";
+    if (rating && stars && starsVisual) {
+      const display = fields.rating == null ? null : starDisplay(fields.rating);
+      if (!display) {
+        rating.hidden = true;
+        stars.removeAttribute("aria-label");
+        if (ratingText) ratingText.textContent = "";
+        starsVisual.replaceChildren();
+      } else {
+        rating.hidden = false;
+        stars.setAttribute("aria-label", display.ariaLabel);
+        if (ratingText) ratingText.textContent = display.ariaLabel;
+        paintStars(starsVisual, display.filled, display.half);
+      }
     }
     if (note) {
       const text = fields.note.trim();

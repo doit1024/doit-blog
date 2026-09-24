@@ -94,7 +94,8 @@ html:has(.library) body {
   text-decoration: none;
 }
 
-.library-card-action {
+.library-card-action,
+.library-sr {
   position: absolute;
   width: 1px;
   height: 1px;
@@ -329,21 +330,35 @@ html:has(.library) body {
 
 .library-dialog-rating {
   margin: 0.85rem 0 0;
-  font-size: 0.95rem;
-  line-height: 1.3;
 }
 
-.library-dialog-kicker {
-  margin-inline-end: 0.35rem;
-  font-size: 0.75rem;
-  font-weight: 400;
-  color: color-mix(in srgb, #222e36 52%, transparent);
+.library-dialog-stars {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.14rem;
+  color: var(--accent);
 }
 
-.library-dialog-rating strong {
-  font-weight: 560;
-  font-variant-numeric: tabular-nums;
-  letter-spacing: -0.02em;
+.library-star {
+  display: block;
+  width: 1.05rem;
+  height: 1.05rem;
+  overflow: visible;
+}
+
+.library-star.is-full .is-fill,
+.library-star.is-half .is-fill {
+  fill: currentColor;
+  stroke: none;
+}
+
+.library-star.is-empty .is-outline,
+.library-star.is-half .is-outline {
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.6;
+  stroke-linejoin: round;
 }
 
 .library-dialog-note {
