@@ -6,7 +6,7 @@ import type {
   NotionProperty,
 } from "@/utils/notion-posts/types";
 
-import { DROPPED_STATUS, yearFromDate, type MediaItem } from "./types";
+import { yearFromDate, type MediaItem } from "./types";
 
 function prop(page: NotionPage, name: string): NotionProperty | undefined {
   return page.properties?.[name];
@@ -19,6 +19,17 @@ function plain(property: NotionProperty | undefined): string {
     return richTextPlain(property.rich_text).trim();
   }
   return "";
+}
+
+function ratingOf(property: NotionProperty | undefined): number | null {
+  const value = property?.number;
+  if (typeof value !== "number" || !Number.isFinite(value)) return null;
+  return value;
+}
+
+function createdOf(page: NotionPage): string | null {
+  const value = page.created_time?.trim();
+  return value || null;
 }
 
 function titleOf(page: NotionPage): string {
@@ -55,6 +66,8 @@ export function pageToMediaItem(
   const date = prop(page, "日期")?.date?.start ?? null;
   const url = prop(page, "链接")?.url?.trim() || null;
   const note = plain(prop(page, "短评")) || null;
+  const rating = ratingOf(prop(page, "评分"));
+  const created = createdOf(page);
 
   return {
     id: page.id,
@@ -63,9 +76,10 @@ export function pageToMediaItem(
     year: yearFromDate(date),
     date,
     status,
-    dropped: status === DROPPED_STATUS,
     cover,
     url,
     note,
+    rating,
+    created,
   };
 }

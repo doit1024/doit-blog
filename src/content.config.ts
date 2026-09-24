@@ -32,10 +32,11 @@ const media = defineCollection({
     year: z.string().nullable(),
     date: z.string().nullable(),
     status: z.string().nullable(),
-    dropped: z.boolean(),
     cover: z.string().nullable(),
     url: z.string().nullable(),
     note: z.string().nullable(),
+    rating: z.number().nullable().default(null),
+    created: z.string().nullable().default(null),
   }),
 });
 

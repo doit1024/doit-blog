@@ -8,10 +8,11 @@ const EMPTY_ROW = {
   year: null,
   date: null,
   status: null,
-  dropped: false,
   cover: null,
   url: null,
   note: null,
+  rating: null,
+  created: null,
 };
 
 export function mediaLoader(): Loader {
@@ -54,10 +55,11 @@ export function mediaLoader(): Loader {
           year: item.year,
           date: item.date,
           status: item.status,
-          dropped: item.dropped,
           cover: item.cover,
           url: item.url,
           note: item.note,
+          rating: item.rating,
+          created: item.created,
         };
         const parsed = await parseData({ id: item.id, data });
         store.set({
