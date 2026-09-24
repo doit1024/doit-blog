@@ -7,7 +7,7 @@ import { SITE } from "@/config";
 
 dayjs.extend(utc);
 dayjs.extend(timezone);
-dayjs.locale('zh-cn');
+dayjs.locale("zh-cn");
 
 export interface Props {
   class?: string;
@@ -51,6 +51,7 @@ const date = datetime.format("YYYY-MM-DD"); // e.g., '22 Mar, 2025'
   } -->
   <time
     class:list={["text-sm", { "sm:text-base": size === "lg" }]}
-    datetime={datetime.toISOString()}>{date}
+    datetime={datetime.toISOString()}
+    >{date}
   </time>
 </div>

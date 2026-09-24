@@ -252,7 +252,7 @@
   transform-origin: center;
 }
 
-/* Discoverability: bear intro + periodic float/tilt. Stops after first drag. */
+/* Discoverability: periodic bear float/tilt. Stops after first drag. */
 .collage-hero.is-hinting .collage-bear {
   animation: collage-bear-hint 5.2s ease-in-out infinite;
 }
@@ -267,19 +267,10 @@
 
 @keyframes collage-bear-hint {
   0%,
-  22%,
   70%,
   100% {
     --hint-rot: 0deg;
     --hint-lift: 0px;
-  }
-  8% {
-    --hint-rot: -8deg;
-    --hint-lift: -14px;
-  }
-  14% {
-    --hint-rot: 6deg;
-    --hint-lift: -5px;
   }
   78% {
     --hint-rot: -7deg;

@@ -137,7 +137,7 @@ const changelogBlocks = parseChangelog(changelogMd);
             }
             return (
               <p
-                class="text-sm text-muted-foreground leading-relaxed"
+                class="text-muted-foreground text-sm leading-relaxed"
                 set:html={formatInline(block.text)}
               />
             );
@@ -168,7 +168,7 @@ const changelogBlocks = parseChangelog(changelogMd);
                     </a>
                     {commit.date && (
                       <time
-                        class="text-sm text-muted-foreground"
+                        class="text-muted-foreground text-sm"
                         datetime={commit.date}
                       >
                         {formatShanghai(commit.date)}
@@ -176,7 +176,7 @@ const changelogBlocks = parseChangelog(changelogMd);
                     )}
                   </div>
                   {commit.body && (
-                    <p class="mt-2 whitespace-pre-wrap text-sm text-muted-foreground">
+                    <p class="text-muted-foreground mt-2 text-sm whitespace-pre-wrap">
                       {commit.body}
                     </p>
                   )}

@@ -169,6 +169,7 @@ All commands are run from the root of the project, from a terminal:
 | `pnpm run format:check`              | Check code format with Prettier                                                                                                  |
 | `pnpm run format`                    | Format codes with Prettier                                                                                                       |
 | `pnpm run sync`                      | Generates TypeScript types for all Astro modules. [Learn more](https://docs.astro.build/en/reference/cli-reference/#astro-sync). |
+| `pnpm run check`                     | Typecheck with `astro check` (same check the production build runs first)                                                        |
 | `pnpm run lint`                      | Lint with ESLint                                                                                                                 |
 | `docker compose up -d`               | Run AstroPaper on docker, You can access with the same hostname and port informed on `dev` command.                              |
 | `docker compose run app npm install` | You can run any command above into the docker container.                                                                         |

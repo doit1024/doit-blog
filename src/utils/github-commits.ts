@@ -22,9 +22,7 @@ type GithubCommit = {
   };
 };
 
-export async function fetchRecentCommits(
-  limit = 40
-): Promise<CommitInfo[]> {
+export async function fetchRecentCommits(limit = 40): Promise<CommitInfo[]> {
   try {
     const res = await fetch(
       `https://api.github.com/repos/${REPO}/commits?per_page=${limit}`,
@@ -37,9 +35,8 @@ export async function fetchRecentCommits(
     );
 
     if (!res.ok) {
-      console.error(
-        `Failed to fetch commits: ${res.status} ${res.statusText}`
-      );
+      // eslint-disable-next-line no-console -- build-time fetch log, no UI logger
+      console.error(`Failed to fetch commits: ${res.status} ${res.statusText}`);
       return [];
     }
 
@@ -62,6 +59,7 @@ export async function fetchRecentCommits(
       };
     });
   } catch (err) {
+    // eslint-disable-next-line no-console -- build-time fetch log, no UI logger
     console.error("Failed to fetch commits:", err);
     return [];
   }
