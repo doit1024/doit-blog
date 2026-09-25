@@ -1,4 +1,4 @@
-import { getOriginImage } from "@/utils/assets";
+import { postImageAttrs } from "@/utils/assets";
 import { richTextPlain, richTextToMarkdown } from "./rich-text";
 import { V1_BLOCK_TYPES, type NotionBlock, type NotionRichText } from "./types";
 
@@ -103,12 +103,15 @@ function figureHtml(image: {
   url: string;
   caption: string;
 }): string {
+  const attrs = postImageAttrs(image.url);
   const alt = escapeHtml(image.alt || "image");
-  const src = escapeHtml(image.url);
-  const origin = escapeHtml(getOriginImage(image.url));
+  const src = escapeHtml(attrs.src);
+  const lightbox = escapeHtml(attrs.lightboxSrc);
+  const srcset = attrs.srcset ? ` srcset="${escapeHtml(attrs.srcset)}"` : "";
+  const sizes = attrs.sizes ? ` sizes="${escapeHtml(attrs.sizes)}"` : "";
   const caption = image.caption.trim();
   const cap = caption ? `<figcaption>▲${escapeHtml(caption)}</figcaption>` : "";
-  return `<figure class="figure-image" data-src="${origin}"><img src="${src}" alt="${alt}" />${cap}</figure>`;
+  return `<figure class="figure-image" data-src="${lightbox}"><img src="${src}"${srcset}${sizes} alt="${alt}" />${cap}</figure>`;
 }
 
 function imageColumnGrid(columns: string[]): string {
