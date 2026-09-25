@@ -38,6 +38,7 @@ const media = defineCollection({
     rating: z.number().nullable().default(null),
     created: z.string().nullable().default(null),
     playHours: z.number().nullable().default(null),
+    artist: z.string().nullable().default(null),
   }),
 });
 

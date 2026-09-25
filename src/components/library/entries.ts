@@ -18,6 +18,7 @@ export type LibraryEntry = {
   rating: number | null;
   created: string | null;
   playHours: number | null;
+  artist: string | null;
 };
 
 export function toLibraryEntry(item: MediaItem): LibraryEntry {
@@ -33,11 +34,12 @@ export function toLibraryEntry(item: MediaItem): LibraryEntry {
     rating: item.rating,
     created: item.created,
     playHours: item.playHours,
+    artist: item.artist?.trim() || null,
   };
 }
 
 export function entryMatches(entry: LibraryEntry, filter: string): boolean {
-  return filter === "all" || mediaTypesMatch(entry.type, filter);
+  return mediaTypesMatch(entry.type, filter);
 }
 
 export function safeJson(value: unknown): string {

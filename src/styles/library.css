@@ -1,7 +1,7 @@
 /*
   /library only. Card anatomy follows the poster wall (2:3, tight gutters,
-  title + 类型 · 年份). The page stays on the site light ground #fffdfd,
-  including when the rest of the site is in dark mode.
+  title + 类型 · 年份). Music covers are square (1:1). The page stays on the
+  site light ground #fffdfd, including when the rest of the site is in dark mode.
   Column width is the site max-w-app (max-w-3xl), same as posts and the index.
 */
 html[data-theme="dark"]:has(.library),
@@ -114,6 +114,10 @@ html:has(.library) body {
   aspect-ratio: 2 / 3;
   overflow: hidden;
   background: #efe8e1;
+}
+
+.poster.is-square {
+  aspect-ratio: 1 / 1;
 }
 
 .poster img {
@@ -327,14 +331,16 @@ html:has(.library) body {
   color: color-mix(in srgb, #222e36 52%, transparent);
 }
 
-.library-dialog-hours {
+.library-dialog-hours,
+.library-dialog-artist {
   margin: 0.7rem 0 0;
   font-size: 0.95rem;
   line-height: 1.4;
   font-variant-numeric: tabular-nums;
 }
 
-.library-dialog-hours-label {
+.library-dialog-hours-label,
+.library-dialog-artist-label {
   margin-inline-end: 0.45rem;
   color: color-mix(in srgb, #222e36 52%, transparent);
 }

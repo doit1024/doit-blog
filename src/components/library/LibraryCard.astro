@@ -21,8 +21,12 @@ interface Props {
 const { item, eager = false, fetchPriority } = Astro.props;
 const type = canonicalMediaType(item.type);
 const meta = metaLine(type, item.year);
+const square = type === "音乐";
 const thumb = item.cover ? libraryThumbCover(item.cover) : null;
-const thumbBox = libraryCoverBox(LIBRARY_COVER_THUMB_MAX_WIDTH);
+const thumbBox = libraryCoverBox(
+  LIBRARY_COVER_THUMB_MAX_WIDTH,
+  square ? "square" : "poster"
+);
 ---
 
 <li data-media-card data-type={type ?? ""}>
@@ -40,8 +44,9 @@ const thumbBox = libraryCoverBox(LIBRARY_COVER_THUMB_MAX_WIDTH);
     data-rating={item.rating == null ? "" : String(item.rating)}
     data-created={item.created ?? ""}
     data-hours={item.playHours == null ? "" : String(item.playHours)}
+    data-artist={item.artist ?? ""}
   >
-    <div class="poster" data-poster>
+    <div class:list={["poster", { "is-square": square }]} data-poster>
       {
         thumb && (
           <img

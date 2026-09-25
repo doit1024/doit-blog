@@ -2,7 +2,7 @@
 
 记录本站（doit-blog）的产品改动。
 
-## 最新（2026-09-24）
+## 最新（2026-09-25）
 
 ### 变更
 
@@ -34,6 +34,7 @@
 
 ### 新增
 
+- **library**：默认看「书」，音乐方图并显示专辑艺人（[#40](https://github.com/doit1024/doit-blog/pull/40)）
 - **library**：详情弹层，页面改称书影音游（[#36](https://github.com/doit1024/doit-blog/pull/36)）
 - **页头**：把标签、日志、归档收进「更多」（[#35](https://github.com/doit1024/doit-blog/pull/35)）
 - **读看听玩 `/library`**：构建时用官方 Notion API 拉取私有库「读看听玩」，浅色 2:3 海报墙，类型可在页内筛选。约定见 [docs/library.md](docs/library.md)
