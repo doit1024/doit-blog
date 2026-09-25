@@ -22,7 +22,7 @@
 | 属性 | 类型 | 规则 |
 | --- | --- | --- |
 | Title | Title | 必填 |
-| Status | Select：`Draft` / `Published` | 只有 Published 进站 |
+| Status | Select：`Draft` / `Preview` / `Published` | `main` 只收 Published。非 `main` 构建再收 Preview。库里需要自己加上 `Preview` 选项 |
 | Slug | Rich text | 英文 kebab（`wakayama-travel`）。**发布后不要改**（giscus 按 pathname） |
 | Description | Rich text | 必填（SEO / 列表摘要） |
 | Tags | Multi-select | 可在 Notion 里加选项；空则回落 `others` |
@@ -32,6 +32,8 @@
 | featured | Checkbox | 首页「推荐文章」 |
 
 Slug 和 git 文章撞车时 **git 优先**，Notion 那篇会被跳过并打构建警告。
+
+预览不走生产：把 Status 设为 **Preview**，构建长期分支 `preview`（控制台 Retry，或往 `preview` 推空提交），打开 `https://preview-doit-blog.dumengjie2016.workers.dev`。确认后再改成 **Published**，下一次 `main` 构建才上 https://doooit.me。流程见 README「长文预览」。本地用 `NOTION_INCLUDE_PREVIEW=true|false` 覆盖。
 
 ### V1 支持的块
 
@@ -124,6 +126,6 @@ pnpm install
 pnpm run build
 ```
 
-构建日志应有 `notion-posts: no NOTION_TOKEN... skip` 或 `notion-posts: N Published page(s)` / `loaded /posts/<slug>`。
+构建日志应有 `notion-posts: no NOTION_TOKEN... skip`，或 `notion-posts: N Published page(s)`（生产）。预览构建是 `notion-posts: mode=preview, N page(s) (Published+Preview)`。成功灌入的文章还有 `loaded /posts/<slug>`。
 
 GitHub Actions 的 `pnpm run build` **不要**注入 token，避免 fork PR 泄漏。无 token 时 Notion 源自动跳过，CI 只构建 git 文章 + `/bb` 公开 collection。`/library` 同样跳过，见 [docs/library.md](./library.md)。

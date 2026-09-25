@@ -1,0 +1,13 @@
+---
+import { notionPostsIncludePreview } from "@/utils/notion-posts/config";
+
+interface Props {
+  title: string;
+  preview?: boolean;
+}
+
+const { title, preview } = Astro.props;
+const show = Boolean(preview) && notionPostsIncludePreview();
+---
+
+{title}{show && <span class="ms-2 text-xs font-medium text-accent">预览</span>}

@@ -73,6 +73,8 @@ export type PublishedPost = {
   featured: boolean;
   ogImage: NotionFile | null;
   blocks: NotionBlock[];
+  /** Notion Status. `Preview` only appears when the preview channel is on. */
+  status: "Published" | "Preview";
 };
 
 export const V1_BLOCK_TYPES = new Set([

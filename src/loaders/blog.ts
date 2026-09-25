@@ -2,6 +2,7 @@ import { glob, type Loader, type LoaderContext } from "astro/loaders";
 import { blocksToMarkdown } from "@/utils/notion-posts/blocks-to-markdown";
 import {
   hasNotionSource,
+  notionPostsIncludePreview,
   readNotionPostsConfig,
   type NotionPostsConfig,
 } from "@/utils/notion-posts/config";
@@ -109,16 +110,21 @@ async function mergeNotionPosts(context: LoaderContext): Promise<void> {
     );
   }
 
+  const includePreview = notionPostsIncludePreview();
   let posts: PublishedPost[];
   try {
-    posts = await loadPublishedPosts(config);
+    posts = await loadPublishedPosts(config, includePreview);
   } catch (error) {
     const message = error instanceof Error ? error.message : String(error);
     logger.warn(`notion-posts: fetch failed, skip Notion source: ${message}`);
     return;
   }
 
-  logger.info(`notion-posts: ${posts.length} Published page(s)`);
+  logger.info(
+    includePreview
+      ? `notion-posts: mode=preview, ${posts.length} page(s) (Published+Preview)`
+      : `notion-posts: ${posts.length} Published page(s)`
+  );
   const claimed = new Set<string>();
 
   for (const post of posts) {
