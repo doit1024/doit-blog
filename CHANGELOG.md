@@ -6,6 +6,7 @@
 
 ### 变更
 
+- **站点**：ZHA-20: mobile header shows all nav items as 2-row chip grid（[#41](https://github.com/doit1024/doit-blog/pull/41)）
 - **长文 Notion**：构建时用官方 API 拉 `Status=Published` 的页，转 Markdown 并入现有 `/posts`（标签 / 归档 / RSS / Pagefind / giscus）；图转存现有 R2 + WebP Cloud；Notion 失败或未配 token 则跳过该源，不挡整站；git MDX 长期保留（[#26](https://github.com/doit1024/doit-blog/pull/26)）
 - **小声哔哔 `/bb`**：改为构建时静态生成（SSG）。`astro build` 用现有 `notion-client` 公开接口拉取 Notion 并烘焙 HTML，运行时不再请求 Notion、不再依赖 Worker SSR。Notion 更新后需触发 Cloudflare Workers Builds Deploy Hook 重建，见 [docs/bb-static-rebuild.md](docs/bb-static-rebuild.md)
 
