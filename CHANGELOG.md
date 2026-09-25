@@ -35,6 +35,7 @@
 
 ### 新增
 
+- **长文 Notion**：非 `main` 构建（或 `NOTION_INCLUDE_PREVIEW=true`）收录 `Status=Preview`，预览站 `noindex` 且 `robots.txt` 禁止抓取；`main` 仍只发 `Published`（[#42](https://github.com/doit1024/doit-blog/pull/42)）
 - **library**：默认看「书」，音乐方图并显示专辑艺人（[#40](https://github.com/doit1024/doit-blog/pull/40)）
 - **library**：详情弹层，页面改称书影音游（[#36](https://github.com/doit1024/doit-blog/pull/36)）
 - **页头**：把标签、日志、归档收进「更多」（[#35](https://github.com/doit1024/doit-blog/pull/35)）

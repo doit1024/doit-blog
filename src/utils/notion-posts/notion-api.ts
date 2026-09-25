@@ -67,18 +67,28 @@ async function notionFetch<T>(
 
 export async function queryPublishedPages(
   token: string,
-  databaseId: string
+  databaseId: string,
+  includePreview = false
 ): Promise<NotionPage[]> {
   const pages: NotionPage[] = [];
   let cursor: string | undefined;
 
+  const filter = includePreview
+    ? {
+        or: [
+          { property: "Status", select: { equals: "Published" } },
+          { property: "Status", select: { equals: "Preview" } },
+        ],
+      }
+    : {
+        property: "Status",
+        select: { equals: "Published" },
+      };
+
   do {
     const body: Record<string, unknown> = {
       page_size: 100,
-      filter: {
-        property: "Status",
-        select: { equals: "Published" },
-      },
+      filter,
     };
     if (cursor) body.start_cursor = cursor;
 

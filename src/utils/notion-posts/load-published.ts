@@ -23,12 +23,23 @@ function parseDate(value: string | null | undefined, fallback: Date): Date {
   return Number.isNaN(parsed.getTime()) ? fallback : parsed;
 }
 
+function statusOf(page: NotionPage): PublishedPost["status"] {
+  return prop(page, "Status")?.select?.name === "Preview"
+    ? "Preview"
+    : "Published";
+}
+
 export async function loadPublishedPosts(
-  config: NotionPostsConfig
+  config: NotionPostsConfig,
+  includePreview = false
 ): Promise<PublishedPost[]> {
   if (!config.token || !config.databaseId) return [];
 
-  const pages = await queryPublishedPages(config.token, config.databaseId);
+  const pages = await queryPublishedPages(
+    config.token,
+    config.databaseId,
+    includePreview
+  );
   const posts: PublishedPost[] = [];
 
   for (const page of pages) {
@@ -62,6 +73,7 @@ export async function loadPublishedPosts(
       featured: Boolean(prop(page, "featured")?.checkbox),
       ogImage: ogFiles[0] ?? null,
       blocks: await fetchBlockTree(config.token, page.id),
+      status: statusOf(page),
     });
   }
 
@@ -84,5 +96,6 @@ export function notionPostData(post: PublishedPost) {
     description: post.description,
     hideEditPost: true,
     timezone: SITE.timezone,
+    ...(post.status === "Preview" ? { preview: true } : {}),
   };
 }

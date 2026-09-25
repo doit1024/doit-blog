@@ -83,6 +83,17 @@ When the Notion database changes, trigger a [Cloudflare Workers Builds Deploy Ho
 
 `/library` is a static poster wall. `astro build` reads the private Notion database with `NOTION_TOKEN` and `NOTION_MEDIA_DATABASE_ID` (same official API and Deploy Hook as long-form posts). Missing env skips the page instead of failing the site. Details: **[docs/library.md](docs/library.md)** (中文).
 
+## 长文预览（不发生产）
+
+Notion 长文数据库的 Status 选择里需要先加上 **Preview**（和现有的 `Draft` / `Published` 并列）。没有这个选项时，构建查不到预览稿。
+
+1. 把要先看的那篇 `Status` 设为 **Preview**。
+2. 触发长期分支 `preview` 的构建：在 Cloudflare 控制台对该构建点 Retry，或往 `preview` 推一个空提交。非 `main` 分支走 `wrangler versions upload`，得到稳定地址，不改生产流量。
+3. 打开 `https://preview-doit-blog.dumengjie2016.workers.dev`。这一版包含 `Published` 和 `Preview`；`Preview` 文章标题旁有「预览」标记。全站带 `noindex, nofollow`，`robots.txt` 禁止抓取。
+4. 确认要上线后，把 `Status` 改为 **Published**。下一次 `main` 构建才会出现在 https://doooit.me。
+
+`main` 以及没设置分支时，仍然只收录 `Published`。本地想看预览稿：`NOTION_INCLUDE_PREVIEW=true`。设成 `false` 则强制只收录 `Published`（即使当前在非 main 分支）。Cloudflare Workers Builds 会设置 `WORKERS_CI_BRANCH`；只要它不是 `main`，构建就会带上 Preview。
+
 ## 📖 Documentation
 
 Documentation can be read in two formats\_ _markdown_ & _blog post_.

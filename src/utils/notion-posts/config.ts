@@ -58,4 +58,19 @@ export function hasNotionSource(config: NotionPostsConfig): boolean {
   return Boolean(config.token && config.databaseId);
 }
 
+/**
+ * Preview channel: `NOTION_INCLUDE_PREVIEW=true|false` overrides.
+ * Otherwise a set `WORKERS_CI_BRANCH` other than `main` includes Preview.
+ * Unset env and `main` stay Published-only.
+ */
+export function notionPostsIncludePreview(
+  env: NodeJS.ProcessEnv = process.env
+): boolean {
+  const override = env.NOTION_INCLUDE_PREVIEW;
+  if (override === "true") return true;
+  if (override === "false") return false;
+  const branch = env.WORKERS_CI_BRANCH;
+  return Boolean(branch) && branch !== "main";
+}
+
 export const ENGLISH_KEBAB_SLUG = /^[a-z0-9]+(?:-[a-z0-9]+)*$/;

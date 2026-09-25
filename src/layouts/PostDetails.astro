@@ -16,6 +16,7 @@ import IconChevronLeft from "@/assets/icons/IconChevronLeft.svg";
 import IconChevronRight from "@/assets/icons/IconChevronRight.svg";
 import { SITE } from "@/config";
 import BackToTopButton from "@/components/BackToTopButton.astro";
+import PostTitle from "@/components/PostTitle.astro";
 import "lightgallery/css/lightgallery.css";
 
 export interface Props {
@@ -36,6 +37,7 @@ const {
   timezone,
   tags,
   hideEditPost,
+  preview,
 } = post.data;
 
 const { Content } = await render(post);
@@ -100,7 +102,7 @@ const nextPost =
       transition:name={slugifyStr(title)}
       class="inline-block text-2xl font-bold text-accent sm:text-3xl"
     >
-      {title}
+      <PostTitle title={title} preview={preview} />
     </h1>
     <div class="my-2 flex items-center gap-2">
       <Datetime {pubDatetime} {modDatetime} {timezone} size="lg" />

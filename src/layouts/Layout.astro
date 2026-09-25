@@ -3,6 +3,7 @@ import { ClientRouter } from "astro:transitions";
 import { PUBLIC_GOOGLE_SITE_VERIFICATION } from "astro:env/client";
 import { Font } from "astro:assets";
 import { SITE } from "@/config";
+import { notionPostsIncludePreview } from "@/utils/notion-posts/config";
 import "@/styles/global.css";
 
 export interface Props {
@@ -30,6 +31,7 @@ const {
 } = Astro.props;
 
 const socialImageURL = new URL(ogImage, Astro.url);
+const includePreview = notionPostsIncludePreview();
 
 const structuredData = {
   "@context": "https://schema.org",
@@ -65,6 +67,7 @@ const structuredData = {
     />
     <link rel="canonical" href={canonicalURL} />
     <meta name="generator" content={Astro.generator} />
+    {includePreview && <meta name="robots" content="noindex, nofollow" />}
 
     <!-- General Meta Tags -->
     <title>{title}</title>
