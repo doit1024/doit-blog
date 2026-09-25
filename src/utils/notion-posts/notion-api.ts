@@ -190,10 +190,14 @@ export async function fetchBlockTree(
   const blocks = await listChildren(token, blockId);
 
   for (const block of blocks) {
+    if (block.type === "child_page" || block.type === "child_database") {
+      continue;
+    }
     if (
-      !block.has_children ||
-      block.type === "child_page" ||
-      block.type === "child_database"
+      !block.has_children &&
+      block.type !== "column_list" &&
+      block.type !== "column" &&
+      block.type !== "synced_block"
     ) {
       continue;
     }

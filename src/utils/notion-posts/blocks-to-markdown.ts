@@ -1,5 +1,20 @@
+import { getOriginImage } from "@/utils/assets";
 import { richTextPlain, richTextToMarkdown } from "./rich-text";
 import { V1_BLOCK_TYPES, type NotionBlock, type NotionRichText } from "./types";
+
+const HANDLED_BLOCK_TYPES = new Set([
+  ...V1_BLOCK_TYPES,
+  "toggle",
+  "to_do",
+  "bookmark",
+  "link_preview",
+  "embed",
+  "equation",
+  "table_of_contents",
+  "breadcrumb",
+]);
+
+const IMAGE_MARKDOWN = /^!\[([^\]]*)\]\(([^)\s]+)(?:\s+"([^"]*)")?\)$/;
 
 export type ImageResolver = (args: {
   blockId: string;
@@ -51,6 +66,86 @@ function indent(text: string, depth: number): string {
 
 function warnUnsupported(ctx: ConvertContext, type: string): void {
   ctx.warn(`unsupported block "${type}" (degrade or skip)`);
+}
+
+function escapeHtml(value: string): string {
+  return value
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;");
+}
+
+function parseMarkdownImages(
+  markdown: string
+): { alt: string; url: string; caption: string }[] | null {
+  const parts = markdown
+    .split(/\n{2,}/)
+    .map(part => part.trim())
+    .filter(Boolean);
+  if (!parts.length) return null;
+
+  const images: { alt: string; url: string; caption: string }[] = [];
+  for (const part of parts) {
+    const match = part.match(IMAGE_MARKDOWN);
+    if (!match) return null;
+    images.push({
+      alt: match[1] ?? "image",
+      url: match[2] ?? "",
+      caption: match[3] ?? "",
+    });
+  }
+  return images;
+}
+
+function figureHtml(image: {
+  alt: string;
+  url: string;
+  caption: string;
+}): string {
+  const alt = escapeHtml(image.alt || "image");
+  const src = escapeHtml(image.url);
+  const origin = escapeHtml(getOriginImage(image.url));
+  const caption = image.caption.trim();
+  const cap = caption ? `<figcaption>▲${escapeHtml(caption)}</figcaption>` : "";
+  return `<figure class="figure-image" data-src="${origin}"><img src="${src}" alt="${alt}" />${cap}</figure>`;
+}
+
+function imageColumnGrid(columns: string[]): string {
+  const count = Math.min(Math.max(columns.length, 2), 4);
+  const inner = columns
+    .map(markdown => {
+      const images = parseMarkdownImages(markdown) ?? [];
+      const figures = images.map(figureHtml).join("");
+      return `<div class="notion-column">${figures}</div>`;
+    })
+    .join("");
+  return `<div class="notion-columns" data-cols="${count}">${inner}</div>`;
+}
+
+async function convertColumnList(
+  block: NotionBlock,
+  ctx: ConvertContext
+): Promise<string> {
+  const columns = (block.children ?? []).filter(col => col.type === "column");
+  const sources = columns.length ? columns : (block.children ?? []);
+  const markdowns: string[] = [];
+  for (const column of sources) {
+    const md = await convertChildren(
+      column.type === "column" ? column.children : [column],
+      ctx,
+      0
+    );
+    if (md.trim()) markdowns.push(md);
+  }
+  if (!markdowns.length) return "";
+  if (
+    markdowns.length >= 2 &&
+    markdowns.every(md => parseMarkdownImages(md) !== null)
+  ) {
+    return imageColumnGrid(markdowns);
+  }
+  return markdowns.join("\n\n");
 }
 
 function imageUrl(data: BlockPayload): string | undefined {
@@ -125,10 +220,6 @@ async function convertListItem(
   ctx: ConvertContext,
   depth: number
 ): Promise<string> {
-  if (block.type === "to_do") {
-    ctx.warn(`unsupported block "to_do" (degrade or skip)`);
-  }
-
   const marker =
     block.type === "numbered_list_item"
       ? "1."
@@ -190,7 +281,7 @@ async function convertOne(
   const data = payload(block);
   const text = richTextToMarkdown(data.rich_text);
 
-  if (!V1_BLOCK_TYPES.has(type) && type !== "table_row") {
+  if (!HANDLED_BLOCK_TYPES.has(type) && type !== "table_row") {
     warnUnsupported(ctx, type);
   }
 
@@ -230,6 +321,7 @@ async function convertOne(
       return [text, nested].filter(Boolean).join("\n\n");
     }
     case "column_list":
+      return convertColumnList(block, ctx);
     case "column":
     case "synced_block": {
       return convertChildren(block.children, ctx, depth);
