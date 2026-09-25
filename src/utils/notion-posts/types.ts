@@ -89,4 +89,9 @@ export const V1_BLOCK_TYPES = new Set([
   "image",
   "table",
   "table_row",
+  "divider",
+  "column_list",
+  "column",
+  "callout",
+  "synced_block",
 ]);

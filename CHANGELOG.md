@@ -20,6 +20,7 @@
 
 ### 修复
 
+- **长文**：treat Notion columns and dividers as first-class（[#43](https://github.com/doit1024/doit-blog/pull/43)）
 - **images**：修复库页裂图和文章慢加载（[#39](https://github.com/doit1024/doit-blog/pull/39)）
 - **library**：把类型「电视剧」改名为「剧集」（[#37](https://github.com/doit1024/doit-blog/pull/37)）
 - **library**：把 /library 收回到和其他页面一样的内容宽度（[#33](https://github.com/doit1024/doit-blog/pull/33)）
