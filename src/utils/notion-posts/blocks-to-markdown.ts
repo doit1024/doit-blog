@@ -27,8 +27,8 @@ export type ConvertContext = {
   warn: (message: string) => void;
   resolveImage: ImageResolver;
   /**
-   * Image-only column grids already emitted. The first grid's top row is
-   * eager; later grids stay lazy. Callers can leave this unset.
+   * Column grids already emitted (image-only or mixed). The first grid's
+   * first image in each column is eager; later grids stay lazy.
    */
   columnImageGrids?: number;
 };
@@ -82,26 +82,140 @@ function escapeHtml(value: string): string {
     .replace(/"/g, "&quot;");
 }
 
-function parseMarkdownImages(
-  markdown: string
-): { alt: string; url: string; caption: string }[] | null {
-  const parts = markdown
-    .split(/\n{2,}/)
-    .map(part => part.trim())
-    .filter(Boolean);
-  if (!parts.length) return null;
+function splitMarkdownBlocks(markdown: string): string[] {
+  const lines = markdown.replace(/\r\n/g, "\n").split("\n");
+  const blocks: string[] = [];
+  let buf: string[] = [];
+  let inFence = false;
 
-  const images: { alt: string; url: string; caption: string }[] = [];
-  for (const part of parts) {
-    const match = part.match(IMAGE_MARKDOWN);
-    if (!match) return null;
-    images.push({
-      alt: match[1] ?? "image",
-      url: match[2] ?? "",
-      caption: match[3] ?? "",
-    });
+  const flush = () => {
+    const text = buf.join("\n").trim();
+    if (text) blocks.push(text);
+    buf = [];
+  };
+
+  for (const line of lines) {
+    if (/^```/.test(line)) {
+      inFence = !inFence;
+      buf.push(line);
+      continue;
+    }
+    if (!inFence && line.trim() === "") {
+      flush();
+      continue;
+    }
+    buf.push(line);
   }
-  return images;
+  flush();
+  return blocks;
+}
+
+function unescapeMarkdown(text: string): string {
+  return text.replace(/\\([\\`*_[\]<>])/g, "$1");
+}
+
+function inlineToHtml(text: string): string {
+  const slots: string[] = [];
+  const slot = (html: string): string => {
+    const index = slots.length;
+    slots.push(html);
+    return `\u0000${index}\u0000`;
+  };
+
+  let s = text.replace(/`([^`]+)`/g, (_, code: string) =>
+    slot(`<code>${escapeHtml(code)}</code>`)
+  );
+  s = s.replace(
+    /\[([^\]]+)\]\(([^)\s]+)\)/g,
+    (_, label: string, href: string) =>
+      slot(`<a href="${escapeHtml(href)}">${inlineToHtml(label)}</a>`)
+  );
+  s = escapeHtml(unescapeMarkdown(s));
+  s = s.replace(/\*\*(.+?)\*\*/g, "<strong>$1</strong>");
+  s = s.replace(/\*([^*]+)\*/g, "<em>$1</em>");
+  s = s.replace(/~~(.+?)~~/g, "<del>$1</del>");
+  s = s.replace(/&lt;u&gt;([\s\S]*?)&lt;\/u&gt;/g, "<u>$1</u>");
+  return s.replace(/\u0000(\d+)\u0000/g, (_, index: string) => {
+    return slots[Number(index)] ?? "";
+  });
+}
+
+function renderCodeFence(block: string): string {
+  const match = block.match(/^```([^\n]*)\n?([\s\S]*?)```$/);
+  const lang = match?.[1]?.trim().split(/\s+/)[0] ?? "";
+  const body = (match?.[2] ?? block).replace(/\n$/, "");
+  const cls = lang ? ` class="language-${escapeHtml(lang)}"` : "";
+  return `<pre><code${cls}>${escapeHtml(body)}</code></pre>`;
+}
+
+function renderTable(block: string): string | null {
+  const lines = block.split("\n").filter(line => line.trim());
+  if (lines.length < 2 || !lines.every(line => line.includes("|"))) {
+    return null;
+  }
+  const parseRow = (line: string): string[] =>
+    line
+      .replace(/^\||\|$/g, "")
+      .split("|")
+      .map(cell => cell.trim());
+  const isSep = (line: string): boolean =>
+    parseRow(line).every(cell => /^:?-{3,}:?$/.test(cell));
+  const sepIndex = lines.findIndex(isSep);
+  if (sepIndex < 1) return null;
+
+  const header = parseRow(lines[0] ?? "");
+  const body = lines.slice(sepIndex + 1).map(parseRow);
+  const th = header.map(cell => `<th>${inlineToHtml(cell)}</th>`).join("");
+  const tr = body
+    .map(
+      row =>
+        `<tr>${row.map(cell => `<td>${inlineToHtml(cell)}</td>`).join("")}</tr>`
+    )
+    .join("");
+  return `<table><thead><tr>${th}</tr></thead><tbody>${tr}</tbody></table>`;
+}
+
+function isListBlock(block: string): boolean {
+  return block.split("\n").every(line => {
+    const trimmed = line.trim();
+    return (
+      !trimmed ||
+      /^[-*] /.test(trimmed) ||
+      /^\d+\. /.test(trimmed) ||
+      /^- \[[ x]\] /i.test(trimmed)
+    );
+  });
+}
+
+function renderList(block: string): string {
+  const lines = block.split("\n").filter(line => line.trim());
+  const numbered = /^\d+\.\s/.test(lines[0]?.trim() ?? "");
+  const tag = numbered ? "ol" : "ul";
+  const items = lines.map(line => {
+    const trimmed = line.trim();
+    const todo = trimmed.match(/^- \[([ x])\] (.*)$/i);
+    if (todo) {
+      const mark = todo[1]?.toLowerCase() === "x" ? "☑ " : "☐ ";
+      return `<li>${mark}${inlineToHtml(todo[2] ?? "")}</li>`;
+    }
+    const item = trimmed.replace(/^(?:[-*]|\d+\.)\s+/, "");
+    return `<li>${inlineToHtml(item)}</li>`;
+  });
+  return `<${tag}>${items.join("")}</${tag}>`;
+}
+
+function parseImageMarkdown(block: string): {
+  alt: string;
+  url: string;
+  caption: string;
+} | null {
+  const match = block.trim().match(IMAGE_MARKDOWN);
+  if (!match) return null;
+  return {
+    alt: match[1] ?? "image",
+    url: match[2] ?? "",
+    caption: match[3] ?? "",
+  };
 }
 
 /**
@@ -134,25 +248,81 @@ async function figureHtml(
   return `<figure class="figure-image" data-src="${lightbox}"><img src="${src}"${srcset}${sizes}${box} alt="${alt}" loading="${loading}" decoding="async"${priority} />${cap}</figure>`;
 }
 
-async function imageColumnGrid(
+async function renderMarkdownBlock(
+  block: string,
+  loading: "eager" | "lazy",
+  fetchPriority?: "high"
+): Promise<string> {
+  const image = parseImageMarkdown(block);
+  if (image) return figureHtml(image, loading, fetchPriority);
+
+  if (block === "---" || block === "***" || block === "___") return "<hr />";
+
+  if (block.startsWith("```")) return renderCodeFence(block);
+
+  const heading = block.match(/^(#{1,3})\s+(.+)$/);
+  if (heading) {
+    const level = heading[1]?.length ?? 2;
+    return `<h${level}>${inlineToHtml(heading[2] ?? "")}</h${level}>`;
+  }
+
+  if (block.split("\n").every(line => /^>\s?/.test(line) || !line.trim())) {
+    const inner = block
+      .split("\n")
+      .map(line => line.replace(/^>\s?/, ""))
+      .join("\n")
+      .trim();
+    const html = await columnMarkdownToHtml(inner, false, 0);
+    return `<blockquote>${html}</blockquote>`;
+  }
+
+  const table = renderTable(block);
+  if (table) return table;
+
+  if (isListBlock(block)) return renderList(block);
+
+  return `<p>${inlineToHtml(block.replace(/\n/g, "<br />"))}</p>`;
+}
+
+async function columnMarkdownToHtml(
+  markdown: string,
+  eagerFirstImage: boolean,
+  columnIndex: number
+): Promise<string> {
+  let imageIndex = 0;
+  const parts: string[] = [];
+  for (const block of splitMarkdownBlocks(markdown)) {
+    const image = parseImageMarkdown(block);
+    if (image) {
+      const eager = eagerFirstImage && imageIndex === 0;
+      parts.push(
+        await figureHtml(
+          image,
+          eager ? "eager" : "lazy",
+          eager && columnIndex === 0 ? "high" : undefined
+        )
+      );
+      imageIndex += 1;
+      continue;
+    }
+    parts.push(await renderMarkdownBlock(block, "lazy"));
+  }
+  return parts.join("");
+}
+
+async function columnGrid(
   columns: string[],
-  eagerTopRow: boolean
+  eagerFirstImages: boolean
 ): Promise<string> {
   const count = Math.min(Math.max(columns.length, 2), 4);
   const inner = await Promise.all(
     columns.map(async (markdown, columnIndex) => {
-      const images = parseMarkdownImages(markdown) ?? [];
-      const figures = await Promise.all(
-        images.map((image, index) => {
-          const eager = eagerTopRow && index === 0;
-          return figureHtml(
-            image,
-            eager ? "eager" : "lazy",
-            eager && columnIndex === 0 ? "high" : undefined
-          );
-        })
+      const html = await columnMarkdownToHtml(
+        markdown,
+        eagerFirstImages,
+        columnIndex
       );
-      return `<div class="notion-column">${figures.join("")}</div>`;
+      return `<div class="notion-column">${html}</div>`;
     })
   );
   return `<div class="notion-columns" data-cols="${count}">${inner.join("")}</div>`;
@@ -174,15 +344,10 @@ async function convertColumnList(
     if (md.trim()) markdowns.push(md);
   }
   if (!markdowns.length) return "";
-  if (
-    markdowns.length >= 2 &&
-    markdowns.every(md => parseMarkdownImages(md) !== null)
-  ) {
-    const gridIndex = ctx.columnImageGrids ?? 0;
-    ctx.columnImageGrids = gridIndex + 1;
-    return imageColumnGrid(markdowns, gridIndex === 0);
-  }
-  return markdowns.join("\n\n");
+  if (markdowns.length === 1) return markdowns[0] ?? "";
+  const gridIndex = ctx.columnImageGrids ?? 0;
+  ctx.columnImageGrids = gridIndex + 1;
+  return columnGrid(markdowns, gridIndex === 0);
 }
 
 function imageUrl(data: BlockPayload): string | undefined {

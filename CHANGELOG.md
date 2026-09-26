@@ -21,6 +21,7 @@
 
 ### 修复
 
+- **长文**：keep mixed Notion columns as a grid（[#48](https://github.com/doit1024/doit-blog/pull/48)）
 - **小声哔哔 `/bb`**：名字和日期收进直角粉框（[#50](https://github.com/doit1024/doit-blog/pull/50)）
 - **小声哔哔 `/bb`**：左侧圆头像和直角正文框，并修好 Notion 图片（[#49](https://github.com/doit1024/doit-blog/pull/49)）
 - **images**：Notion 分栏图片在加载前按真实比例占位（[#47](https://github.com/doit1024/doit-blog/pull/47)）

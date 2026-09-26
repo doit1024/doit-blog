@@ -37,7 +37,7 @@ Slug 和 git 文章撞车时 **git 优先**，Notion 那篇会被跳过并打构
 
 ### V1 支持的块
 
-段落、标题（H1–H3）、列表、引用、代码、图片（含 caption → `<figure class="figure-image">`）、链接、简单表格、分隔线（`divider` → `<hr>`）、分栏（`column_list` / `column`：旅行双图在桌面并排，手机单列；混排文字则顺序摊平）、callout（当引用）、同步块（摊平子块）。
+段落、标题（H1–H3）、列表、引用、代码、图片（含 caption → `<figure class="figure-image">`）、链接、简单表格、分隔线（`divider` → `<hr>`）、分栏（`column_list` / `column`：桌面并排、手机单列；纯图和混排正文都保持分栏，不再摊平）、callout（当引用）、同步块（摊平子块）。
 
 其它块：构建警告，并降级或跳过 **该块**（bookmark/embed → 链接；video/file 等跳过）。**不会**因此让整站 build 失败。
 
