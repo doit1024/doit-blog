@@ -54,7 +54,12 @@
     }
 
     img {
-      @apply mx-auto border border-border;
+      @apply mx-auto h-auto max-w-full border border-border;
+      background-color: color-mix(
+        in srgb,
+        var(--foreground) 8%,
+        var(--background)
+      );
     }
 
     figcaption {

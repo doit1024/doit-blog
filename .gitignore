@@ -1,6 +1,9 @@
 # build output
 dist/
 
+# image dimension lookups (build cache; safe to delete)
+.cache/
+
 # generated types
 .astro/
 .design-qa/

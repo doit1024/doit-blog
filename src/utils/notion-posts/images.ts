@@ -1,4 +1,5 @@
 import { R2_ORIGIN, toWebpCloudUrl, WEBP_CLOUD_ORIGIN } from "@/utils/assets";
+import { rememberImageSize } from "@/utils/image-size";
 import type { NotionPostsConfig } from "./config";
 import {
   downloadBinary,
@@ -72,14 +73,21 @@ export async function syncImageToCdn(
     return null;
   }
 
-  const { bytes, contentType } = await optimizeForR2(
+  const optimized = await optimizeForR2(
     downloaded.bytes,
     downloaded.contentType
   );
-  const ext = extensionFrom(contentType, args.url);
+  const ext = extensionFrom(optimized.contentType, args.url);
   const key = r2ObjectKey(args.slug, args.fileId, ext);
-  await uploadToR2(config.r2, key, bytes, contentType);
-  return `${config.webpOrigin}/${key}`;
+  await uploadToR2(config.r2, key, optimized.bytes, optimized.contentType);
+  const publicUrl = `${config.webpOrigin}/${key}`;
+  if (optimized.width && optimized.height) {
+    rememberImageSize(publicUrl, {
+      width: optimized.width,
+      height: optimized.height,
+    });
+  }
+  return publicUrl;
 }
 
 export function createImageResolver(

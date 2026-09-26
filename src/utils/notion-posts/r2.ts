@@ -1,5 +1,6 @@
 import { AwsClient } from "aws4fetch";
 import sharp from "sharp";
+import { parseImageSize } from "@/utils/image-size-parse";
 import type { R2Config } from "./config";
 
 /** Origin we PUT to R2, checked after optimize. WebP Cloud Rapid hangs on huge origins. */
@@ -60,17 +61,35 @@ const OPTIMIZE_TYPES = new Set([
   "image/webp",
 ]);
 
+export type OptimizedImage = {
+  bytes: Uint8Array;
+  contentType: string;
+  width?: number;
+  height?: number;
+};
+
 /**
  * Shrink camera-sized uploads before they hit R2. WebP Cloud's Rapid mode
  * downloads the origin in full on a cache miss; a 12MB JPEG hangs there.
  * The 20MB cap applies to this result, not the Notion original.
  */
+
+function withParsedSize(result: {
+  bytes: Uint8Array;
+  contentType: string;
+}): OptimizedImage {
+  const checked = assertFitsR2(result);
+  const size = parseImageSize(checked.bytes);
+  if (!size) return checked;
+  return { ...checked, width: size.width, height: size.height };
+}
+
 export async function optimizeForR2(
   bytes: Uint8Array,
   contentType: string
-): Promise<{ bytes: Uint8Array; contentType: string }> {
+): Promise<OptimizedImage> {
   const type = contentType.split(";")[0]?.trim() ?? "";
-  if (!OPTIMIZE_TYPES.has(type)) return assertFitsR2({ bytes, contentType });
+  if (!OPTIMIZE_TYPES.has(type)) return withParsedSize({ bytes, contentType });
 
   try {
     const image = sharp(bytes, { failOn: "none" });
@@ -83,7 +102,7 @@ export async function optimizeForR2(
       width <= MAX_ORIGIN_EDGE &&
       height <= MAX_ORIGIN_EDGE &&
       bytes.byteLength <= SKIP_OPTIMIZE_BYTES;
-    if (alreadySmall) return assertFitsR2({ bytes, contentType });
+    if (alreadySmall) return withParsedSize({ bytes, contentType });
 
     let pipeline = image.rotate();
     if (width > MAX_ORIGIN_EDGE || height > MAX_ORIGIN_EDGE) {
@@ -97,19 +116,19 @@ export async function optimizeForR2(
 
     if (type === "image/png" && meta.hasAlpha) {
       const out = await pipeline.png({ compressionLevel: 8 }).toBuffer();
-      return assertFitsR2({
+      return withParsedSize({
         bytes: new Uint8Array(out),
         contentType: "image/png",
       });
     }
 
     const out = await pipeline.jpeg({ quality: 82, mozjpeg: true }).toBuffer();
-    return assertFitsR2({
+    return withParsedSize({
       bytes: new Uint8Array(out),
       contentType: "image/jpeg",
     });
   } catch {
-    return assertFitsR2({ bytes, contentType });
+    return withParsedSize({ bytes, contentType });
   }
 }
 
