@@ -4,7 +4,9 @@ dist/
 # generated types
 .astro/
 .design-qa/
-.github/
+# Ignore extra files under .github, but keep workflow YAML tracked.
+.github/*
+!.github/workflows/
 .wrangler/
 .vscode/
 .output/
