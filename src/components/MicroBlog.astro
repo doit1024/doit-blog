@@ -23,42 +23,74 @@ const tags = tagString
       .filter(Boolean)
   : [];
 const canRender = Boolean(blockData?.block && pageBlock);
+
+const AVATAR_SRC =
+  "https://d28ebb3.webp.li/2026/09/5d27c2acc859f631458467095bf22181.png";
 ---
 
 <article class="bb-note">
-  <header class="bb-note-meta">
-    <span class="bb-note-name">{SITE.author}</span>
-    {
-      createdTime ? (
-        <time datetime={dayjs(createdTime).toISOString()}>
-          {dayjs(createdTime).format("YYYY-MM-DD HH:mm:ss")}
-        </time>
-      ) : null
-    }
-  </header>
-  <div class="bb-note-content">
-    {
-      canRender ? (
-        <BbNotion recordMap={blockData} />
-      ) : (
-        <p class="text-muted-foreground">这条内容暂时无法显示。</p>
-      )
-    }
-    {
-      tags.length > 0 && (
-        <p class="bb-note-tags">
-          {tags.map((tag: string) => (
-            <span>#{tag}</span>
-          ))}
-        </p>
-      )
-    }
+  <img
+    class="bb-avatar"
+    src={AVATAR_SRC}
+    alt=""
+    width="44"
+    height="44"
+    decoding="async"
+    referrerpolicy="no-referrer"
+  />
+  <div class="bb-note-main">
+    <header class="bb-note-meta">
+      <span class="bb-note-name">{SITE.author}</span>
+      {
+        createdTime ? (
+          <time datetime={dayjs(createdTime).toISOString()}>
+            {dayjs(createdTime).format("YYYY-MM-DD HH:mm:ss")}
+          </time>
+        ) : null
+      }
+    </header>
+    <div class="bb-note-content">
+      {
+        canRender ? (
+          <BbNotion recordMap={blockData} />
+        ) : (
+          <p class="text-muted-foreground">这条内容暂时无法显示。</p>
+        )
+      }
+      {
+        tags.length > 0 && (
+          <p class="bb-note-tags">
+            {tags.map((tag: string) => (
+              <span>#{tag}</span>
+            ))}
+          </p>
+        )
+      }
+    </div>
   </div>
 </article>
 
 <style>
   .bb-note {
+    display: flex;
+    align-items: flex-start;
+    gap: 0.7rem;
     min-width: 0;
+  }
+
+  .bb-avatar {
+    width: 2.5rem;
+    height: 2.5rem;
+    flex: none;
+    margin-top: 0.05rem;
+    border-radius: 999px;
+    object-fit: cover;
+    background: color-mix(in srgb, var(--muted) 50%, var(--background));
+  }
+
+  .bb-note-main {
+    min-width: 0;
+    flex: 1;
   }
 
   .bb-note-meta {
@@ -134,6 +166,15 @@ const canRender = Boolean(blockData?.block && pageBlock);
   }
 
   @media (min-width: 40rem) {
+    .bb-note {
+      gap: 0.85rem;
+    }
+
+    .bb-avatar {
+      width: 2.75rem;
+      height: 2.75rem;
+    }
+
     .bb-note-content {
       padding: 1rem 1.15rem 1.05rem;
     }
