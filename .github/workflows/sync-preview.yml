@@ -1,0 +1,73 @@
+name: Sync preview
+
+# preview holds no unique code, so resetting it onto main is safe.
+# This workflow never pushes to main.
+#
+# Pushes use the job's GITHUB_TOKEN. That token does not start another
+# GitHub Actions workflow (and does not trigger GitHub Pages). Cloudflare
+# Workers Builds is the "Cloudflare Workers and Pages" GitHub App: it
+# builds on the push webhook, including an empty push used only to
+# refresh Notion content. No personal access token is required.
+
+on:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+  schedule:
+    # 06:17 Asia/Shanghai (UTC+8) is 22:17 UTC. The minute is off :00
+    # so this does not land on the crowded top of the hour.
+    - cron: "17 22 * * *"
+
+permissions:
+  contents: write
+
+concurrency:
+  group: sync-preview
+  cancel-in-progress: false
+
+jobs:
+  sync:
+    name: Update preview branch
+    if: github.repository == 'doit1024/doit-blog'
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+
+    steps:
+      - name: Checkout main
+        uses: actions/checkout@v4
+        with:
+          ref: main
+          fetch-depth: 1
+          persist-credentials: true
+
+      # A push to main already has a new commit, so moving preview to that
+      # commit is enough to fire a Workers Builds preview build.
+      - name: Point preview at main
+        if: github.event_name == 'push'
+        env:
+          GIT_TERMINAL_PROMPT: "0"
+        run: |
+          set -euo pipefail
+          git fetch origin main
+          echo "Updating preview to $(git rev-parse --short origin/main)"
+          git push origin origin/main:refs/heads/preview --force
+
+      # Manual and daily runs must rebuild even when preview already
+      # matches main. Reset to main, then add an empty commit so the
+      # pushed SHA is always new. The empty commit is pushed only to preview.
+      - name: Rebuild preview from main
+        if: github.event_name != 'push'
+        env:
+          GIT_TERMINAL_PROMPT: "0"
+        run: |
+          set -euo pipefail
+          git fetch origin main
+          git checkout --detach origin/main
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git commit --allow-empty \
+            -m "chore: rebuild preview site" \
+            -m "Empty commit so Cloudflare Workers Builds fetches fresh Notion content. This commit stays on preview."
+          echo "Pushing rebuild commit $(git rev-parse --short HEAD)"
+          git push origin HEAD:refs/heads/preview --force

@@ -88,9 +88,16 @@ When the Notion database changes, trigger a [Cloudflare Workers Builds Deploy Ho
 Notion 长文数据库的 Status 选择里需要先加上 **Preview**（和现有的 `Draft` / `Published` 并列）。没有这个选项时，构建查不到预览稿。
 
 1. 把要先看的那篇 `Status` 设为 **Preview**。
-2. 触发长期分支 `preview` 的构建：在 Cloudflare 控制台对该构建点 Retry，或往 `preview` 推一个空提交。非 `main` 分支走 `wrangler versions upload`，得到稳定地址，不改生产流量。
-3. 打开 `https://preview-doit-blog.dumengjie2016.workers.dev`。这一版包含 `Published` 和 `Preview`；`Preview` 文章标题旁有「预览」标记。全站带 `noindex, nofollow`，`robots.txt` 禁止抓取。
-4. 确认要上线后，把 `Status` 改为 **Published**。下一次 `main` 构建才会出现在 https://doooit.me。
+2. 打开 `https://preview-doit-blog.dumengjie2016.workers.dev`。这一版包含 `Published` 和 `Preview`；`Preview` 文章标题旁有「预览」标记。全站带 `noindex, nofollow`，`robots.txt` 禁止抓取。非 `main` 分支走 `wrangler versions upload`，地址稳定，不改生产流量。
+3. 确认要上线后，把 `Status` 改为 **Published**。下一次 `main` 构建才会出现在 https://doooit.me。
+
+`preview` 没有独立代码，只用来触发预览构建。Notion 内容在构建时拉取，所以只改了 Notion、没有新的 git 提交时，也要重新构建才会出现在预览站。[Sync preview](.github/workflows/sync-preview.yml) 负责更新这个分支：
+
+- **跟 `main` 对齐**：每次推到 `main`，workflow 把 `preview` 强制指到这次提交。这次推送会触发 Cloudflare 预览构建。
+- **手动刷新**：打开 GitHub 的 Actions，选择 Sync preview，点 **Run workflow**。它先把 `preview` 对齐到最新的 `main`，再推一个空提交。即使两边已经相同，也会得到新的提交并重新构建。
+- **每天刷新**：同一套刷新在每天 06:17（Asia/Shanghai）自动跑一次。
+
+不需要再为了刷新内容往 `preview` 推空提交。
 
 `main` 以及没设置分支时，仍然只收录 `Published`。本地想看预览稿：`NOTION_INCLUDE_PREVIEW=true`。设成 `false` 则强制只收录 `Published`（即使当前在非 main 分支）。Cloudflare Workers Builds 会设置 `WORKERS_CI_BRANCH`；只要它不是 `main`，构建就会带上 Preview。
 

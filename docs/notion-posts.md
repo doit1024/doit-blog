@@ -33,7 +33,7 @@
 
 Slug 和 git 文章撞车时 **git 优先**，Notion 那篇会被跳过并打构建警告。
 
-预览不走生产：把 Status 设为 **Preview**，构建长期分支 `preview`（控制台 Retry，或往 `preview` 推空提交），打开 `https://preview-doit-blog.dumengjie2016.workers.dev`。确认后再改成 **Published**，下一次 `main` 构建才上 https://doooit.me。流程见 README「长文预览」。本地用 `NOTION_INCLUDE_PREVIEW=true|false` 覆盖。
+预览不走生产：把 Status 设为 **Preview**。`preview` 会在 `main` 更新时自动对齐并重新构建；只改了 Notion 时，到 Actions 里手动运行 Sync preview，或等每天早上的自动刷新。打开 `https://preview-doit-blog.dumengjie2016.workers.dev`。确认后再改成 **Published**，下一次 `main` 构建才上 https://doooit.me。流程见 README「长文预览」。本地用 `NOTION_INCLUDE_PREVIEW=true|false` 覆盖。
 
 ### V1 支持的块
 
