@@ -9,6 +9,18 @@
 
 .notion {
   --fg-color: var(--foreground);
+  --fg-color-0: color-mix(in srgb, var(--foreground) 9%, transparent);
+  --fg-color-1: color-mix(in srgb, var(--foreground) 16%, transparent);
+  --fg-color-2: color-mix(in srgb, var(--foreground) 42%, transparent);
+  --fg-color-3: color-mix(in srgb, var(--foreground) 64%, transparent);
+  --fg-color-4: var(--foreground);
+  --fg-color-5: color-mix(in srgb, var(--foreground) 78%, transparent);
+  --fg-color-6: var(--foreground);
+  --fg-color-7: color-mix(in srgb, var(--foreground) 55%, transparent);
+  --bg-color: transparent;
+  --bg-color-0: color-mix(in srgb, var(--foreground) 12%, transparent);
+  --bg-color-1: color-mix(in srgb, var(--muted) 32%, var(--background));
+  font-family: inherit;
 }
 
 .notion {

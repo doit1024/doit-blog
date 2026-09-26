@@ -197,22 +197,119 @@ export function unwrapNotionImageUrl(url: string): string {
     const inner = decodeURIComponent(match[1]);
     if (!/^https?:\/\//i.test(inner)) return url;
     const innerHost = new URL(inner).hostname;
-    if (
-      innerHost.endsWith("notion.so") ||
-      innerHost.endsWith("notion.site") ||
-      innerHost.endsWith("notionusercontent.com") ||
-      innerHost.includes("notion-static") ||
-      innerHost.includes("prod-files-secure") ||
-      innerHost.includes("amazonaws.com")
-    ) {
-      return url;
-    }
+    if (isNotionHostedHost(innerHost)) return url;
     return inner;
   } catch {
     return url;
   }
 }
 
-export function mapBbImageUrl(url: string): string {
-  return unwrapNotionImageUrl(url);
+type BbImageBlock = {
+  id?: string;
+  parent_table?: string;
+};
+
+function isNotionHostedHost(host: string): boolean {
+  return (
+    host.endsWith("notion.so") ||
+    host.endsWith("notion.site") ||
+    host.endsWith("notionusercontent.com") ||
+    host.includes("notion-static") ||
+    host.includes("prod-files-secure") ||
+    host.includes("amazonaws.com")
+  );
+}
+
+/**
+ * `file.notion.so/f/f/<space>/<fileId>/<name>` is a signed URL (~hours).
+ * The stable public form is `attachment:<fileId>:<name>`.
+ */
+function attachmentFromSignedFileUrl(url: URL): string | null {
+  const parts = url.pathname.split("/").filter(Boolean);
+  if (parts.length < 5 || parts[0] !== "f" || parts[1] !== "f") return null;
+  const fileId = parts[3];
+  const filename = parts.slice(4).map(decodeURIComponent).join("/");
+  if (!fileId || !filename) return null;
+  return `attachment:${fileId}:${filename}`;
+}
+
+/**
+ * Public `www.notion.so/image/attachment:…?table=block&id=&cache=v2` proxy.
+ * It signs on request and transcodes HEIC to JPEG. Baking `file.notion.so`
+ * signatures into SSG HTML dies the same day.
+ */
+function toNotionPublicImageUrl(url: string, block?: BbImageBlock): string {
+  if (!url || url.startsWith("data:")) return url;
+
+  let source = url;
+  if (source.startsWith("attachment:")) {
+    const query = source.indexOf("?");
+    if (query !== -1) source = source.slice(0, query);
+  }
+
+  if (source.startsWith("/images")) {
+    source = `https://www.notion.so${source}`;
+  }
+
+  const proxied = new URL(
+    source.startsWith("/image")
+      ? `https://www.notion.so${source}`
+      : `https://www.notion.so/image/${encodeURIComponent(source)}`
+  );
+
+  let table = block?.parent_table === "space" ? "block" : block?.parent_table;
+  if (!table || table === "collection" || table === "team") table = "block";
+  proxied.searchParams.set("table", table);
+  if (block?.id) proxied.searchParams.set("id", block.id);
+  proxied.searchParams.set("cache", "v2");
+  return proxied.toString();
+}
+
+/**
+ * /bb images. Notion's public record map nests blocks, so `getSignedFileUrls`
+ * never runs and react-notion-x emits raw `attachment:` (plus an injected
+ * `spaceId`). Those are not fetchable. Site assets go through WebP Cloud;
+ * third-party URLs stay direct; Notion files use the public image proxy.
+ */
+export function mapBbImageUrl(url: string, block?: BbImageBlock): string {
+  if (!url) return url;
+
+  if (
+    url.startsWith("attachment:") ||
+    url.startsWith("/image") ||
+    url.startsWith("/images")
+  ) {
+    return toNotionPublicImageUrl(url, block);
+  }
+
+  try {
+    const parsed = new URL(url);
+    const host = parsed.hostname;
+
+    if (!isNotionHostedHost(host)) {
+      parsed.searchParams.delete("spaceId");
+      return toWebpCloudUrl(parsed.toString());
+    }
+
+    if (parsed.pathname.startsWith("/image/")) {
+      return toWebpCloudUrl(unwrapNotionImageUrl(parsed.toString()));
+    }
+
+    if (host === "file.notion.so") {
+      const attachment = attachmentFromSignedFileUrl(parsed);
+      if (attachment) {
+        const blockId = parsed.searchParams.get("id") ?? undefined;
+        return toNotionPublicImageUrl(attachment, {
+          id: block?.id ?? blockId,
+          parent_table: block?.parent_table ?? "block",
+        });
+      }
+    }
+
+    if (host === "img.notionusercontent.com") return url;
+  } catch {
+    return toNotionPublicImageUrl(url, block);
+  }
+
+  return toNotionPublicImageUrl(url, block);
 }

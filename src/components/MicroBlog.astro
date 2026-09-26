@@ -1,5 +1,6 @@
 ---
 import { BbNotion } from "@/components/BbNotion";
+import { SITE } from "@/config";
 import type { ExtendedRecordMap } from "notion-types";
 import dayjs from "dayjs";
 
@@ -22,28 +23,155 @@ const tags = tagString
       .filter(Boolean)
   : [];
 const canRender = Boolean(blockData?.block && pageBlock);
+
+const AVATAR_SRC =
+  "https://d28ebb3.webp.li/2026/09/5d27c2acc859f631458467095bf22181.png";
 ---
 
-<div class="rounded-lg border border-border p-6">
-  {
-    canRender ? (
-      <BbNotion recordMap={blockData} />
-    ) : (
-      <p class="text-muted-foreground">这条内容暂时无法显示。</p>
-    )
-  }
-  <div
-    class="mt-4 flex items-center justify-between text-sm text-foreground/60"
-  >
-    <div class="flex gap-1">
-      {tags.map((tag: string) => <span>#{tag}</span>)}
-    </div>
+<article class="bb-note">
+  <img
+    class="bb-avatar"
+    src={AVATAR_SRC}
+    alt=""
+    width="44"
+    height="44"
+    decoding="async"
+    referrerpolicy="no-referrer"
+  />
+  <div class="bb-note-content">
+    <header class="bb-note-meta">
+      <span class="bb-note-name">{SITE.author}</span>
+      {
+        createdTime ? (
+          <time datetime={dayjs(createdTime).toISOString()}>
+            {dayjs(createdTime).format("YYYY-MM-DD HH:mm:ss")}
+          </time>
+        ) : null
+      }
+    </header>
     {
-      createdTime ? (
-        <time datetime={dayjs(createdTime).toISOString()} class="block">
-          {dayjs(createdTime).format("YYYY-MM-DD HH:mm:ss")}
-        </time>
-      ) : null
+      canRender ? (
+        <BbNotion recordMap={blockData} />
+      ) : (
+        <p class="text-muted-foreground">这条内容暂时无法显示。</p>
+      )
+    }
+    {
+      tags.length > 0 && (
+        <p class="bb-note-tags">
+          {tags.map((tag: string) => (
+            <span>#{tag}</span>
+          ))}
+        </p>
+      )
     }
   </div>
-</div>
+</article>
+
+<style>
+  .bb-note {
+    display: flex;
+    align-items: flex-start;
+    gap: 0.7rem;
+    min-width: 0;
+  }
+
+  .bb-avatar {
+    width: 2.5rem;
+    height: 2.5rem;
+    flex: none;
+    margin-top: 0.05rem;
+    border-radius: 999px;
+    object-fit: cover;
+    background: color-mix(in srgb, var(--muted) 50%, var(--background));
+  }
+
+  .bb-note-meta {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 0.75rem;
+    margin-bottom: 0.45rem;
+  }
+
+  .bb-note-name {
+    font-weight: 650;
+    font-size: 0.95rem;
+    line-height: 1.35;
+    color: var(--foreground);
+  }
+
+  .bb-note time {
+    flex: none;
+    font-size: 0.75rem;
+    line-height: 1.35;
+    font-variant-numeric: tabular-nums;
+    color: color-mix(in srgb, var(--foreground) 50%, transparent);
+  }
+
+  .bb-note-content {
+    min-width: 0;
+    flex: 1;
+    border: 1px solid var(--border);
+    border-radius: 0;
+    padding: 0.85rem 0.9rem 0.95rem;
+    color: var(--foreground);
+  }
+
+  .bb-note-tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.2rem 0.55rem;
+    margin-top: 0.45rem;
+    font-size: 0.8rem;
+    line-height: 1.4;
+    color: var(--accent);
+  }
+
+  .bb-note :global(.notion),
+  .bb-note :global(.notion-page) {
+    width: 100%;
+    padding: 0;
+    font-family: inherit;
+  }
+
+  .bb-note :global(.notion) {
+    font-size: 0.95rem;
+    line-height: 1.7;
+  }
+
+  .bb-note :global(.notion-text) {
+    padding-left: 0;
+    padding-right: 0;
+  }
+
+  .bb-note :global(.notion-asset-wrapper) {
+    min-width: 0;
+    max-width: 100%;
+    margin: 0.55rem 0 0.1rem;
+  }
+
+  .bb-note :global(.notion-asset-wrapper img) {
+    display: block;
+    width: 100%;
+    height: auto;
+    max-height: none;
+    border-radius: 0;
+    background: color-mix(in srgb, var(--foreground) 6%, var(--background));
+  }
+
+  @media (min-width: 40rem) {
+    .bb-note {
+      gap: 0.85rem;
+    }
+
+    .bb-avatar {
+      width: 2.75rem;
+      height: 2.75rem;
+    }
+
+    .bb-note-content {
+      padding: 1rem 1.15rem 1.05rem;
+    }
+  }
+</style>
