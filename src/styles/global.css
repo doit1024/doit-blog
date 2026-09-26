@@ -92,7 +92,8 @@ body {
 }
 
 .figure-image img {
-  @apply mx-auto h-auto w-full;
+  @apply mx-auto h-auto w-full max-w-full;
+  background-color: color-mix(in srgb, var(--foreground) 8%, var(--background));
 }
 
 .figure-image figcaption {

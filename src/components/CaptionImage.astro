@@ -5,6 +5,7 @@ import {
   type RemoteImageProps,
 } from "astro:assets";
 import { postImageAttrs } from "@/utils/assets";
+import { resolveImageSize } from "@/utils/image-size";
 
 export interface Props {
   imageProps: LocalImageProps | RemoteImageProps;
@@ -23,8 +24,15 @@ const {
 const rawSrc = imageProps.src;
 const isRemote = typeof rawSrc === "string";
 const remote = isRemote ? postImageAttrs(rawSrc) : null;
-const width = Number(imageProps.width) || undefined;
-const height = Number(imageProps.height) || undefined;
+const authoredWidth = Number(imageProps.width) || undefined;
+const authoredHeight = Number(imageProps.height) || undefined;
+const probed =
+  isRemote && typeof rawSrc === "string"
+    ? await resolveImageSize(rawSrc).catch(() => null)
+    : null;
+const width = probed?.width ?? authoredWidth;
+const height = probed?.height ?? authoredHeight;
+const aspectRatio = probed ? `${probed.width} / ${probed.height}` : undefined;
 const alt = imageProps.alt ?? "";
 ---
 
@@ -38,6 +46,7 @@ const alt = imageProps.alt ?? "";
         alt={alt}
         width={width}
         height={height}
+        style={aspectRatio ? `aspect-ratio: ${aspectRatio}` : undefined}
         loading={eager ? "eager" : "lazy"}
         decoding="async"
         fetchpriority={eager ? "high" : "auto"}
