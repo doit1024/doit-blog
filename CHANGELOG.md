@@ -21,6 +21,7 @@
 
 ### 修复
 
+- **images**：文章图片在加载前按真实比例占位（[#46](https://github.com/doit1024/doit-blog/pull/46)）
 - **长文**：apply 20MB image cap after optimize（[#44](https://github.com/doit1024/doit-blog/pull/44)）
 - **长文**：treat Notion columns and dividers as first-class（[#43](https://github.com/doit1024/doit-blog/pull/43)）
 - **images**：修复库页裂图和文章慢加载（[#39](https://github.com/doit1024/doit-blog/pull/39)）
