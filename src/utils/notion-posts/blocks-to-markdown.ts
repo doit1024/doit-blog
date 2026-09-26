@@ -1,4 +1,5 @@
 import { postImageAttrs } from "@/utils/assets";
+import { resolveImageSize } from "@/utils/image-size";
 import { richTextPlain, richTextToMarkdown } from "./rich-text";
 import { V1_BLOCK_TYPES, type NotionBlock, type NotionRichText } from "./types";
 
@@ -25,6 +26,11 @@ export type ImageResolver = (args: {
 export type ConvertContext = {
   warn: (message: string) => void;
   resolveImage: ImageResolver;
+  /**
+   * Image-only column grids already emitted. The first grid's top row is
+   * eager; later grids stay lazy. Callers can leave this unset.
+   */
+  columnImageGrids?: number;
 };
 
 type BlockPayload = {
@@ -98,32 +104,58 @@ function parseMarkdownImages(
   return images;
 }
 
-function figureHtml(image: {
-  alt: string;
-  url: string;
-  caption: string;
-}): string {
+/**
+ * Column grids are raw HTML, so they never pass through rehypeWebpImages.
+ * Dimensions, aspect-ratio, and loading have to be written here.
+ */
+async function figureHtml(
+  image: {
+    alt: string;
+    url: string;
+    caption: string;
+  },
+  loading: "eager" | "lazy",
+  fetchPriority?: "high"
+): Promise<string> {
   const attrs = postImageAttrs(image.url);
+  const size = await resolveImageSize(image.url).catch(() => null);
   const alt = escapeHtml(image.alt || "image");
   const src = escapeHtml(attrs.src);
   const lightbox = escapeHtml(attrs.lightboxSrc);
   const srcset = attrs.srcset ? ` srcset="${escapeHtml(attrs.srcset)}"` : "";
   const sizes = attrs.sizes ? ` sizes="${escapeHtml(attrs.sizes)}"` : "";
+  const box =
+    size && size.width > 0 && size.height > 0
+      ? ` width="${size.width}" height="${size.height}" style="aspect-ratio: ${size.width} / ${size.height}"`
+      : "";
+  const priority = fetchPriority === "high" ? ` fetchpriority="high"` : "";
   const caption = image.caption.trim();
   const cap = caption ? `<figcaption>▲${escapeHtml(caption)}</figcaption>` : "";
-  return `<figure class="figure-image" data-src="${lightbox}"><img src="${src}"${srcset}${sizes} alt="${alt}" />${cap}</figure>`;
+  return `<figure class="figure-image" data-src="${lightbox}"><img src="${src}"${srcset}${sizes}${box} alt="${alt}" loading="${loading}" decoding="async"${priority} />${cap}</figure>`;
 }
 
-function imageColumnGrid(columns: string[]): string {
+async function imageColumnGrid(
+  columns: string[],
+  eagerTopRow: boolean
+): Promise<string> {
   const count = Math.min(Math.max(columns.length, 2), 4);
-  const inner = columns
-    .map(markdown => {
+  const inner = await Promise.all(
+    columns.map(async (markdown, columnIndex) => {
       const images = parseMarkdownImages(markdown) ?? [];
-      const figures = images.map(figureHtml).join("");
-      return `<div class="notion-column">${figures}</div>`;
+      const figures = await Promise.all(
+        images.map((image, index) => {
+          const eager = eagerTopRow && index === 0;
+          return figureHtml(
+            image,
+            eager ? "eager" : "lazy",
+            eager && columnIndex === 0 ? "high" : undefined
+          );
+        })
+      );
+      return `<div class="notion-column">${figures.join("")}</div>`;
     })
-    .join("");
-  return `<div class="notion-columns" data-cols="${count}">${inner}</div>`;
+  );
+  return `<div class="notion-columns" data-cols="${count}">${inner.join("")}</div>`;
 }
 
 async function convertColumnList(
@@ -146,7 +178,9 @@ async function convertColumnList(
     markdowns.length >= 2 &&
     markdowns.every(md => parseMarkdownImages(md) !== null)
   ) {
-    return imageColumnGrid(markdowns);
+    const gridIndex = ctx.columnImageGrids ?? 0;
+    ctx.columnImageGrids = gridIndex + 1;
+    return imageColumnGrid(markdowns, gridIndex === 0);
   }
   return markdowns.join("\n\n");
 }
