@@ -21,7 +21,7 @@
 
 ### 修复
 
-- **小声哔哔 `/bb`**：左侧头像时间线，并修好 Notion 图片（[#49](https://github.com/doit1024/doit-blog/pull/49)）
+- **小声哔哔 `/bb`**：正文直角边框，并修好 Notion 图片（[#49](https://github.com/doit1024/doit-blog/pull/49)）
 - **images**：Notion 分栏图片在加载前按真实比例占位（[#47](https://github.com/doit1024/doit-blog/pull/47)）
 - **images**：文章图片在加载前按真实比例占位（[#46](https://github.com/doit1024/doit-blog/pull/46)）
 - **长文**：apply 20MB image cap after optimize（[#44](https://github.com/doit1024/doit-blog/pull/44)）
