@@ -9,6 +9,7 @@ import { getMicroBlogData } from "@/utils/notion.js";
 import type { ExtendedRecordMap } from "notion-types";
 import MicroBlog from "@/components/MicroBlog.astro";
 import "@/styles/notion.css";
+import "@/styles/bb-photos.css";
 
 // Static SSG: Notion is fetched once at `astro build`, not on each request.
 export const prerender = true;
@@ -34,5 +35,77 @@ const hasPosts = Array.isArray(microBlogData) && microBlogData.length > 0;
       )
     }
   </Main>
+  <!--
+    Group body images before first paint. Client-side navigations run the
+    same steps from src/components/bb-photos.ts (groupNotePhotos).
+  -->
+  <script is:inline>
+    (function () {
+      for (const note of document.querySelectorAll(".bb-note")) {
+        if (note.querySelector(".bb-photo-grid")) continue;
+        const list = [];
+        for (const fig of note.querySelectorAll(
+          ".notion-asset-wrapper-image"
+        )) {
+          if (!fig.closest(".notion-bookmark")) list.push(fig);
+        }
+        if (list.length < 2) continue;
+        const units = list.map(fig => {
+          const parent = fig.parentElement;
+          return parent &&
+            parent.tagName === "A" &&
+            !parent.closest(".notion-bookmark")
+            ? parent
+            : fig;
+        });
+        const notion = note.querySelector(".bb-note-content > .notion");
+        let anchor = units[0];
+        if (notion) {
+          while (anchor.parentElement && anchor.parentElement !== notion) {
+            anchor = anchor.parentElement;
+          }
+        }
+        const grid = document.createElement("div");
+        grid.className = "bb-photo-grid";
+        anchor.before(grid);
+        for (const unit of units) grid.append(unit);
+      }
+      for (const img of document.querySelectorAll(
+        ".bb-note .notion-asset-wrapper-image img"
+      )) {
+        if (img.closest(".notion-bookmark") || img.dataset.bbBox === "1") {
+          continue;
+        }
+        const width = Number(img.getAttribute("width"));
+        const height = Number(img.getAttribute("height"));
+        if (!(width > 0) || !(height > 0)) continue;
+        img.dataset.bbBox = "1";
+        if (!/(^|;)\s*aspect-ratio\s*:/.test(img.getAttribute("style") || "")) {
+          img.style.aspectRatio = width + " / " + height;
+        }
+        img.style.width =
+          "min(" +
+          width +
+          "px, 320px, 70vw, calc(320px * " +
+          width +
+          " / " +
+          height +
+          "))";
+        img.style.height = "auto";
+      }
+    })();
+  </script>
   <Footer />
 </Layout>
+
+<script>
+  import { bootBbPhotos } from "@/components/bb-photos";
+
+  const boot = () => {
+    if (!document.querySelector(".bb-note")) return;
+    bootBbPhotos();
+  };
+
+  boot();
+  document.addEventListener("astro:page-load", boot);
+</script>
