@@ -2,10 +2,11 @@
 
 记录本站（doit-blog）的产品改动。
 
-## 最新（2026-09-29）
+## 最新（2026-10-08）
 
 ### 变更
 
+- **读看听玩 `/library`**：条目先按 Notion 页面创建时间的上海日历日从新到旧；同一天内按「日期」从新到旧（缺日期在后），再按精确创建时间，最后按标题（中文）
 - **站点**：同步 preview 分支并刷新预览站（[#45](https://github.com/doit1024/doit-blog/pull/45)）
 - **站点**：ZHA-20: mobile header shows all nav items as 2-row chip grid（[#41](https://github.com/doit1024/doit-blog/pull/41)）
 - **长文 Notion**：构建时用官方 API 拉 `Status=Published` 的页，转 Markdown 并入现有 `/posts`（标签 / 归档 / RSS / Pagefind / giscus）；图转存现有 R2 + WebP Cloud；Notion 失败或未配 token 则跳过该源，不挡整站；git MDX 长期保留（[#26](https://github.com/doit1024/doit-blog/pull/26)）
