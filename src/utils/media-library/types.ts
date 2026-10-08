@@ -89,8 +89,49 @@ export function metaLine(type: string | null, year: string | null): string {
   return [type, year].filter(Boolean).join(" · ");
 }
 
+const SHANGHAI_OFFSET_MS = 8 * 60 * 60 * 1000;
+const DAY_MS = 24 * 60 * 60 * 1000;
+
+function parsedTime(value: string | null | undefined): number | null {
+  const text = value?.trim();
+  if (!text) return null;
+  const time = Date.parse(text);
+  return Number.isNaN(time) ? null : time;
+}
+
+/** Calendar day of a timestamp in Asia/Shanghai (UTC+8, no DST). */
+function shanghaiDay(value: string | null | undefined): number | null {
+  const time = parsedTime(value);
+  if (time == null) return null;
+  return Math.floor((time + SHANGHAI_OFFSET_MS) / DAY_MS);
+}
+
+/** Descending. Missing values sort last. */
+function compareDesc(a: number | null, b: number | null): number {
+  if (a === b) return 0;
+  if (a == null) return 1;
+  if (b == null) return -1;
+  return b - a;
+}
+
+/**
+ * Newest Shanghai calendar day of `created` first. The same day keeps `date`
+ * order (missing dates last), then exact `created`, then zh title.
+ * A same-day bulk import stays in date order instead of being scrambled by
+ * created_time values a few seconds apart.
+ */
 export function compareMedia(a: MediaItem, b: MediaItem): number {
-  const dateOrder = (b.date ?? "").localeCompare(a.date ?? "");
+  const dayOrder = compareDesc(shanghaiDay(a.created), shanghaiDay(b.created));
+  if (dayOrder !== 0) return dayOrder;
+
+  const dateOrder = compareDesc(parsedTime(a.date), parsedTime(b.date));
   if (dateOrder !== 0) return dateOrder;
+
+  const createdOrder = compareDesc(
+    parsedTime(a.created),
+    parsedTime(b.created)
+  );
+  if (createdOrder !== 0) return createdOrder;
+
   return a.title.localeCompare(b.title, "zh");
 }
