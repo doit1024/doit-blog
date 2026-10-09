@@ -1,24 +1,10 @@
 /*
   /library only. Card anatomy follows the poster wall (2:3, tight gutters,
-  title + 类型 · 年份). Music covers are square (1:1). The page stays on the
-  site light ground #fffdfd, including when the rest of the site is in dark mode.
-  Column width is the site max-w-app (max-w-3xl), same as posts and the index.
+  title + 类型 · 年份). Music covers are square (1:1). Colors follow
+  html[data-theme] like the rest of the site (toggle-theme.js). Light mode
+  keeps the warm paper palette. Column width is the site max-w-app
+  (max-w-3xl), same as posts and the index.
 */
-html[data-theme="dark"]:has(.library),
-html:has(.library) {
-  --background: #fffdfd;
-  --foreground: #222e36;
-  --accent: #d3006a;
-  --muted: #f1bad4;
-  --border: #e3a9c6;
-  color-scheme: light;
-  background: #fffdfd;
-}
-
-html:has(.library) body {
-  background: #fffdfd;
-  color: #222e36;
-}
 
 .library {
   padding-bottom: 2.5rem;
@@ -116,6 +102,10 @@ html:has(.library) body {
   background: #efe8e1;
 }
 
+html[data-theme="dark"] .poster {
+  background: #3a3a3a;
+}
+
 .poster.is-square {
   aspect-ratio: 1 / 1;
 }
@@ -143,6 +133,11 @@ html:has(.library) body {
   letter-spacing: -0.015em;
 }
 
+html[data-theme="dark"] .poster .fallback {
+  background: linear-gradient(180deg, #454545 0%, #2e2e2e 100%);
+  color: var(--foreground);
+}
+
 .poster .fallback span {
   display: -webkit-box;
   overflow: hidden;
@@ -159,12 +154,20 @@ html:has(.library) body {
   box-shadow: inset 0 0 0 1px #e4ddd6;
 }
 
+html[data-theme="dark"] .poster:not(:has(img)) {
+  box-shadow: inset 0 0 0 1px #4a4a4a;
+}
+
 .poster.is-text img {
   display: none;
 }
 
 .poster.is-text {
   box-shadow: inset 0 0 0 1px #e4ddd6;
+}
+
+html[data-theme="dark"] .poster.is-text {
+  box-shadow: inset 0 0 0 1px #4a4a4a;
 }
 
 .library-name {
@@ -237,6 +240,11 @@ html:has(.library) body {
     background: rgb(0 0 0 / 6%);
   }
 
+  html[data-theme="dark"] .library-card:hover .poster::after,
+  html[data-theme="dark"] .library-card:focus-visible .poster::after {
+    background: rgb(255 255 255 / 8%);
+  }
+
   .library-card:focus-visible .poster img {
     transform: scale(1.035);
   }
@@ -250,7 +258,7 @@ html:has(.library) body {
   padding: 0;
   border: 0;
   background: transparent;
-  color: #222e36;
+  color: var(--foreground);
   overflow: auto;
   overscroll-behavior: contain;
 }
@@ -263,13 +271,23 @@ html:has(.library) body {
   background: rgb(34 46 54 / 28%);
 }
 
+html[data-theme="dark"] .library-dialog::backdrop {
+  background: rgb(0 0 0 / 62%);
+}
+
 .library-dialog-sheet {
   position: relative;
-  background: #fffdfd;
+  background: var(--background);
   padding: 1.15rem 1.15rem 1.25rem;
   box-shadow:
     0 18px 50px rgb(34 46 54 / 14%),
     inset 0 0 0 1px #e4ddd6;
+}
+
+html[data-theme="dark"] .library-dialog-sheet {
+  box-shadow:
+    0 18px 50px rgb(0 0 0 / 46%),
+    inset 0 0 0 1px #4a4a4a;
 }
 
 .library-dialog-close {
@@ -284,11 +302,11 @@ html:has(.library) body {
   font: inherit;
   font-size: 0.82rem;
   line-height: 1.2;
-  color: color-mix(in srgb, #222e36 62%, transparent);
+  color: color-mix(in srgb, var(--foreground) 62%, transparent);
 }
 
 .library-dialog-close:hover {
-  color: #222e36;
+  color: var(--foreground);
 }
 
 .library-dialog-layout {
@@ -328,7 +346,7 @@ html:has(.library) body {
   margin: 0.35rem 0 0;
   font-size: 0.78rem;
   line-height: 1.35;
-  color: color-mix(in srgb, #222e36 52%, transparent);
+  color: color-mix(in srgb, var(--foreground) 52%, transparent);
 }
 
 .library-dialog-hours,
@@ -342,7 +360,7 @@ html:has(.library) body {
 .library-dialog-hours-label,
 .library-dialog-artist-label {
   margin-inline-end: 0.45rem;
-  color: color-mix(in srgb, #222e36 52%, transparent);
+  color: color-mix(in srgb, var(--foreground) 52%, transparent);
 }
 
 .library-dialog-rating {
@@ -398,7 +416,7 @@ html:has(.library) body {
 
 .library-dialog-note.is-empty {
   font-size: 0.88rem;
-  color: color-mix(in srgb, #222e36 45%, transparent);
+  color: color-mix(in srgb, var(--foreground) 45%, transparent);
 }
 
 .library-dialog-link {
@@ -420,7 +438,7 @@ html:has(.library) body {
   margin: 0.9rem 0 0;
   font-size: 0.75rem;
   line-height: 1.4;
-  color: color-mix(in srgb, #222e36 52%, transparent);
+  color: color-mix(in srgb, var(--foreground) 52%, transparent);
 }
 
 .library-dialog [hidden] {

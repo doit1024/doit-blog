@@ -2,7 +2,7 @@
 
 记录本站（doit-blog）的产品改动。
 
-## 最新（2026-10-08）
+## 最新（2026-10-09）
 
 ### 变更
 
@@ -22,6 +22,7 @@
 
 ### 修复
 
+- **读看听玩 `/library`**：深色主题下跟随站点 `data-theme`。页面、卡片、筛选、加载更多、弹层（含主题色横排星级和「创建于」）以及封面占位灰不再被锁在浅色；留在本页切换主题会立刻更新，深色下刷新也不会先闪成浅色
 - **小声哔哔 `/bb`**：正文图不超过 320，多图三列，点击看大图（[#51](https://github.com/doit1024/doit-blog/pull/51)）
 - **长文**：keep mixed Notion columns as a grid（[#48](https://github.com/doit1024/doit-blog/pull/48)）
 - **小声哔哔 `/bb`**：名字和日期收进直角粉框（[#50](https://github.com/doit1024/doit-blog/pull/50)）
