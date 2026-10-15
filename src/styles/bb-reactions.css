@@ -30,8 +30,9 @@
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  width: 1.75rem;
-  height: 1.75rem;
+  box-sizing: border-box;
+  width: 28px;
+  height: 28px;
   padding: 0;
   border: 1px solid color-mix(in srgb, var(--foreground) 16%, transparent);
   border-radius: 999px;
@@ -91,15 +92,15 @@
 .bb-rx-chip {
   display: inline-flex;
   align-items: center;
-  gap: 0.45rem;
+  gap: 0.28rem;
   box-sizing: border-box;
-  min-height: 2.35rem;
-  padding: 0.5rem 0.95rem;
+  height: 28px;
+  padding: 0 0.6rem;
   border: 1px solid color-mix(in srgb, var(--foreground) 42%, var(--background));
   border-radius: 999px;
   background: color-mix(in srgb, var(--foreground) 8%, var(--background));
   color: var(--foreground);
-  font-size: 0.85rem;
+  font-size: 0.8125rem;
   line-height: 1;
 }
 
@@ -117,17 +118,16 @@
 
 .bb-rx-emoji {
   display: block;
-  padding: 0.12rem 0.16rem;
-  font-size: 1.05rem;
+  font-size: 16px;
   line-height: 1;
 }
 
 .bb-rx-count {
-  padding-inline-end: 0.08rem;
   color: var(--foreground);
   font-variant-numeric: tabular-nums;
-  font-size: 0.82rem;
+  font-size: 12px;
   font-weight: 600;
+  line-height: 1;
 }
 
 .bb-rx-count[data-count="0"] {
