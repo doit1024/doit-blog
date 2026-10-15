@@ -1,14 +1,18 @@
 import { GET, POST, prerender } from "@/pages/api/bb/reactions";
 import {
   DAILY_LIMIT,
+  canonicalReactionEmoji,
   countsKey,
   dayBucket,
   dayKey,
+  emptyCounts,
   hashIp,
   normalizePostId,
   votedStorageKey,
   windowKey,
   windowBucket,
+  type ReactionCounts,
+  type ReactionEmoji,
 } from "@/utils/bb-reactions";
 import {
   UNSET_PEPPER,
@@ -48,6 +52,12 @@ function memoryKv(): ReactionsKv & { keys(): string[] } {
   };
 }
 
+function withCounts(
+  partial: Partial<Record<ReactionEmoji, number>>
+): ReactionCounts {
+  return { ...emptyCounts(), ...partial };
+}
+
 function post(
   postId: string,
   emoji: string,
@@ -81,10 +91,13 @@ export async function run() {
   );
   assertEqual(normalizePostId("nope"), null, "reject short ids");
   assertEqual(
-    votedStorageKey(POST_A, "👏"),
-    `bb:rx:voted:${POST_A}:👏`,
+    votedStorageKey(POST_A, "👍"),
+    `bb:rx:voted:${POST_A}:👍`,
     "localStorage key"
   );
+  const heart = canonicalReactionEmoji("\u2764");
+  assert(heart, "bare heart maps onto the whitelist");
+  assertEqual(canonicalReactionEmoji("👏"), null, "old clap emoji is rejected");
   assertEqual(resolvePepper("  "), UNSET_PEPPER, "blank pepper falls back");
   assertEqual(resolvePepper("real"), "real", "secret pepper wins");
 
@@ -94,7 +107,7 @@ export async function run() {
   assert(hash !== (await hashIp(IP, "other")), "pepper changes the hash");
 
   const kv = memoryKv();
-  const created = await post(POST_A, "👏", { kv });
+  const created = await post(POST_A, "👍", { kv });
   assertEqual(created.status, 200, "first react");
   assertEqual(
     created.headers.get("cache-control"),
@@ -103,27 +116,31 @@ export async function run() {
   );
   const createdBody = await created.json();
   assertEqual(createdBody.postId, POST_A, "normalized post id");
-  assertEqual(createdBody.counts, { "👏": 1, "💡": 0 }, "increment one emoji");
+  assertEqual(
+    createdBody.counts,
+    withCounts({ "👍": 1 }),
+    "increment one emoji"
+  );
 
-  const blocked = await post(`27063591-2071-80ab-0000-000000000001`, "💡", {
+  const blocked = await post(`27063591-2071-80ab-0000-000000000001`, "👎", {
     kv,
     now: NOW + 1000,
   });
   assertEqual(blocked.status, 429, "same post inside 10s is limited");
   assertEqual(
     JSON.parse((await kv.get(countsKey(POST_A))) ?? "{}"),
-    { "👏": 1, "💡": 0 },
+    withCounts({ "👍": 1 }),
     "rejected react does not increment"
   );
 
-  const otherPost = await post(POST_B, "👏", { kv, now: NOW + 1000 });
+  const otherPost = await post(POST_B, "👍", { kv, now: NOW + 1000 });
   assertEqual(otherPost.status, 200, "another post is its own window");
 
-  const later = await post(POST_A, "💡", { kv, now: NOW + 10_000 });
+  const later = await post(POST_A, "👎", { kv, now: NOW + 10_000 });
   assertEqual(later.status, 200, "next 10s window allows another react");
   assertEqual(
     (await later.json()).counts,
-    { "👏": 1, "💡": 1 },
+    withCounts({ "👍": 1, "👎": 1 }),
     "second emoji"
   );
 
@@ -145,12 +162,12 @@ export async function run() {
   const readBody = await read.json();
   assertEqual(
     readBody.reactions[POST_A],
-    { "👏": 1, "💡": 1 },
+    withCounts({ "👍": 1, "👎": 1 }),
     "stored counts"
   );
   assertEqual(
     readBody.reactions["ab".padEnd(32, "0")],
-    { "👏": 0, "💡": 0 },
+    emptyCounts(),
     "missing key is zero"
   );
 
@@ -163,8 +180,19 @@ export async function run() {
   );
   assertEqual(oversized.status, 400, "more than 50 ids");
 
-  const badEmoji = await post(POST_A, "🔥", { kv, now: NOW + 20_000 });
+  const badEmoji = await post(POST_A, "👏", { kv, now: NOW + 20_000 });
   assertEqual(badEmoji.status, 400, "emoji outside the whitelist");
+  const heartReact = await post(POST_A, "\u2764", { kv, now: NOW + 20_000 });
+  assertEqual(
+    heartReact.status,
+    200,
+    "heart without variation selector counts"
+  );
+  assertEqual(
+    (await heartReact.json()).counts[heart ?? "❤️"],
+    1,
+    "canonical heart was incremented"
+  );
 
   const method = await handleReactionsRequest(
     new Request("https://blog.doooit.me/api/bb/reactions", { method: "PUT" }),
@@ -174,7 +202,7 @@ export async function run() {
 
   const day = dayKey(hash, dayBucket(NOW + 30_000));
   await kv.put(day, String(DAILY_LIMIT));
-  const capped = await post(POST_B, "💡", { kv, now: NOW + 30_000 });
+  const capped = await post(POST_B, "👀", { kv, now: NOW + 30_000 });
   assertEqual(capped.status, 429, "daily cap");
 
   const broken: ReactionsKv = {
@@ -203,7 +231,7 @@ export async function run() {
     request: new Request("https://blog.doooit.me/api/bb/reactions", {
       method: "POST",
       headers: { "content-type": "application/json" },
-      body: JSON.stringify({ postId: POST_A, emoji: "👏" }),
+      body: JSON.stringify({ postId: POST_A, emoji: "👍" }),
     }),
     locals: {
       runtime: {

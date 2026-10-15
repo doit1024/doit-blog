@@ -1,11 +1,7 @@
 ---
 import { BbNotion } from "@/components/BbNotion";
 import { SITE } from "@/config";
-import {
-  REACTION_EMOJIS,
-  normalizePostId,
-  reactionAriaLabel,
-} from "@/utils/bb-reactions";
+import { normalizePostId } from "@/utils/bb-reactions";
 import type { ExtendedRecordMap } from "notion-types";
 import dayjs from "dayjs";
 
@@ -76,21 +72,43 @@ const AVATAR_SRC =
     {
       postId && (
         <div class="bb-reactions">
-          {REACTION_EMOJIS.map(emoji => (
+          <div class="bb-rx-row">
+            <div class="bb-rx-chips" />
             <button
               type="button"
-              class="bb-rx"
-              data-emoji={emoji}
-              aria-pressed="false"
-              aria-disabled="false"
-              aria-label={reactionAriaLabel(emoji, 0, false)}
+              class="bb-rx-add"
+              aria-haspopup="true"
+              aria-expanded="false"
+              aria-label="添加反应"
             >
-              <span class="bb-rx-emoji" aria-hidden="true">
-                {emoji}
-              </span>
-              <span class="bb-rx-count" data-count="0" />
+              <svg
+                class="bb-rx-smile"
+                viewBox="0 0 16 16"
+                aria-hidden="true"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="1.25"
+                stroke-linecap="round"
+              >
+                <circle cx="8" cy="8" r="6.25" />
+                <circle
+                  cx="6"
+                  cy="6.6"
+                  r="0.55"
+                  fill="currentColor"
+                  stroke="none"
+                />
+                <circle
+                  cx="10"
+                  cy="6.6"
+                  r="0.55"
+                  fill="currentColor"
+                  stroke="none"
+                />
+                <path d="M5.35 9.25c.7 1.15 1.55 1.7 2.65 1.7s1.95-.55 2.65-1.7" />
+              </svg>
             </button>
-          ))}
+          </div>
           <span class="bb-rx-status" role="status" aria-live="polite" />
         </div>
       )

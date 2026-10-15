@@ -1,25 +1,25 @@
 # 小声哔哔 `/bb` 轻反应
 
-访客可以在每条 `.bb-note` 上点 **👏** 或 **💡**。计数只存在 Cloudflare KV 绑定 `BB_REACTIONS`，不写回 Notion，也**不会**因为一次点击去触发 Deploy Hook。`/bb` 仍然是 `prerender = true` 的静态页；数字在首屏之后由同源接口填上。
+访客在每条 `.bb-note` 上用一个低调的笑脸按钮打开反应面板，从固定的 8 个 emoji 里选一个。只有计数大于 0，或这台浏览器已经投过的 emoji，才会变成旁边的 chip。计数只存在 Cloudflare KV 绑定 `BB_REACTIONS`，不写回 Notion，也**不会**因为一次点击去触发 Deploy Hook。`/bb` 仍然是 `prerender = true` 的静态页；数字在首屏之后由同源接口填上。
 
 ## 请求
 
 | 方法 | 路径 | 作用 |
 | --- | --- | --- |
 | `GET` | `/api/bb/reactions?ids=id1,id2` | 批量读取。最多 50 个 id，缺 key 当 0。`Cache-Control: private, no-store` |
-| `POST` | `/api/bb/reactions` | Body：`{"postId":"<notion-page-id>","emoji":"👏"}`。通过限流后该 emoji **+1** |
+| `POST` | `/api/bb/reactions` | Body：`{"postId":"<notion-page-id>","emoji":"👍"}`。通过限流后该 emoji **+1** |
 
 两条路由都是 `prerender = false`。其它方法返回 405。非法参数 400，限流 429，KV 不可用或读写失败 500。
 
 帖子主键是 Notion page id，读写前去掉连字符并转成小写，和 `.bb-note` 的 `data-post-id` 相同。v1 **只增不减**，没有取消。
 
-白名单只有 👏 和 💡。计数为 0 时按钮仍在，数字隐藏。
+白名单是 GitHub Issue 那一组：👍 👎 😄 🎉 😕 ❤️ 🚀 👀。没有任何反应时，静态 HTML 里只有笑脸触发器。点开后是这一排 emoji；点中即关闭面板、乐观 +1，再按服务端计数校准。已投过的 chip 带 `aria-pressed="true"`，再点不会 POST。
 
 ## KV
 
 | Key | Value |
 | --- | --- |
-| `bb:rx:{postId}` | `{"👏":3,"💡":1}` |
+| `bb:rx:{postId}` | `{"👍":3,"❤️":1}`，缺的 emoji 当 0 |
 | `bb:rl:{ipHash}:{postId}:{10s桶}` | `"1"`，TTL 60 秒（KV 不允许更短的 `expirationTtl`；10 秒窗口靠桶号，不靠 TTL） |
 | `bb:rl:day:{ipHash}:{UTC日期}` | 当天已通过的 POST 次数，TTL 48 小时 |
 
@@ -31,7 +31,7 @@
 - 同一 IP 哈希：**每个 UTC 日最多 60 次** 通过的 POST
 - KV 没有原子自增。个人站偶发并发丢一次计数可以接受
 
-浏览器另外把 `bb:rx:voted:{postId}:{emoji}` 写进 `localStorage`。点过的按钮保持已选状态，不再发出 POST。清站点数据可以绕过；服务端限流仍然生效。
+浏览器另外把 `bb:rx:voted:{postId}:{emoji}` 写进 `localStorage`。本浏览器投过的 emoji 会显示成已选 chip，再点不再 POST。清站点数据可以绕过；服务端限流仍然生效。旧的 👏 / 💡 计数不在这组白名单里，接口会当成未知 emoji 拒绝，也不会再显示。
 
 未设置 `BB_RX_PEPPER` 时，代码用仓库里的固定盐 `bb-rx-unset-pepper`，避免接口直接 500。这个盐是公开的，KV 如果泄漏，IPv4 可以被穷举。**上线前必须换成只有 Worker 知道的 secret。**
 
@@ -84,15 +84,15 @@ node scripts/bb-reactions-check.mjs
 
 浏览器（`pnpm dev` 或预览域名）：
 
-1. 打开 `/bb`。每条有 id 的卡片底部有 👏 / 💡，数字先空着。首屏画完后脚本再请求 `GET /api/bb/reactions`。
-2. 点 👏。数字变成 1，按钮进入已选（`aria-pressed="true"`）。刷新后数字还在，按钮仍是已选。
-3. 再点同一个按钮：没有新的 POST（localStorage 软禁用）。
-4. 清掉该站的 localStorage 后，10 秒内再点同一帖：界面回到原数字，并提示「请稍后再试」。直接打接口则第二条是 429：
+1. 打开 `/bb`。没有反应的卡片底部只有一个圆形笑脸，不铺空按钮。首屏画完后脚本请求 `GET /api/bb/reactions`。
+2. 点笑脸。面板展开（触发器 `aria-expanded="true"`），里面是 👍 👎 😄 🎉 😕 ❤️ 🚀 👀。点 👍 后面板关闭，旁边出现 `👍 1` chip，且 `aria-pressed="true"`。刷新后 chip 还在。
+3. 再点这个 chip：没有新的 POST（localStorage 软守卫）。
+4. 清掉该站的 localStorage 后，10 秒内再点同一帖的同一个 emoji：界面回到原数字，并提示「请稍后再试」。直接打接口则第二条是 429：
 
 ```bash
 curl -sS -D - -X POST 'https://blog.doooit.me/api/bb/reactions' \
   -H 'Content-Type: application/json' \
-  -d '{"postId":"<32位page-id>","emoji":"👏"}'
+  -d '{"postId":"<32位page-id>","emoji":"👍"}'
 ```
 
 Notion 里不需要新字段。改帖子正文仍走原来的 Deploy Hook；只改反应数不用重建。

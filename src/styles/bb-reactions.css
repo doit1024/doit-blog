@@ -1,49 +1,123 @@
 /*
-  Quiet reaction row inside .bb-note-content. Buttons stay visible at 0;
-  the numeric zero is hidden. Voted state is a localStorage hint only.
+  GitHub-style reaction row: a quiet smile trigger, a floating picker,
+  and chips only for emojis that already have a count or a local vote.
 */
 
 .bb-reactions {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  gap: 0.3rem 0.35rem;
   margin-top: 0.55rem;
 }
 
-.bb-rx {
+.bb-rx-row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.3rem;
+}
+
+.bb-rx-chips {
+  display: contents;
+}
+
+.bb-rx-add,
+.bb-rx-chip,
+.bb-rx-option {
+  margin: 0;
+  font: inherit;
+  line-height: 1;
+}
+
+.bb-rx-add {
   display: inline-flex;
   align-items: center;
-  gap: 0.22rem;
-  margin: 0;
-  padding: 0.05rem 0.4rem 0.08rem;
-  border: 1px solid color-mix(in srgb, var(--foreground) 14%, transparent);
+  justify-content: center;
+  width: 1.75rem;
+  height: 1.75rem;
+  padding: 0;
+  border: 1px solid color-mix(in srgb, var(--foreground) 16%, transparent);
   border-radius: 999px;
   background: transparent;
   color: color-mix(in srgb, var(--foreground) 46%, transparent);
-  font: inherit;
-  font-size: 0.78rem;
-  line-height: 1.35;
 }
 
-.bb-rx:hover:not([aria-disabled="true"]) {
+.bb-rx-add:hover,
+.bb-rx-add[aria-expanded="true"] {
   color: color-mix(in srgb, var(--foreground) 78%, transparent);
+  border-color: color-mix(in srgb, var(--foreground) 28%, transparent);
+  background: color-mix(in srgb, var(--foreground) 4%, transparent);
+}
+
+.bb-rx-smile {
+  display: block;
+  width: 1rem;
+  height: 1rem;
+}
+
+.bb-rx-picker {
+  position: fixed;
+  z-index: 80;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.1rem;
+  max-width: min(20rem, calc(100vw - 1rem));
+  padding: 0.28rem;
+  border: 1px solid color-mix(in srgb, var(--foreground) 14%, transparent);
+  border-radius: 999px;
+  background: var(--background);
+  box-shadow: 0 8px 24px color-mix(in srgb, var(--foreground) 12%, transparent);
+}
+
+.bb-rx-picker[hidden] {
+  display: none;
+}
+
+.bb-rx-option {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 2rem;
+  height: 2rem;
+  padding: 0;
+  border: 0;
+  border-radius: 999px;
+  background: transparent;
+  font-size: 1.05rem;
+}
+
+.bb-rx-option:hover,
+.bb-rx-option[aria-pressed="true"] {
+  background: color-mix(in srgb, var(--foreground) 8%, transparent);
+}
+
+.bb-rx-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.22rem;
+  padding: 0.05rem 0.42rem 0.08rem;
+  border: 1px solid color-mix(in srgb, var(--foreground) 14%, transparent);
+  border-radius: 999px;
+  background: transparent;
+  color: color-mix(in srgb, var(--foreground) 62%, transparent);
+  font-size: 0.78rem;
+}
+
+.bb-rx-chip:hover:not([aria-disabled="true"]) {
+  color: color-mix(in srgb, var(--foreground) 82%, transparent);
   border-color: color-mix(in srgb, var(--foreground) 24%, transparent);
 }
 
-.bb-rx[aria-pressed="true"] {
-  color: color-mix(in srgb, var(--foreground) 70%, transparent);
-  background: color-mix(in srgb, var(--foreground) 5%, transparent);
-  border-color: color-mix(in srgb, var(--foreground) 18%, transparent);
+.bb-rx-chip[aria-pressed="true"] {
+  color: color-mix(in srgb, var(--foreground) 78%, transparent);
+  background: color-mix(in srgb, var(--foreground) 6%, transparent);
+  border-color: color-mix(in srgb, var(--foreground) 20%, transparent);
   cursor: default;
 }
 
-.bb-rx[data-pending="1"] {
+.bb-rx-chip[data-pending="1"] {
   opacity: 0.65;
 }
 
 .bb-rx-emoji {
-  font-size: 0.85rem;
+  font-size: 0.9rem;
   line-height: 1;
 }
 
@@ -57,8 +131,8 @@
 }
 
 .bb-rx-status {
-  flex-basis: 100%;
   min-height: 0;
+  margin-top: 0.28rem;
   font-size: 0.72rem;
   line-height: 1.35;
   color: color-mix(in srgb, var(--foreground) 58%, transparent);

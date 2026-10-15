@@ -5,8 +5,8 @@ import {
   countsKey,
   dayBucket,
   dayKey,
+  canonicalReactionEmoji,
   hashIp,
-  isReactionEmoji,
   normalizePostId,
   parseCounts,
   secondsUntilNextWindow,
@@ -133,7 +133,8 @@ async function handlePost(
   const record = body as Record<string, unknown>;
   const postId =
     typeof record.postId === "string" ? normalizePostId(record.postId) : null;
-  if (!postId || !isReactionEmoji(record.emoji)) {
+  const emoji = canonicalReactionEmoji(record.emoji);
+  if (!postId || !emoji) {
     return json({ error: "bad_request" }, 400);
   }
 
@@ -162,7 +163,7 @@ async function handlePost(
   const counts = parseCounts(
     await deps.kv.get(countsKey(postId), { cacheTtl: READ_CACHE_TTL })
   );
-  counts[record.emoji] += 1;
+  counts[emoji] += 1;
 
   await deps.kv.put(countsKey(postId), JSON.stringify(counts));
   await deps.kv.put(currentWindow, "1", { expirationTtl: KV_MIN_TTL_SEC });

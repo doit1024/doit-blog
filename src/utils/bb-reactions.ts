@@ -1,13 +1,28 @@
-/** Fixed v1 set. Scheme A: clap and idea only. */
-export const REACTION_EMOJIS = ["👏", "💡"] as const;
+/** GitHub issue reactions, in picker order. */
+export const REACTION_EMOJIS = [
+  "👍",
+  "👎",
+  "😄",
+  "🎉",
+  "😕",
+  "❤️",
+  "🚀",
+  "👀",
+] as const;
 
 export type ReactionEmoji = (typeof REACTION_EMOJIS)[number];
 
 export type ReactionCounts = Record<ReactionEmoji, number>;
 
 const LABELS: Record<ReactionEmoji, string> = {
-  "👏": "鼓掌",
-  "💡": "灵感",
+  "👍": "点赞",
+  "👎": "反对",
+  "😄": "开心",
+  "🎉": "庆祝",
+  "😕": "困惑",
+  "❤️": "喜欢",
+  "🚀": "火箭",
+  "👀": "关注",
 };
 
 /** Notion page ids, with or without hyphens, become one KV key shape. */
@@ -27,13 +42,37 @@ export function isReactionEmoji(value: unknown): value is ReactionEmoji {
   return REACTION_EMOJIS.some(emoji => emoji === value);
 }
 
+/** Map a posted emoji onto the whitelist, including ❤ without the variation selector. */
+export function canonicalReactionEmoji(value: unknown): ReactionEmoji | null {
+  if (typeof value !== "string") return null;
+  if (isReactionEmoji(value)) return value;
+  const folded = value.trim().replace(/\uFE0F/g, "");
+  for (const emoji of REACTION_EMOJIS) {
+    if (emoji.replace(/\uFE0F/g, "") === folded) return emoji;
+  }
+  return null;
+}
+
+export function reactionLabel(emoji: ReactionEmoji): string {
+  return LABELS[emoji];
+}
+
 export function normalizePostId(id: string): string | null {
   const normalized = id.trim().replace(/-/g, "").toLowerCase();
   return POST_ID.test(normalized) ? normalized : null;
 }
 
 export function emptyCounts(): ReactionCounts {
-  return { "👏": 0, "💡": 0 };
+  return {
+    "👍": 0,
+    "👎": 0,
+    "😄": 0,
+    "🎉": 0,
+    "😕": 0,
+    "❤️": 0,
+    "🚀": 0,
+    "👀": 0,
+  };
 }
 
 export function parseCounts(raw: string | null): ReactionCounts {
