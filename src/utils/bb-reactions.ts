@@ -126,9 +126,10 @@ export function dayBucket(nowMs: number): string {
 export function windowKey(
   ipHash: string,
   postId: string,
+  emoji: ReactionEmoji,
   bucket: number
 ): string {
-  return `bb:rl:${ipHash}:${postId}:${bucket}`;
+  return `bb:rl:${ipHash}:${postId}:${emoji}:${bucket}`;
 }
 
 export function dayKey(ipHash: string, day: string): string {

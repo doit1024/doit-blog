@@ -122,26 +122,34 @@ export async function run() {
     "increment one emoji"
   );
 
-  const blocked = await post(`27063591-2071-80ab-0000-000000000001`, "👎", {
+  const otherEmoji = await post(POST_A, "😄", { kv, now: NOW + 1000 });
+  assertEqual(otherEmoji.status, 200, "same post, different emoji, same 10s");
+  assertEqual(
+    (await otherEmoji.json()).counts,
+    withCounts({ "👍": 1, "😄": 1 }),
+    "the other emoji increments"
+  );
+
+  const blocked = await post(`27063591-2071-80ab-0000-000000000001`, "👍", {
     kv,
     now: NOW + 1000,
   });
-  assertEqual(blocked.status, 429, "same post inside 10s is limited");
+  assertEqual(blocked.status, 429, "same emoji inside 10s is limited");
   assertEqual(
     JSON.parse((await kv.get(countsKey(POST_A))) ?? "{}"),
-    withCounts({ "👍": 1 }),
+    withCounts({ "👍": 1, "😄": 1 }),
     "rejected react does not increment"
   );
 
   const otherPost = await post(POST_B, "👍", { kv, now: NOW + 1000 });
   assertEqual(otherPost.status, 200, "another post is its own window");
 
-  const later = await post(POST_A, "👎", { kv, now: NOW + 10_000 });
-  assertEqual(later.status, 200, "next 10s window allows another react");
+  const later = await post(POST_A, "👍", { kv, now: NOW + 10_000 });
+  assertEqual(later.status, 200, "next 10s window allows the same emoji again");
   assertEqual(
     (await later.json()).counts,
-    withCounts({ "👍": 1, "👎": 1 }),
-    "second emoji"
+    withCounts({ "👍": 2, "😄": 1 }),
+    "second window"
   );
 
   const listed = await handleReactionsRequest(
@@ -162,7 +170,7 @@ export async function run() {
   const readBody = await read.json();
   assertEqual(
     readBody.reactions[POST_A],
-    withCounts({ "👍": 1, "👎": 1 }),
+    withCounts({ "👍": 2, "😄": 1 }),
     "stored counts"
   );
   assertEqual(
@@ -244,7 +252,7 @@ export async function run() {
   } as never);
   assertEqual(routed.status, 200, "route reads the KV binding");
 
-  const marker = windowKey(hash, POST_A, windowBucket(NOW));
+  const marker = windowKey(hash, POST_A, "👍", windowBucket(NOW));
   assert(
     kv.keys().every(key => !key.includes(IP)),
     "stored keys keep the hash, not the raw IP"

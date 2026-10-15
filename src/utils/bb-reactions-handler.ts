@@ -140,7 +140,7 @@ async function handlePost(
 
   const nowMs = deps.now();
   const ipHash = await hashIp(deps.ip, deps.pepper);
-  const currentWindow = windowKey(ipHash, postId, windowBucket(nowMs));
+  const currentWindow = windowKey(ipHash, postId, emoji, windowBucket(nowMs));
   const today = dayKey(ipHash, dayBucket(nowMs));
   const [windowHit, dayRaw] = await Promise.all([
     deps.kv.get(currentWindow, { cacheTtl: READ_CACHE_TTL }),

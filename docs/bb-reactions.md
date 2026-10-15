@@ -20,15 +20,15 @@
 | Key | Value |
 | --- | --- |
 | `bb:rx:{postId}` | `{"👍":3,"❤️":1}`，缺的 emoji 当 0 |
-| `bb:rl:{ipHash}:{postId}:{10s桶}` | `"1"`，TTL 60 秒（KV 不允许更短的 `expirationTtl`；10 秒窗口靠桶号，不靠 TTL） |
+| `bb:rl:{ipHash}:{postId}:{emoji}:{10s桶}` | `"1"`，TTL 60 秒（KV 不允许更短的 `expirationTtl`；10 秒窗口靠桶号，不靠 TTL） |
 | `bb:rl:day:{ipHash}:{UTC日期}` | 当天已通过的 POST 次数，TTL 48 小时 |
 
 `ipHash` 是 `SHA-256(CF-Connecting-IP + BB_RX_PEPPER)` 的前 16 位 hex。不保存原始 IP。读计数和限流标记时带 `cacheTtl: 60`（这份 Wrangler 拒绝更短的值；边缘上的下限后来降到了 30，60 两边都能用）。
 
 限流：
 
-- 同一 IP 哈希 + 同一帖：**10 秒内最多 1 次** POST（换 emoji 也算）
-- 同一 IP 哈希：**每个 UTC 日最多 60 次** 通过的 POST
+- 同一 IP 哈希 + 同一帖 + 同一个 emoji：**10 秒内最多 1 次** POST。换一个 emoji 是另一条窗口，可以马上加
+- 同一 IP 哈希：**每个 UTC 日最多 60 次** 通过的 POST（全站合计，不按 emoji 拆）
 - KV 没有原子自增。个人站偶发并发丢一次计数可以接受
 
 浏览器另外把 `bb:rx:voted:{postId}:{emoji}` 写进 `localStorage`。本浏览器投过的 emoji 会显示成已选 chip，再点不再 POST。清站点数据可以绕过；服务端限流仍然生效。旧的 👏 / 💡 计数不在这组白名单里，接口会当成未知 emoji 拒绝，也不会再显示。
@@ -87,7 +87,7 @@ node scripts/bb-reactions-check.mjs
 1. 打开 `/bb`。没有反应的卡片底部只有一个圆形笑脸，不铺空按钮。首屏画完后脚本请求 `GET /api/bb/reactions`。
 2. 点笑脸。面板展开（触发器 `aria-expanded="true"`），里面是 👍 👎 😄 🎉 😕 ❤️ 🚀 👀。点 👍 后面板关闭，笑脸右边出现实色的 `👍 1` chip，且 `aria-pressed="true"`。刷新后 chip 还在。
 3. 再点这个 chip：没有新的 POST（localStorage 软守卫）。
-4. 清掉该站的 localStorage 后，10 秒内再点同一帖的同一个 emoji：界面回到原数字，并提示「请稍后再试」。直接打接口则第二条是 429：
+4. 清掉该站的 localStorage 后，10 秒内对同一帖先点 👍 再点 😄：两个都应成功。10 秒内再点同一个 👍：界面回到原数字，并提示「请稍后再试」。直接打接口则同一 emoji 的第二条是 429：
 
 ```bash
 curl -sS -D - -X POST 'https://blog.doooit.me/api/bb/reactions' \
