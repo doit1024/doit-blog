@@ -1,6 +1,6 @@
 # 小声哔哔 `/bb`：静态构建与自动重建
 
-`/bb` 在 `astro build` 时拉取公开 Notion collection，把帖子 HTML 烘焙进部署产物。线上访问不再请求 Notion，也不再走 Cloudflare Worker SSR。
+`/bb` 在 `astro build` 时拉取公开 Notion collection，把帖子 HTML 烘焙进部署产物。线上访问不再请求 Notion，也不再走 Cloudflare Worker SSR。反应计数在 Cloudflare KV（`BB_REACTIONS`），不写 Notion，也不需要为了计数再重建，见 [docs/bb-reactions.md](./bb-reactions.md)。
 
 ## 构建时发生了什么
 

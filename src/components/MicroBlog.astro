@@ -1,6 +1,11 @@
 ---
 import { BbNotion } from "@/components/BbNotion";
 import { SITE } from "@/config";
+import {
+  REACTION_EMOJIS,
+  normalizePostId,
+  reactionAriaLabel,
+} from "@/utils/bb-reactions";
 import type { ExtendedRecordMap } from "notion-types";
 import dayjs from "dayjs";
 
@@ -23,12 +28,15 @@ const tags = tagString
       .filter(Boolean)
   : [];
 const canRender = Boolean(blockData?.block && pageBlock);
+const rawPostId = pageBlock?.value?.id;
+const postId =
+  typeof rawPostId === "string" ? normalizePostId(rawPostId) : null;
 
 const AVATAR_SRC =
   "https://d28ebb3.webp.li/2026/09/5d27c2acc859f631458467095bf22181.png";
 ---
 
-<article class="bb-note">
+<article class="bb-note" data-post-id={postId ?? undefined}>
   <img
     class="bb-avatar"
     src={AVATAR_SRC}
@@ -63,6 +71,28 @@ const AVATAR_SRC =
             <span>#{tag}</span>
           ))}
         </p>
+      )
+    }
+    {
+      postId && (
+        <div class="bb-reactions">
+          {REACTION_EMOJIS.map(emoji => (
+            <button
+              type="button"
+              class="bb-rx"
+              data-emoji={emoji}
+              aria-pressed="false"
+              aria-disabled="false"
+              aria-label={reactionAriaLabel(emoji, 0, false)}
+            >
+              <span class="bb-rx-emoji" aria-hidden="true">
+                {emoji}
+              </span>
+              <span class="bb-rx-count" data-count="0" />
+            </button>
+          ))}
+          <span class="bb-rx-status" role="status" aria-live="polite" />
+        </div>
       )
     }
   </div>
