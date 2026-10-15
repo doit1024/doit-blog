@@ -1,6 +1,6 @@
 # 小声哔哔 `/bb` 轻反应
 
-访客在每条 `.bb-note` 上用一个低调的笑脸按钮打开反应面板，从固定的 8 个 emoji 里选一个。只有计数大于 0，或这台浏览器已经投过的 emoji，才会变成旁边的 chip。计数只存在 Cloudflare KV 绑定 `BB_REACTIONS`，不写回 Notion，也**不会**因为一次点击去触发 Deploy Hook。`/bb` 仍然是 `prerender = true` 的静态页；数字在首屏之后由同源接口填上。
+访客在每条 `.bb-note` 上用一个低调的笑脸按钮打开反应面板，从固定的 8 个 emoji 里选一个。只有计数大于 0，或这台浏览器已经投过的 emoji，才会变成跟在笑脸后面的 chip。笑脸触发器始终排在最前。计数只存在 Cloudflare KV 绑定 `BB_REACTIONS`，不写回 Notion，也**不会**因为一次点击去触发 Deploy Hook。`/bb` 仍然是 `prerender = true` 的静态页；数字在首屏之后由同源接口填上。
 
 ## 请求
 
@@ -85,7 +85,7 @@ node scripts/bb-reactions-check.mjs
 浏览器（`pnpm dev` 或预览域名）：
 
 1. 打开 `/bb`。没有反应的卡片底部只有一个圆形笑脸，不铺空按钮。首屏画完后脚本请求 `GET /api/bb/reactions`。
-2. 点笑脸。面板展开（触发器 `aria-expanded="true"`），里面是 👍 👎 😄 🎉 😕 ❤️ 🚀 👀。点 👍 后面板关闭，旁边出现 `👍 1` chip，且 `aria-pressed="true"`。刷新后 chip 还在。
+2. 点笑脸。面板展开（触发器 `aria-expanded="true"`），里面是 👍 👎 😄 🎉 😕 ❤️ 🚀 👀。点 👍 后面板关闭，笑脸右边出现实色的 `👍 1` chip，且 `aria-pressed="true"`。刷新后 chip 还在。
 3. 再点这个 chip：没有新的 POST（localStorage 软守卫）。
 4. 清掉该站的 localStorage 后，10 秒内再点同一帖的同一个 emoji：界面回到原数字，并提示「请稍后再试」。直接打接口则第二条是 429：
 

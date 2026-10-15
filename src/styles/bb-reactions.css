@@ -91,39 +91,43 @@
 .bb-rx-chip {
   display: inline-flex;
   align-items: center;
-  gap: 0.22rem;
-  padding: 0.05rem 0.42rem 0.08rem;
-  border: 1px solid color-mix(in srgb, var(--foreground) 14%, transparent);
+  gap: 0.45rem;
+  box-sizing: border-box;
+  min-height: 2.35rem;
+  padding: 0.5rem 0.95rem;
+  border: 1px solid color-mix(in srgb, var(--foreground) 42%, var(--background));
   border-radius: 999px;
-  background: transparent;
-  color: color-mix(in srgb, var(--foreground) 62%, transparent);
-  font-size: 0.78rem;
+  background: color-mix(in srgb, var(--foreground) 8%, var(--background));
+  color: var(--foreground);
+  font-size: 0.85rem;
+  line-height: 1;
 }
 
 .bb-rx-chip:hover:not([aria-disabled="true"]) {
-  color: color-mix(in srgb, var(--foreground) 82%, transparent);
-  border-color: color-mix(in srgb, var(--foreground) 24%, transparent);
+  background: color-mix(in srgb, var(--foreground) 14%, var(--background));
+  border-color: color-mix(in srgb, var(--foreground) 58%, var(--background));
 }
 
 .bb-rx-chip[aria-pressed="true"] {
-  color: color-mix(in srgb, var(--foreground) 78%, transparent);
-  background: color-mix(in srgb, var(--foreground) 6%, transparent);
-  border-color: color-mix(in srgb, var(--foreground) 20%, transparent);
+  background: color-mix(in srgb, var(--accent) 16%, var(--background));
+  border-color: color-mix(in srgb, var(--accent) 72%, var(--background));
+  color: var(--foreground);
   cursor: default;
 }
 
-.bb-rx-chip[data-pending="1"] {
-  opacity: 0.65;
-}
-
 .bb-rx-emoji {
-  font-size: 0.9rem;
+  display: block;
+  padding: 0.12rem 0.16rem;
+  font-size: 1.05rem;
   line-height: 1;
 }
 
 .bb-rx-count {
+  padding-inline-end: 0.08rem;
+  color: var(--foreground);
   font-variant-numeric: tabular-nums;
-  font-size: 0.72rem;
+  font-size: 0.82rem;
+  font-weight: 600;
 }
 
 .bb-rx-count[data-count="0"] {
