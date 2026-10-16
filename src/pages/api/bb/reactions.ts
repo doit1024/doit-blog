@@ -26,7 +26,9 @@ function isKv(value: unknown): value is ReactionsKv {
   if (!value || typeof value !== "object") return false;
   const candidate = value as ReactionsKv;
   return (
-    typeof candidate.get === "function" && typeof candidate.put === "function"
+    typeof candidate.get === "function" &&
+    typeof candidate.put === "function" &&
+    typeof candidate.delete === "function"
   );
 }
 

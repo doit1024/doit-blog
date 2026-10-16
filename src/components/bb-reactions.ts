@@ -22,6 +22,7 @@ let activeTrigger: HTMLButtonElement | null = null;
 
 const countsByNote = new WeakMap<HTMLElement, ReactionCounts>();
 const pendingByNote = new WeakMap<HTMLElement, Set<ReactionEmoji>>();
+const votedByNote = new WeakMap<HTMLElement, Set<ReactionEmoji>>();
 
 function readVoted(postId: string, emoji: ReactionEmoji): boolean {
   try {
@@ -35,7 +36,43 @@ function writeVoted(postId: string, emoji: ReactionEmoji) {
   try {
     localStorage.setItem(votedStorageKey(postId, emoji), "1");
   } catch {
-    // Private mode still has the server rate limit.
+    // Private mode still has the server marker.
+  }
+}
+
+function clearVoted(postId: string, emoji: ReactionEmoji) {
+  try {
+    localStorage.removeItem(votedStorageKey(postId, emoji));
+  } catch {
+    // The next GET still replaces this cache.
+  }
+}
+
+/** In-memory votes. localStorage only seeds the first paint; the server wins later. */
+function votedFor(note: HTMLElement): Set<ReactionEmoji> {
+  let voted = votedByNote.get(note);
+  if (!voted) {
+    voted = new Set();
+    const postId = postIdOf(note);
+    if (postId) {
+      for (const emoji of REACTION_EMOJIS) {
+        if (readVoted(postId, emoji)) voted.add(emoji);
+      }
+    }
+    votedByNote.set(note, voted);
+  }
+  return voted;
+}
+
+function setVoted(note: HTMLElement, emoji: ReactionEmoji, voted: boolean) {
+  const postId = postIdOf(note);
+  const set = votedFor(note);
+  if (voted) {
+    set.add(emoji);
+    if (postId) writeVoted(postId, emoji);
+  } else {
+    set.delete(emoji);
+    if (postId) clearVoted(postId, emoji);
   }
 }
 
@@ -120,7 +157,6 @@ function updateChip(
     span.setAttribute("data-count", String(safe));
   }
   button.setAttribute("aria-pressed", voted ? "true" : "false");
-  button.setAttribute("aria-disabled", voted ? "true" : "false");
   button.setAttribute("aria-label", reactionAriaLabel(emoji, safe, voted));
   if (pending) button.dataset.pending = "1";
   else delete button.dataset.pending;
@@ -137,7 +173,7 @@ function syncChips(note: HTMLElement) {
 
   for (const emoji of REACTION_EMOJIS) {
     const count = counts[emoji];
-    const voted = readVoted(postId, emoji);
+    const voted = votedFor(note).has(emoji);
     const existing = chipFor(host, emoji);
     if (count <= 0 && !voted && !pending.has(emoji)) {
       existing?.remove();
@@ -174,6 +210,26 @@ function applyServerCounts(note: HTMLElement, raw: unknown) {
   syncChips(note);
 }
 
+function mineList(value: unknown): ReactionEmoji[] {
+  if (!Array.isArray(value)) return [];
+  const list: ReactionEmoji[] = [];
+  for (const item of value) {
+    const emoji = canonicalReactionEmoji(item);
+    if (emoji && !list.includes(emoji)) list.push(emoji);
+  }
+  return list;
+}
+
+function applyServerMine(note: HTMLElement, emojis: readonly ReactionEmoji[]) {
+  const pending = pendingFor(note);
+  const next = new Set(emojis);
+  for (const emoji of REACTION_EMOJIS) {
+    if (pending.has(emoji)) continue;
+    setVoted(note, emoji, next.has(emoji));
+  }
+  syncChips(note);
+}
+
 function ensurePicker(): HTMLElement {
   if (picker?.isConnected) return picker;
   const el = document.createElement("div");
@@ -199,12 +255,19 @@ function ensurePicker(): HTMLElement {
 function markPickerVotes(note: HTMLElement) {
   const el = ensurePicker();
   const postId = postIdOf(note);
+  const voted = votedFor(note);
   el.querySelectorAll<HTMLButtonElement>(".bb-rx-option").forEach(button => {
     const emoji = button.dataset.emoji;
-    const voted = Boolean(
-      postId && isReactionEmoji(emoji) && readVoted(postId, emoji)
+    const pressed = Boolean(
+      postId && isReactionEmoji(emoji) && voted.has(emoji)
     );
-    button.setAttribute("aria-pressed", voted ? "true" : "false");
+    button.setAttribute("aria-pressed", pressed ? "true" : "false");
+    if (isReactionEmoji(emoji)) {
+      button.setAttribute(
+        "aria-label",
+        pressed ? `已${reactionLabel(emoji)}，再点取消` : reactionLabel(emoji)
+      );
+    }
   });
 }
 
@@ -261,21 +324,20 @@ async function react(note: HTMLElement, emoji: ReactionEmoji) {
   const postId = postIdOf(note);
   if (!postId) return;
   closePicker(false);
-  if (readVoted(postId, emoji)) {
-    syncChips(note);
-    return;
-  }
   const pending = pendingFor(note);
   if (pending.has(emoji)) return;
 
+  const removing = votedFor(note).has(emoji);
   const counts = countsFor(note);
   const previous = counts[emoji];
   pending.add(emoji);
-  counts[emoji] = previous + 1;
+  counts[emoji] = removing ? Math.max(0, previous - 1) : previous + 1;
+  setVoted(note, emoji, !removing);
   note.dataset.bbRxLocal = "1";
   setStatus(note, "");
   syncChips(note);
 
+  let focusAfter = false;
   try {
     const response = await fetch("/api/bb/reactions", {
       method: "POST",
@@ -283,39 +345,55 @@ async function react(note: HTMLElement, emoji: ReactionEmoji) {
         "content-type": "application/json",
         accept: "application/json",
       },
-      body: JSON.stringify({ postId, emoji }),
+      body: JSON.stringify({
+        postId,
+        emoji,
+        action: removing ? "remove" : "add",
+      }),
     });
+
+    let data: { counts?: unknown; voted?: unknown } | null = null;
+    try {
+      data = (await response.json()) as { counts?: unknown; voted?: unknown };
+    } catch {
+      data = null;
+    }
 
     pending.delete(emoji);
     if (response.ok) {
-      let serverCounts: unknown;
-      try {
-        const data = (await response.json()) as { counts?: unknown };
-        serverCounts = data.counts;
-      } catch {
-        serverCounts = undefined;
-      }
-      writeVoted(postId, emoji);
-      if (serverCounts) applyServerCounts(note, serverCounts);
-      else syncChips(note);
+      if (typeof data?.voted === "boolean") setVoted(note, emoji, data.voted);
+      if (data?.counts) applyServerCounts(note, data.counts);
       setStatus(note, "");
-      chipFor(chipsHost(note) ?? note, emoji)?.focus();
+      focusAfter = true;
       return;
     }
 
     counts[emoji] = previous;
+    setVoted(note, emoji, removing);
+    if (response.status === 409 && data) {
+      if (typeof data.voted === "boolean") setVoted(note, emoji, data.voted);
+      if (data.counts) applyServerCounts(note, data.counts);
+      setStatus(note, "");
+      return;
+    }
+
     note.dataset.bbRxLocal = "0";
-    syncChips(note);
     setStatus(
       note,
       response.status === 429 ? "请稍后再试" : "没有记上，请再试一次"
     );
   } catch {
-    pending.delete(emoji);
     counts[emoji] = previous;
+    setVoted(note, emoji, removing);
     note.dataset.bbRxLocal = "0";
-    syncChips(note);
     setStatus(note, "网络异常，请再试一次");
+  } finally {
+    pending.delete(emoji);
+    syncChips(note);
+    if (focusAfter) {
+      const chip = chipFor(chipsHost(note) ?? note, emoji);
+      (chip ?? note.querySelector<HTMLButtonElement>(".bb-rx-add"))?.focus();
+    }
   }
 }
 
@@ -336,13 +414,21 @@ async function hydrate(root: ParentNode) {
         { headers: { accept: "application/json" } }
       );
       if (!response.ok) continue;
-      const data = (await response.json()) as { reactions?: unknown };
+      const data = (await response.json()) as {
+        reactions?: unknown;
+        mine?: unknown;
+      };
       if (!data.reactions || typeof data.reactions !== "object") continue;
       const reactions = data.reactions as Record<string, unknown>;
+      const mine =
+        data.mine && typeof data.mine === "object"
+          ? (data.mine as Record<string, unknown>)
+          : null;
       for (const item of notes) {
         if (!batch.includes(item.postId)) continue;
         if (item.note.dataset.bbRxLocal === "1") continue;
         applyServerCounts(item.note, reactions[item.postId]);
+        if (mine) applyServerMine(item.note, mineList(mine[item.postId]));
       }
     } catch {
       // The note stays readable. Chips stay at whatever we already showed.

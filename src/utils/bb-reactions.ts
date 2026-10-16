@@ -1,7 +1,6 @@
-/** GitHub issue reactions, in picker order. */
+/** GitHub issue reactions, in picker order. 👎 is retired and no longer accepted. */
 export const REACTION_EMOJIS = [
   "👍",
-  "👎",
   "😄",
   "🎉",
   "😕",
@@ -12,11 +11,12 @@ export const REACTION_EMOJIS = [
 
 export type ReactionEmoji = (typeof REACTION_EMOJIS)[number];
 
+export type ReactionAction = "add" | "remove";
+
 export type ReactionCounts = Record<ReactionEmoji, number>;
 
 const LABELS: Record<ReactionEmoji, string> = {
   "👍": "点赞",
-  "👎": "反对",
   "😄": "开心",
   "🎉": "庆祝",
   "😕": "困惑",
@@ -42,6 +42,12 @@ export function isReactionEmoji(value: unknown): value is ReactionEmoji {
   return REACTION_EMOJIS.some(emoji => emoji === value);
 }
 
+/** Missing `action` stays `undefined` so the handler can default it to add. */
+export function reactionAction(value: unknown): ReactionAction | null {
+  if (value === "add" || value === "remove") return value;
+  return null;
+}
+
 /** Map a posted emoji onto the whitelist, including ❤ without the variation selector. */
 export function canonicalReactionEmoji(value: unknown): ReactionEmoji | null {
   if (typeof value !== "string") return null;
@@ -65,7 +71,6 @@ export function normalizePostId(id: string): string | null {
 export function emptyCounts(): ReactionCounts {
   return {
     "👍": 0,
-    "👎": 0,
     "😄": 0,
     "🎉": 0,
     "😕": 0,
@@ -102,7 +107,7 @@ export function reactionAriaLabel(
   count: number,
   voted: boolean
 ): string {
-  const name = voted ? `已${LABELS[emoji]}` : LABELS[emoji];
+  const name = voted ? `已${LABELS[emoji]}，再点取消` : LABELS[emoji];
   return `${name}，当前 ${count}`;
 }
 
@@ -112,6 +117,15 @@ export function votedStorageKey(postId: string, emoji: ReactionEmoji): string {
 
 export function countsKey(postId: string): string {
   return `bb:rx:${postId}`;
+}
+
+/** One marker per visitor, post, and emoji. Presence means this ipHash has voted. */
+export function mineKey(
+  ipHash: string,
+  postId: string,
+  emoji: ReactionEmoji
+): string {
+  return `bb:mine:${ipHash}:${postId}:${emoji}`;
 }
 
 export function windowBucket(nowMs: number): number {
