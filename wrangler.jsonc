@@ -6,5 +6,12 @@
   "assets": {
     "binding": "ASSETS",
     "directory": "./dist"
-  }
+  },
+  "kv_namespaces": [
+    {
+      "binding": "BB_REACTIONS",
+      "id": "2878a796b33d4e8b8d1f6566439b8433",
+      "preview_id": "545a4d74c7b54be8adfa3ee40f2d7fd9"
+    }
+  ]
 }

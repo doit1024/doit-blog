@@ -1,6 +1,7 @@
 ---
 import { BbNotion } from "@/components/BbNotion";
 import { SITE } from "@/config";
+import { normalizePostId } from "@/utils/bb-reactions";
 import type { ExtendedRecordMap } from "notion-types";
 import dayjs from "dayjs";
 
@@ -23,12 +24,15 @@ const tags = tagString
       .filter(Boolean)
   : [];
 const canRender = Boolean(blockData?.block && pageBlock);
+const rawPostId = pageBlock?.value?.id;
+const postId =
+  typeof rawPostId === "string" ? normalizePostId(rawPostId) : null;
 
 const AVATAR_SRC =
   "https://d28ebb3.webp.li/2026/09/5d27c2acc859f631458467095bf22181.png";
 ---
 
-<article class="bb-note">
+<article class="bb-note" data-post-id={postId ?? undefined}>
   <img
     class="bb-avatar"
     src={AVATAR_SRC}
@@ -63,6 +67,50 @@ const AVATAR_SRC =
             <span>#{tag}</span>
           ))}
         </p>
+      )
+    }
+    {
+      postId && (
+        <div class="bb-reactions">
+          <div class="bb-rx-row">
+            <button
+              type="button"
+              class="bb-rx-add"
+              aria-haspopup="true"
+              aria-expanded="false"
+              aria-label="添加反应"
+            >
+              <svg
+                class="bb-rx-smile"
+                viewBox="0 0 16 16"
+                aria-hidden="true"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="1.25"
+                stroke-linecap="round"
+              >
+                <circle cx="8" cy="8" r="6.25" />
+                <circle
+                  cx="6"
+                  cy="6.6"
+                  r="0.55"
+                  fill="currentColor"
+                  stroke="none"
+                />
+                <circle
+                  cx="10"
+                  cy="6.6"
+                  r="0.55"
+                  fill="currentColor"
+                  stroke="none"
+                />
+                <path d="M5.35 9.25c.7 1.15 1.55 1.7 2.65 1.7s1.95-.55 2.65-1.7" />
+              </svg>
+            </button>
+            <div class="bb-rx-chips" />
+          </div>
+          <span class="bb-rx-status" role="status" aria-live="polite" />
+        </div>
       )
     }
   </div>
