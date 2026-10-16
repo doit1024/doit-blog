@@ -49,8 +49,8 @@
 
 .bb-rx-smile {
   display: block;
-  width: 1rem;
-  height: 1rem;
+  width: 22px;
+  height: 22px;
 }
 
 .bb-rx-picker {
@@ -96,40 +96,29 @@
   box-sizing: border-box;
   height: 28px;
   padding: 0 0.6rem;
-  border: 1px solid color-mix(in srgb, #222e36 28%, #fff);
+  border: 1px solid color-mix(in srgb, var(--foreground) 42%, var(--background));
   border-radius: 999px;
-  background: #fff;
-  color: #222e36;
+  background: transparent;
+  color: var(--foreground);
   font-size: 0.8125rem;
   line-height: 1;
 }
 
-html[data-theme="dark"] .bb-rx-chip {
-  border-color: color-mix(in srgb, #222e36 18%, #fffdfd);
-  background: #fffdfd;
-  color: #222e36;
-}
-
 .bb-rx-chip:hover:not([aria-disabled="true"]) {
-  background: #fff;
-  border-color: color-mix(in srgb, #222e36 55%, #fff);
-}
-
-html[data-theme="dark"] .bb-rx-chip:hover:not([aria-disabled="true"]) {
-  background: #fffdfd;
-  border-color: color-mix(in srgb, #222e36 40%, #fffdfd);
+  background: transparent;
+  border-color: color-mix(in srgb, var(--foreground) 70%, var(--background));
 }
 
 .bb-rx-chip[aria-pressed="true"] {
-  background: color-mix(in srgb, var(--accent) 14%, #fff);
-  border-color: color-mix(in srgb, var(--accent) 55%, #fff);
-  color: #222e36;
+  background: transparent;
+  border-color: color-mix(in srgb, var(--accent) 72%, var(--background));
+  color: var(--foreground);
   cursor: default;
 }
 
 .bb-rx-emoji {
   display: block;
-  font-size: 16px;
+  font-size: 14px;
   line-height: 1;
 }
 
