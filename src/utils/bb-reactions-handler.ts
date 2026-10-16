@@ -2,17 +2,21 @@ import {
   DAILY_LIMIT,
   KV_MIN_TTL_SEC,
   MAX_REACTION_IDS,
+  REACTION_EMOJIS,
   countsKey,
   dayBucket,
   dayKey,
   canonicalReactionEmoji,
   hashIp,
+  mineKey,
   normalizePostId,
   parseCounts,
+  reactionAction,
   secondsUntilNextWindow,
   windowBucket,
   windowKey,
   type ReactionCounts,
+  type ReactionEmoji,
 } from "@/utils/bb-reactions";
 
 /** Public fallback so preview still runs before the secret exists. Set BB_RX_PEPPER in production. */
@@ -30,6 +34,7 @@ export interface ReactionsKv {
     value: string,
     options?: { expirationTtl?: number }
   ): Promise<void>;
+  delete(key: string): Promise<unknown>;
 }
 
 export function resolvePepper(secret: string | undefined): string {
@@ -59,20 +64,31 @@ export async function handleReactionsRequest(
     return json({ error: "reactions_unavailable" }, 500);
   }
 
+  const ip = options.ip ?? clientIp(request);
+
   try {
-    if (method === "GET") return await handleGet(request, options.kv);
+    if (method === "GET") {
+      return await handleGet(request, {
+        kv: options.kv,
+        pepper: options.pepper,
+        ip,
+      });
+    }
     return await handlePost(request, {
       kv: options.kv,
       pepper: options.pepper,
       now: options.now ?? (() => Date.now()),
-      ip: options.ip ?? clientIp(request),
+      ip,
     });
   } catch {
     return json({ error: "reactions_unavailable" }, 500);
   }
 }
 
-async function handleGet(request: Request, kv: ReactionsKv): Promise<Response> {
+async function handleGet(
+  request: Request,
+  deps: { kv: ReactionsKv; pepper: string; ip: string }
+): Promise<Response> {
   const raw = new URL(request.url).searchParams.get("ids");
   if (!raw?.trim()) return json({ error: "bad_request" }, 400);
 
@@ -91,16 +107,23 @@ async function handleGet(request: Request, kv: ReactionsKv): Promise<Response> {
     if (!ids.includes(id)) ids.push(id);
   }
 
+  const ipHash = await hashIp(deps.ip, deps.pepper);
   const reactions: Record<string, ReactionCounts> = {};
+  const mine: Record<string, ReactionEmoji[]> = {};
   await Promise.all(
     ids.map(async id => {
-      reactions[id] = parseCounts(
-        await kv.get(countsKey(id), { cacheTtl: READ_CACHE_TTL })
-      );
+      const [raw, ...flags] = await Promise.all([
+        deps.kv.get(countsKey(id), { cacheTtl: READ_CACHE_TTL }),
+        ...REACTION_EMOJIS.map(emoji =>
+          deps.kv.get(mineKey(ipHash, id, emoji), { cacheTtl: READ_CACHE_TTL })
+        ),
+      ]);
+      reactions[id] = parseCounts(raw);
+      mine[id] = REACTION_EMOJIS.filter((_, index) => flags[index] !== null);
     })
   );
 
-  return json({ reactions }, 200);
+  return json({ reactions, mine }, 200);
 }
 
 async function handlePost(
@@ -134,20 +157,37 @@ async function handlePost(
   const postId =
     typeof record.postId === "string" ? normalizePostId(record.postId) : null;
   const emoji = canonicalReactionEmoji(record.emoji);
-  if (!postId || !emoji) {
+  const action = reactionAction(
+    record.action === undefined ? "add" : record.action
+  );
+  if (!postId || !emoji || !action) {
     return json({ error: "bad_request" }, 400);
   }
 
   const nowMs = deps.now();
   const ipHash = await hashIp(deps.ip, deps.pepper);
+  const votedKey = mineKey(ipHash, postId, emoji);
   const currentWindow = windowKey(ipHash, postId, emoji, windowBucket(nowMs));
   const today = dayKey(ipHash, dayBucket(nowMs));
-  const [windowHit, dayRaw] = await Promise.all([
+  const countsStorageKey = countsKey(postId);
+  const [windowHit, dayRaw, mineHit, countsRaw] = await Promise.all([
     deps.kv.get(currentWindow, { cacheTtl: READ_CACHE_TTL }),
     deps.kv.get(today, { cacheTtl: READ_CACHE_TTL }),
+    deps.kv.get(votedKey, { cacheTtl: READ_CACHE_TTL }),
+    deps.kv.get(countsStorageKey, { cacheTtl: READ_CACHE_TTL }),
   ]);
 
-  if (windowHit !== null) {
+  const already = mineHit !== null;
+  if (action === "add" && already) {
+    return conflict("already_reacted", postId, emoji, true, countsRaw);
+  }
+  if (action === "remove" && !already) {
+    return conflict("not_reacted", postId, emoji, false, countsRaw);
+  }
+
+  // The 10s bucket only blocks another add. Remove clears it so an immediate
+  // re-add is not stuck behind the marker this request is undoing.
+  if (action === "add" && windowHit !== null) {
     return json({ error: "rate_limited" }, 429, {
       "retry-after": String(secondsUntilNextWindow(nowMs)),
     });
@@ -160,18 +200,56 @@ async function handlePost(
     });
   }
 
-  const counts = parseCounts(
-    await deps.kv.get(countsKey(postId), { cacheTtl: READ_CACHE_TTL })
-  );
-  counts[emoji] += 1;
+  const counts = parseCounts(countsRaw);
+  if (action === "add") counts[emoji] += 1;
+  else counts[emoji] = Math.max(0, counts[emoji] - 1);
 
-  await deps.kv.put(countsKey(postId), JSON.stringify(counts));
-  await deps.kv.put(currentWindow, "1", { expirationTtl: KV_MIN_TTL_SEC });
+  // Claim or release the marker before the count write so a retry cannot
+  // apply the same add or remove twice. A crash in between drops one update.
+  if (action === "add") await deps.kv.put(votedKey, "1");
+  else await deps.kv.delete(votedKey);
+
+  await deps.kv.put(countsStorageKey, preserveCounts(countsRaw, counts));
+  if (action === "add") {
+    await deps.kv.put(currentWindow, "1", { expirationTtl: KV_MIN_TTL_SEC });
+  } else {
+    await deps.kv.delete(currentWindow);
+  }
   await deps.kv.put(today, String(dayCount + 1), {
     expirationTtl: DAY_TTL_SEC,
   });
 
-  return json({ postId, counts }, 200);
+  return json({ postId, emoji, action, voted: action === "add", counts }, 200);
+}
+
+function conflict(
+  error: "already_reacted" | "not_reacted",
+  postId: string,
+  emoji: ReactionEmoji,
+  voted: boolean,
+  countsRaw: string | null
+): Response {
+  return json(
+    { error, postId, emoji, voted, counts: parseCounts(countsRaw) },
+    409
+  );
+}
+
+/** Keep non-whitelist keys (retired 👎 counts) in KV, but never read them back. */
+function preserveCounts(raw: string | null, counts: ReactionCounts): string {
+  let preserved: Record<string, unknown> = {};
+  if (raw) {
+    try {
+      const parsed = JSON.parse(raw) as unknown;
+      if (parsed && typeof parsed === "object" && !Array.isArray(parsed)) {
+        preserved = { ...(parsed as Record<string, unknown>) };
+      }
+    } catch {
+      preserved = {};
+    }
+  }
+  for (const emoji of REACTION_EMOJIS) preserved[emoji] = counts[emoji];
+  return JSON.stringify(preserved);
 }
 
 function parseDayCount(raw: string | null): number {

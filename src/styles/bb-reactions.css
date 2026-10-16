@@ -1,6 +1,6 @@
 /*
   GitHub-style reaction row: a quiet smile trigger, a floating picker,
-  and chips only for emojis that already have a count or a local vote.
+  and chips only for emojis that already have a count or this visitor's vote.
 */
 
 .bb-reactions {
@@ -109,11 +109,11 @@
   border-color: color-mix(in srgb, var(--foreground) 70%, var(--background));
 }
 
-.bb-rx-chip[aria-pressed="true"] {
+.bb-rx-chip[aria-pressed="true"],
+.bb-rx-chip[aria-pressed="true"]:hover {
   background: transparent;
   border-color: color-mix(in srgb, var(--accent) 72%, var(--background));
   color: var(--foreground);
-  cursor: default;
 }
 
 .bb-rx-emoji {
