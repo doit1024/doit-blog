@@ -4,6 +4,11 @@ import { SITE } from "@/config";
 import { normalizePostId } from "@/utils/bb-reactions";
 import type { ExtendedRecordMap } from "notion-types";
 import dayjs from "dayjs";
+import utc from "dayjs/plugin/utc";
+import timezone from "dayjs/plugin/timezone";
+
+dayjs.extend(utc);
+dayjs.extend(timezone);
 
 export interface Props {
   blockData: ExtendedRecordMap;
@@ -16,6 +21,7 @@ const pageBlock = blockData?.block
   : undefined;
 
 const createdTime = pageBlock?.value?.created_time;
+const created = createdTime ? dayjs(createdTime).tz(SITE.timezone) : null;
 const tagString = pageBlock?.value?.properties?.rRiX?.[0]?.[0] ?? "";
 const tags = tagString
   ? tagString
@@ -46,9 +52,9 @@ const AVATAR_SRC =
     <header class="bb-note-meta">
       <span class="bb-note-name">{SITE.author}</span>
       {
-        createdTime ? (
-          <time datetime={dayjs(createdTime).toISOString()}>
-            {dayjs(createdTime).format("YYYY-MM-DD HH:mm:ss")}
+        created ? (
+          <time datetime={created.toISOString()}>
+            {created.format("YYYY-MM-DD HH:mm:ss")}
           </time>
         ) : null
       }
